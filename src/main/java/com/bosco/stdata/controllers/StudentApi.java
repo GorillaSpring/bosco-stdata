@@ -3,6 +3,7 @@ package com.bosco.stdata.controllers;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bosco.stdata.repo.ImportRepo;
+import com.bosco.stdata.tasks.ImportTask;
 
 import java.util.List;
 
@@ -17,6 +18,9 @@ import com.bosco.stdata.model.*;
 public class StudentApi {
     @Autowired
     ImportRepo importRepo;
+
+    @Autowired 
+    ImportTask importTask;
 
     @GetMapping("getStudentsTest")
     public List<BoscoStudent> getStudentsTest() {
@@ -46,6 +50,48 @@ public class StudentApi {
 
         return mapsForStudent;
     }
+    
+
+    @GetMapping("/student/studentDataRegister")
+    public String studentDataRegister(@RequestParam("id") String id) {
+
+
+        System.out.println("Param: " + id);
+        // id will be 66.838101615
+        String [] params = id.split("\\.");
+
+        //var x = params[0];
+
+        System.out.println("District: " + params[0] + "  - Student : " + params[1]);
+
+        int districId = Integer.parseInt(params[0]);
+
+        List<TestMap> mapsForStudent = importRepo.studentMapsGetForStudent(districId, params[1]);
+
+        return "Registered";
+    }
+    
+    @GetMapping("/student/studentDataUnRegister")
+    public String studentDataUnRegister(@RequestParam("id") String id) {
+
+
+        System.out.println("Param: " + id);
+        // id will be 66.838101615
+        String [] params = id.split("\\.");
+
+        //var x = params[0];
+
+        System.out.println("District: " + params[0] + "  - Student : " + params[1]);
+
+        int districId = Integer.parseInt(params[0]);
+
+        List<TestMap> mapsForStudent = importRepo.studentMapsGetForStudent(districId, params[1]);
+
+        return "Unregistered";
+    }
+    
+    
+
     
     
 
