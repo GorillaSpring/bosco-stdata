@@ -1,0 +1,340 @@
+package com.bosco.stdata.distictImports;
+
+import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.bosco.stdata.model.*;
+import com.bosco.stdata.repo.ImportRepo;
+import com.bosco.stdata.service.BoscoApi;
+import com.bosco.stdata.service.UserFileService;
+import com.bosco.stdata.utils.ImportHelper;
+
+import jakarta.annotation.PostConstruct;
+
+@Component
+public class TestFiles {
+
+    @Autowired
+    ImportRepo importRepo;
+
+    @Autowired 
+    BoscoApi boscoApi;
+    
+
+    private static TestFiles i;  // instance
+
+    @PostConstruct
+    public void init() {
+        System.out.println("TestFiles - init()");
+        i = this;
+    }
+
+
+    public static ImportResult Import(String importDefId) {
+
+        ImportResult result = new ImportResult();
+
+        try {
+
+            ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
+
+            int baseImportId = importDef.getBaseImportId();
+
+            List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
+
+            int districtId = importDef.getDistrictId();
+            int importId = i.importRepo.prepImport(districtId, "Import for " + importDefId);
+
+            result.importId = importId;
+            result.districtId = districtId;
+            result.baseImportId = baseImportId;
+            
+		    //String baseFileFolder = "C:/test/uplift/" + subFolder + "/";
+            String baseFileFolder = ImportHelper.ValueForSetting(importSettings, "baseFolder");
+
+            String archiveFolder =  ImportHelper.ValueForSetting(importSettings, "archiveFolder");
+
+
+            // Before we start, lets make sure there are files in the baseFolder
+
+            // TODO: lets do for the list of expected files;
+            Path filePath = Paths.get(baseFileFolder + "schools.csv");
+            if (!Files.exists(filePath)) {
+                throw new FileNotFoundException("Import File not found : " + filePath);
+            }
+
+            
+        
+
+
+            LocalDateTime startDateTime = LocalDateTime.now();
+            
+            System.out.println("Import Id is : " + importId + " For District " + districtId);
+
+		    UserFileService msp = new UserFileService();
+
+            System.out.println("Importing schools File");
+
+            List<String[]> data = msp.readCsvFile( baseFileFolder + "schools.csv");
+
+            int counter1 = 0;
+
+            String[] fr = data.removeFirst();
+
+          
+            for (String [] row : data) {
+                if (!row[0].isBlank()) 
+                {
+                    i.importRepo.saveSchool(row[0], row[1]);
+                    counter1++;
+                }
+
+            }
+
+
+            i.importRepo.logInfo("Imported Schools : " + counter1);
+
+            System.out.println("Importing Students File");
+
+            data = msp.readCsvFile( baseFileFolder + "students.csv");
+
+
+            // studentId                        0
+            // studentNumber                    1
+            // lastname                         2
+            // firstname                        3
+            // dob                              4
+            // gender                           5
+            // schoolcode                       6
+            // gradecode                        7
+
+
+
+            fr = data.removeFirst();
+            counter1 = 0;
+
+            //data.forEach(row -> {
+            for (String [] row : data) {
+                if (!row[0].isBlank()) 
+                {
+
+               
+                    Student s = new Student(row[0], row[1], row[3], row[2], row[7], row[6]);
+                    Demographics d = new Demographics(row[0], row[4], row[5], false, false, false, false, false, false);
+                   //Guardian g = new Guardian("Guardian_" + row[0], row[0],  row[10], row[11], row[12], row[9]);
+
+                    i.importRepo.saveStudent(s);
+                    i.importRepo.saveStudentDemographics(d);
+
+                    // 504
+                    // if (row[7] == "Yes")
+                    //     importRepo.saveStudentProperty(row[0], "is504", "1");
+
+                    // // isEsl
+                    // if (row[8] == "Yes")
+                    //     importRepo.saveStudentProperty(row[0], "isEsl", "1");
+
+                    // importRepo.saveGuardian(g);
+
+                    counter1++;
+                }
+            };
+
+            i.importRepo.logInfo("Imported Students : " + counter1);
+
+
+
+
+            System.out.println("Importing teachers File");
+
+            data = msp.readCsvFile( baseFileFolder + "teachers.csv");
+
+
+            fr = data.removeFirst();
+
+
+            // teacherSourceId       0
+            // teacherId            1
+            // lastname             2
+            // firstname            3
+            // email                4
+
+
+            counter1 = 0;
+            //data.forEach(row -> {
+            for (String [] row : data) {
+                if (!row[0].isBlank()) 
+                {
+           
+                    // sourceid, teacherId, firstname, lastname,  email
+                    Teacher t = new Teacher(row[0], row[1],  row[3], row[2], row[4]);
+                    i.importRepo.saveTeacher(t);
+                    counter1++;
+                }
+        
+            
+            };
+
+            i.importRepo.logInfo("Imported Teachers : " + counter1);
+
+
+
+               System.out.println("Importing guardian File");
+
+            data = msp.readCsvFile( baseFileFolder + "guardians.csv");
+
+
+            fr = data.removeFirst();
+
+
+            // sourceId     0
+            // studentId    1
+            // guardianId   2
+            // type         3
+            // lastname     4
+            // firstname    5
+            // email        6
+
+
+            counter1 = 0;
+            //data.forEach(row -> {
+            for (String [] row : data) {
+                if (!row[0].isBlank()) 
+                {
+
+                    // So for guardians, we may not have a unique source id in the spreadsheet.
+                    // We don't actually need it.
+                
+                    //  sourceId, guardianId,  studentId,  firstName,  lastName,  email, type
+                    Guardian g = new Guardian(row[0], row[2], row[1],  row[5], row[4], row[6], row[3]);
+                    i.importRepo.saveGuardian(g);
+                    counter1++;
+                }
+            
+            };
+
+            i.importRepo.logInfo("Imported Guardians : " + counter1);
+
+
+            System.out.println("Importing teacherenrollments File");
+
+            data = msp.readCsvFile( baseFileFolder + "teacherenrollments.csv");
+
+            // teacherId
+            // classId
+
+            fr = data.removeFirst();
+            counter1 = 0;
+
+            //data.forEach(row -> {
+            for (String [] row : data) {
+                if (!row[0].isBlank()) 
+                {
+
+                    i.importRepo.saveTeacherClass(row[0], row[1]);
+                    counter1++;
+
+                }
+
+            
+            };
+
+
+            i.importRepo.logInfo("Imported Teachers Classes : " + counter1);
+
+
+              System.out.println("Importing studentenrollments File");
+
+            data = msp.readCsvFile( baseFileFolder + "studentenrollments.csv");
+
+            // studentId
+            // classId
+
+            fr = data.removeFirst();
+            counter1 = 0;
+
+            //data.forEach(row -> {
+            for (String [] row : data) {
+                
+                
+                if (!row[0].isBlank()) 
+                {
+
+                    i.importRepo.saveStudentClass(row[0], row[1]);
+                    counter1++;
+
+                }
+
+            
+            };
+
+
+            i.importRepo.logInfo("Imported Student classes : " + counter1);
+
+            // build the stuent teachedr
+            i.importRepo.buildStudentTeacher();
+
+            
+
+
+            // Now we move the files to the archive Folder
+
+            ImportHelper.MoveFiles(baseFileFolder, archiveFolder);
+
+            i.importRepo.logInfo("Moved Files to archive");
+
+
+            // do the diff
+
+            i.importRepo.diffImports(baseImportId);
+
+            // validation on the data.
+            // check number of diffs vs the cutoff.
+
+
+            // this will mark the importId as the base.
+            i.importRepo.setImportBase(importDefId);
+
+        
+            LocalDateTime endDateTime = LocalDateTime.now();
+    
+            Duration duration = Duration.between(startDateTime, endDateTime);
+
+            
+            i.importRepo.logInfo("Import " + importDefId + " (" + importId + ") Complete in : " + duration.toSeconds() + " Seconds" );
+
+            System.out.println ("Import ID is: " + importId);
+
+
+
+            
+
+
+            i.boscoApi.sendImportToBosco(importId, baseImportId);
+
+            result.success = true;
+
+        }
+        catch (Exception ex) {
+            i.importRepo.logError(ex.toString());
+
+            result.errorMessage = ex.toString();
+            result.success = false;
+
+            System.out.println(ex.toString());
+        }
+
+        return result;
+
+	}
+
+}
+
