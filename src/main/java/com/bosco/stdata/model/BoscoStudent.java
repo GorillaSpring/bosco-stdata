@@ -1,11 +1,14 @@
 package com.bosco.stdata.model;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Data;
 
 @Data
 public class BoscoStudent {
-private String id;
+    private String id;
 
 	private String firstName;
 	private String middleName;
@@ -32,6 +35,6 @@ private String id;
 	private int educationalPlacement;
 	// From SIS and/or Surveys
 
-    // private List<BoscoGuardian> guardians = new ArrayList();
-    // private List<String> teacherIds = new ArrayList();
+    private List<BoscoGuardian> guardians = new ArrayList();
+    private List<String> teacherIds = new ArrayList();
 }

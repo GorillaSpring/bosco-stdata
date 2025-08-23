@@ -15,7 +15,7 @@ public class ScheduledTasks {
     @Autowired
     ImportRepo importRepo;
 
-     @Scheduled(fixedRate = 5000) // Runs every 5 seconds
+    @Scheduled(fixedRate = 15000) // Runs every 5 seconds
     public void reportCurrentTime() {
 
 
