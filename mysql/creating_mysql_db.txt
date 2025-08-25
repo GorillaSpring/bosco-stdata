@@ -1,0 +1,13 @@
+To Create your local mySql db for imports, you will need to do:
+
+1) Install MySql.
+2) Set root password to "admin"
+3) run all the .sql files to create the schema
+4) create the import_definitions (get from Ben)
+5) create the import_settings (get from Ben)
+6) Create your local directory structure for the 
+    - importBase (where the files to be imported will be placed)
+    - importedFiles (where the files that HAVE been imported will be moved to)
+    - importLog (TEMP - where log files will be placed UNTIL the API is in place. )
+
+

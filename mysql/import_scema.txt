@@ -1,1 +1,0 @@
-This will just be the scema for mySql import db.
