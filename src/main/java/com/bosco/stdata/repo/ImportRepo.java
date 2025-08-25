@@ -164,7 +164,7 @@ public class ImportRepo {
 
 
 
-     public List<BoscoStudent> boscoStudentsGet(int forImportId) {
+     public List<Student> boscoStudentsGet(int forImportId) {
 
         // 1 is changed
         // 2 is new.
@@ -196,7 +196,7 @@ public class ImportRepo {
                 """; //.formatted(districtId, districtId, importId, changedFlag);
 
 
-        return template.query(sql, new BeanPropertyRowMapper<BoscoStudent>(BoscoStudent.class), args);
+        return template.query(sql, new BeanPropertyRowMapper<Student>(Student.class), args);
 
         // System.out.println(sql);
             
@@ -520,7 +520,7 @@ public class ImportRepo {
     //     this.districtId = districtId;
     // }
 
-    public List<BoscoSchool> schoolsBoscoForExport (int forImportId, int changedFlag) {
+    public List<School> schoolsBoscoForExport (int forImportId, int changedFlag) {
          Object[] args = {
             forImportId,
             changedFlag
@@ -539,10 +539,10 @@ public class ImportRepo {
                 """; 
 
 
-        return template.query(sql, new BeanPropertyRowMapper<>(BoscoSchool.class), args);
+        return template.query(sql, new BeanPropertyRowMapper<>(School.class), args);
     }
          
-    public List<BoscoUser> teachersBoscoForExport (int forImportId, int changedFlag) {
+    public List<Teacher> teachersBoscoForExport (int forImportId, int changedFlag) {
 
         Object[] args = {
             forImportId,
@@ -563,11 +563,11 @@ public class ImportRepo {
                     and t.changed = ?;
                 """;
 
-        return template.query(sql, new BeanPropertyRowMapper<>(BoscoUser.class), args);
+        return template.query(sql, new BeanPropertyRowMapper<>(Teacher.class), args);
         
     }
     
-    public List<BoscoStudent> studentsBoscoForExport(int forImportId, int changedFlag) {
+    public List<Student> studentsBoscoForExport(int forImportId, int changedFlag) {
 
         // 1 is changed
         // 2 is new.
@@ -625,7 +625,7 @@ public class ImportRepo {
                 """; //.formatted(districtId, districtId, importId, changedFlag);
 
 
-        return template.query(sql, new BeanPropertyRowMapper<BoscoStudent>(BoscoStudent.class), args);
+        return template.query(sql, new BeanPropertyRowMapper<Student>(Student.class), args);
 
         // System.out.println(sql);
             
@@ -639,7 +639,7 @@ public class ImportRepo {
 
 
     // single student
-    public BoscoStudent studentBoscoForExport (int forImportId, String studentNumber) {
+    public Student studentBoscoForExport (int forImportId, String studentNumber) {
 
         // 1 is changed
         // 2 is new.
@@ -698,9 +698,9 @@ public class ImportRepo {
 
 
 
-            BoscoStudent bst = template.queryForObject(
+            Student bst = template.queryForObject(
                 sql,
-                new BeanPropertyRowMapper<>(BoscoStudent.class),
+                new BeanPropertyRowMapper<>(Student.class),
                 args
                 );
 
@@ -717,7 +717,7 @@ public class ImportRepo {
         // return students;
     }
 
-    public List<BoscoUser> teacherBoscoGetForExport(int forImportId, int changedFlag) {
+    public List<Teacher> teacherBoscoGetForExport(int forImportId, int changedFlag) {
           Object[] args = {
             forImportId,
             changedFlag
@@ -738,13 +738,13 @@ public class ImportRepo {
                 """; 
 
 
-        return template.query(sql, new BeanPropertyRowMapper<BoscoUser>(BoscoUser.class), args);
+        return template.query(sql, new BeanPropertyRowMapper<Teacher>(Teacher.class), args);
     }
 
 
 
     
-    public List<BoscoGuardian> guardiansBoscoForStudent(int forImportId, String studentNumber) {
+    public List<Guardian> guardiansBoscoForStudent(int forImportId, String studentNumber) {
 
         Object[] args = {
             
@@ -769,7 +769,7 @@ public class ImportRepo {
 
         //return template.queryForList(sql, BoscoGuardian.class, args);
 
-        return template.query(sql, new BeanPropertyRowMapper<BoscoGuardian>(BoscoGuardian.class), args);
+        return template.query(sql, new BeanPropertyRowMapper<Guardian>(Guardian.class), args);
 
         // List<BoscoGuardian> guardians = template.query(
         //     sql,

@@ -51,15 +51,15 @@ public class BoscoApi {
                    // this will send all the imported stuff to bosco
                 writer.write("------------ NEW SCHOOLS ----------------\n");
 
-                List<BoscoSchool> schools = importRepo.schoolsBoscoForExport(importId, 2);
-                for (BoscoSchool bs : schools) {
+                List<School> schools = importRepo.schoolsBoscoForExport(importId, 2);
+                for (School bs : schools) {
                     writer.write(ow.writeValueAsString(bs));
                     writer.write("\n");
                 }
 
                 writer.write("------------ CHANGED SCHOOLS ----------------\n");
                 schools = importRepo.schoolsBoscoForExport(importId, 1);
-                for (BoscoSchool bs : schools) {
+                for (School bs : schools) {
                     writer.write(ow.writeValueAsString(bs));
                     writer.write("\n");
                 }
@@ -67,24 +67,24 @@ public class BoscoApi {
 
                 writer.write("------------ NEW TEACHERS ----------------\n");
 
-                List<BoscoUser> teachers = importRepo.teacherBoscoGetForExport(importId, 2);
-                for (BoscoUser bu : teachers) {
+                List<Teacher> teachers = importRepo.teacherBoscoGetForExport(importId, 2);
+                for (Teacher bu : teachers) {
                     writer.write(ow.writeValueAsString(bu));
                     writer.write("\n");
                 }
 
                 writer.write("------------ CHANGED TEACHERS ----------------\n");
                 teachers = importRepo.teacherBoscoGetForExport(importId, 1);
-                for (BoscoUser bu : teachers) {
+                for (Teacher bu : teachers) {
                     writer.write(ow.writeValueAsString(bu));
                     writer.write("\n");
                 }
                 
 
                 writer.write("------------ NEW STUDENTS ----------------\n");
-                List<BoscoStudent> bss = importRepo.studentsBoscoForExport(importId, 2);
+                List<Student> bss = importRepo.studentsBoscoForExport(importId, 2);
 
-                for (BoscoStudent bs : bss) {
+                for (Student bs : bss) {
 
                     
                     bs.setGuardians(importRepo.guardiansBoscoForStudent(importId, bs.getStudentId()));
@@ -102,7 +102,7 @@ public class BoscoApi {
                 writer.write("------------ CHANGED STUDENTS ----------------\n");
                 bss = importRepo.studentsBoscoForExport(importId, 1);
 
-                for (BoscoStudent bs : bss) {
+                for (Student bs : bss) {
 
                     
                     bs.setGuardians(importRepo.guardiansBoscoForStudent(importId, bs.getStudentId()));

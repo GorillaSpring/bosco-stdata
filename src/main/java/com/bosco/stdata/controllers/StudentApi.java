@@ -23,11 +23,11 @@ public class StudentApi {
     ImportTask importTask;
 
     @GetMapping("getStudentsTest")
-    public List<BoscoStudent> getStudentsTest() {
+    public List<Student> getStudentsTest() {
         System.out.println(("here"));
 
 
-        List<BoscoStudent> sts = importRepo.boscoStudentsGet(4);
+        List<Student> sts = importRepo.boscoStudentsGet(4);
 
         return sts;
     }
@@ -100,7 +100,7 @@ public class StudentApi {
     }
 
     @GetMapping("/student/getStudent")
-    public BoscoStudent getStudent(@RequestParam("id") String id) {
+    public Student getStudent(@RequestParam("id") String id) {
 
 
         System.out.println("Param: " + id);
@@ -112,7 +112,7 @@ public class StudentApi {
 
 
 
-        BoscoStudent bs = importRepo.studentBoscoForExport(importId, params[1]);
+        Student bs = importRepo.studentBoscoForExport(importId, params[1]);
 
         bs.setGuardians(importRepo.guardiansBoscoForStudent(importId, bs.getStudentId()));
         bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(importId, bs.getStudentId()));

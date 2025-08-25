@@ -1,27 +1,40 @@
-// package com.bosco.stdata.model;
+package com.bosco.stdata.model;
 
-// import lombok.Data;
 
-// @Data
-// public class Student {
+import java.util.ArrayList;
+import java.util.List;
 
-//     private Long id;
-//     private String firstName;
-//     private String lastName;
-//     private String sourceId;
-//     private String grade;
-//     private String studentId;  // This is the student number?
-//     private String schoolCode;
+import lombok.Data;
 
-    
-//     protected Student() {}
+@Data
+public class Student {
+    private String id;
 
-//     public Student(String sourceId, String studentId, String firstName, String lastName, String grade, String schoolCode) {
-//         this.sourceId = sourceId;
-//         this.studentId = studentId;
-//         this.firstName = firstName;
-//         this.lastName = lastName;
-//         this.grade = grade;
-//         this.schoolCode = schoolCode;
-//     }
-// }
+	private String firstName;
+	private String middleName;
+	private String lastName;
+	private String suffixName;
+	// Perhaps belongs in Referral packet, since it changes over time
+	//private String age;
+	private String dob;
+	private String gender;
+	private String ethnicity;
+	private String studentId;
+	private String school;
+	private String schoolId;
+	private String districtId;
+	// Perhaps belongs in Referral packet, since it changes over time
+	private String schoolYear;
+	// Perhaps belongs in Referral packet, since it changes over time
+	private String teacher;
+	// Perhaps belongs in Referral packet, since it changes over time
+	private String grade;
+
+
+	// Educational Placement of 0 means it is not set or is unknown
+	private int educationalPlacement;
+	// From SIS and/or Surveys
+
+    private List<Guardian> guardians = new ArrayList();
+    private List<String> teacherIds = new ArrayList();
+}
