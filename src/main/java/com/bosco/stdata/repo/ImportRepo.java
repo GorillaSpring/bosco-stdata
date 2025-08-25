@@ -16,16 +16,6 @@ import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.stereotype.Repository;
 
-import com.bosco.stdata.model.BoscoGuardian;
-import com.bosco.stdata.model.BoscoSchool;
-import com.bosco.stdata.model.BoscoStudent;
-import com.bosco.stdata.model.BoscoUser;
-import com.bosco.stdata.model.Demographics;
-import com.bosco.stdata.model.Guardian;
-import com.bosco.stdata.model.ImportSetting;
-import com.bosco.stdata.model.Student;
-import com.bosco.stdata.model.Teacher;
-import com.bosco.stdata.model.TestMap;
 import com.bosco.stdata.model.*;
 
 
@@ -124,6 +114,81 @@ public class ImportRepo {
 
     }
 
+   
+    public List<SisAcademicGrade> sisAcademicGradesGet (int forDistrictId, String id) {
+          Object[] args = {
+            //forDistrictId,
+            id
+        };
+
+        String sql = """
+           select * from sis_academic_grade where id = ?;
+                """; 
+
+
+        return template.query(sql, new BeanPropertyRowMapper<>(SisAcademicGrade.class), args);
+    }
+
+    public List<SisMap> sisMapsGet (int forDistrictId, String id) {
+          Object[] args = {
+            //forDistrictId,
+            id
+        };
+
+        String sql = """
+           select * from sis_map where id = ?;
+                """; 
+
+
+        return template.query(sql, new BeanPropertyRowMapper<>(SisMap.class), args);
+    }
+
+
+     public List<SisMclass> sisMclassGet (int forDistrictId, String id) {
+          Object[] args = {
+            //forDistrictId,
+            id
+        };
+
+        String sql = """
+           select * from sis_mclass where id = ?;
+                """; 
+
+
+        return template.query(sql, new BeanPropertyRowMapper<>(SisMclass.class), args);
+    }
+
+     public List<SisStaar> sisStaarsGet (int forDistrictId, String id) {
+          Object[] args = {
+            //forDistrictId,
+            id
+        };
+
+        String sql = """
+           select * from sis_staar where id = ?;
+                """; 
+
+
+        return template.query(sql, new BeanPropertyRowMapper<>(SisStaar.class), args);
+    }
+
+    public List<SisDiscipline> sisDisciplinesGet (int forDistrictId, String id) {
+          Object[] args = {
+            //forDistrictId,
+            id
+        };
+
+        String sql = """
+           select * from sis_discipline where id = ?;
+                """; 
+
+
+        return template.query(sql, new BeanPropertyRowMapper<>(SisDiscipline.class), args);
+    }
+
+
+
+
      public List<BoscoStudent> boscoStudentsGet(int forImportId) {
 
         // 1 is changed
@@ -171,11 +236,66 @@ public class ImportRepo {
     
     //#region TESTS
 
-    public void saveStudentMap(String studentNumber, String schoolYear, String term, String subject, String level, int score ) {
+
+    public void sisPrepData () {
+        
+        
+        Object[] args = {
+            districtId
+        };
+
+        String sql = "call prep_sis_data (?)";
+
+        int rows = template.update(sql, args);
+
+
+    }
+
+
+     public void sisPostData () {
+        
+        
+        Object[] args = {
+            districtId
+        };
+
+        String sql = "call post_sis_data (?)";
+
+        int rows = template.update(sql, args);
+
+
+    }
+
+
+    public void sisAcademicGradeAdd (String studentNumber, String schoolYear, String term, String courseNumber, String courseName, int grade) {
+        
+        String id = districtId + "." + studentNumber;
+        
+        Object[] args = {
+            districtId,
+            id,
+            schoolYear,
+            term,
+            courseNumber,
+            courseName,
+            grade
+        };
+
+        String sql = "call sis_academic_grade_add (?, ?, ?, ?, ?, ?, ?)";
+
+        int rows = template.update(sql, args);
+
+
+    }
+
+    public void sisMapAdd(String studentNumber, String schoolYear, String term, String subject, String level, int score ) {
+
+        String id = districtId + "." + studentNumber;
+
 
           Object[] args = {
             districtId,
-            studentNumber,
+            id,
             schoolYear,
             term,
             subject,
@@ -184,15 +304,81 @@ public class ImportRepo {
         };
 
         
+        String sql = "call sis_map_add (?, ?, ?, ?, ?, ?, ?)";
 
-        String sql = """
-                
-                insert ignore into 
-                    student_map (districtId, studentNumber, schoolYear, term, subject, level, testScore)                   
-                values (?, ?, ?, ?, ?, ?, ?);
 
-                """;
+        int rows = template.update(sql, args);
 
+    }
+
+
+    public void sisMclassAdd(String studentNumber, String schoolYear, String term, String subject, String level, int score ) {
+
+        String id = districtId + "." + studentNumber;
+
+
+          Object[] args = {
+            districtId,
+            id,
+            schoolYear,
+            term,
+            subject,
+            level, 
+            score
+        };
+
+           String sql = "call sis_mclass_add (?, ?, ?, ?, ?, ?, ?)";
+
+
+
+
+        int rows = template.update(sql, args);
+
+    }
+
+
+
+     public void sisStaarAdd(String studentNumber, String testDate, String stateAssessmentSubject, String gradeDuringAssessment, String stateAssessmentScore ) {
+
+        String id = districtId + "." + studentNumber;
+
+
+          Object[] args = {
+            districtId,
+            id,
+            testDate,
+            stateAssessmentSubject,
+            gradeDuringAssessment,
+            stateAssessmentScore
+        };
+
+         String sql = "call sis_staar_add (?, ?, ?, ?, ?, ?)";
+        
+
+
+        int rows = template.update(sql, args);
+
+    }
+
+     public void sisDiscipline(String studentNumber, String issDays, String ossDays, String aepDays, String schoolYear ) {
+
+        String id = districtId + "." + studentNumber;
+
+
+          Object[] args = {
+            districtId,
+            id,
+            issDays,
+            ossDays,
+            aepDays,
+            schoolYear
+        };
+
+        
+        String sql = "call sis_discipline_add (?, ?, ?, ?, ?, ?)";
+
+
+   
         int rows = template.update(sql, args);
 
     }

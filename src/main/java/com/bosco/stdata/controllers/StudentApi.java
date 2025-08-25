@@ -90,7 +90,33 @@ public class StudentApi {
         return "Unregistered";
     }
     
-    
+    @GetMapping("/student/getSisData")
+    public SisStudentData getSisData(@RequestParam("id") String id) {
+
+
+        System.out.println("Param: " + id);
+        // id will be 66.838101615
+        String [] params = id.split("\\.");
+
+        //var x = params[0];
+
+        System.out.println("District: " + params[0] + "  - Student : " + params[1]);
+
+        int districId = Integer.parseInt(params[0]);
+
+
+        SisStudentData sd = new SisStudentData();
+        sd.id = id;
+
+        sd.academicGrades = importRepo.sisAcademicGradesGet(districId, id);
+        sd.maps = importRepo.sisMapsGet(districId, id);
+        sd.mclasses = importRepo.sisMclassGet(districId, id);
+        sd.staars = importRepo.sisStaarsGet(districId, id);
+        sd.disciplines = importRepo.sisDisciplinesGet(districId, id);
+
+
+        return sd;
+    }
 
     
     

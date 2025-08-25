@@ -88,6 +88,7 @@ public class UpliftFiles {
             List<String[]> data = msp.readCsvFile( baseFileFolder + "campuses.csv");
 
             int counter1 = 0;
+            int counter2 = 0;
 
             String[] fr = data.removeFirst();
 
@@ -224,6 +225,12 @@ public class UpliftFiles {
 
 
 
+            System.out.println("Importing SIS data");
+
+
+            i.importRepo.sisPrepData();
+
+            // WE NEED TO RE DO THESE ONES.
             // mClass and map
              System.out.println("Importing mCLASS and MAP File");
 
@@ -233,7 +240,7 @@ public class UpliftFiles {
             fr = data.removeFirst();
 
             // studentId    0
-            // test         1
+            // test         1       MAP or MCLASS
             // schoolYear   2       2022-2023
             // term         3
             // subject      4
@@ -244,26 +251,140 @@ public class UpliftFiles {
 
 
             counter1 = 0;
+            counter2 = 0;
+            
             //data.forEach(row -> {
             for (String [] row : data) {
                 if (!row[0].isBlank()) 
                 {
-                    String [] years = row[2].split("-");
+                    // they combine map and mclass
 
-                    if (row[1].equals("MAP")) {
-                        int score = Integer.parseInt (row[6]);
-                        // int districId, String studentNumber, String schoolYear, String term, String subject, String level, int score
-                        //TestMap m = new TestMap(districtId, row[0], row[2], row[3], row[4], row[5], score);
+                    int score = Integer.parseInt (row[6]);
 
-                        // (                studentNumber,  schoolYear, String term, String subject, String level, int score
-                        i.importRepo.saveStudentMap(row[0], years[0], row[3], row[4], row[5], score);
+                    switch (row[1]) {
+                        case "MAP":
+                             i.importRepo.sisMapAdd(row[0], row[2], row[3], row[4], row[5], score);
 
-                        counter1++;
+                            counter1++;
+                            break;
+                        case "MCLASS":
+                            i.importRepo.sisMclassAdd(row[0], row[2], row[3], row[4], row[5], score);
+
+                            counter2++;
+                            break;
+
+                    
+                        default:
+                            System.out.println("Unknown Type in file " + row[1]);
+                            break;
                     }
                 }
             };
 
             i.importRepo.logInfo("Imported MAP : " + counter1);
+            i.importRepo.logInfo("Imported mClass : " + counter2);
+
+
+            // Academic Grades
+                // mClass and map
+            System.out.println("Importing academics_grades File");
+
+            data = msp.readCsvFile( baseFileFolder + "academics_grades.csv");
+
+
+            fr = data.removeFirst();
+
+            // studentId    0
+            // coursenumber 1
+            // coursename   2
+            // coursegrade  3
+            // schoolyear   4      2024-2025
+            // term         5
+
+
+
+
+            counter1 = 0;
+            //data.forEach(row -> {
+            for (String [] row : data) {
+                if (!row[0].isBlank()) {
+                    // do not import if grade is blank.
+                    if (!row[3].isBlank()) {
+                        int grade = Integer.parseInt (row[3]);
+                        // sisAcademicGradeAdd (String studentNumber, String schoolYear, String term, String courseNumber, String courseName, int grade)
+                        i.importRepo.sisAcademicGradeAdd(row[0], row[4], row[5], row[1], row[2], grade);
+
+                        counter1++;
+                    
+
+                    }
+                }
+            };
+
+            i.importRepo.logInfo("Imported academics_grades : " + counter1);
+
+
+            System.out.println("Importing state_assessment File");
+
+            data = msp.readCsvFile( baseFileFolder + "state_assessment.csv");
+
+
+            fr = data.removeFirst();
+
+            // studentId    0
+            // testdate
+            // stateassessmentsubject
+            // gradeduringassessment
+            // stateassessmentscore
+
+
+
+
+            counter1 = 0;
+            //data.forEach(row -> {
+            for (String [] row : data) {
+                if (!row[0].isBlank()) {
+
+                    i.importRepo.sisStaarAdd(row[0], row[1], row[2], row[3], row[4]);
+                    counter1++;
+                }
+            };
+
+            i.importRepo.logInfo("Imported state_assessments : " + counter1);
+
+
+            System.out.println("Importing discipline File");
+
+            data = msp.readCsvFile( baseFileFolder + "discipline.csv");
+
+
+            fr = data.removeFirst();
+
+            // studentId    0
+            // issdays
+            // ossdaysw
+            // apedays
+            // schoolyear
+
+
+
+
+            counter1 = 0;
+            //data.forEach(row -> {
+            for (String [] row : data) {
+                if (!row[0].isBlank()) {
+
+                    i.importRepo.sisDiscipline(row[0], row[1], row[2], row[3], row[4]);
+                    counter1++;
+                }
+            };
+
+            i.importRepo.logInfo("Imported discipline : " + counter1);
+
+
+            System.out.println("Sys Post Data");
+            i.importRepo.sisPostData();
+
 
             // Now we move the files to the archive Folder
 
@@ -281,6 +402,9 @@ public class UpliftFiles {
 
             // this will mark the importId as the base.
             i.importRepo.setImportBase(importDefId);
+
+
+
 
         
             LocalDateTime endDateTime = LocalDateTime.now();
