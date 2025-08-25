@@ -149,8 +149,8 @@ public class CelinaFiles {
 								String schoolCode = orgs[0];
 
 
-								Student s = new Student(row[0], row[11], row[8], row[9], row[16], schoolCode);
-								i.importRepo.saveStudent(s);
+								//Student s = new Student(row[0], row[11], row[8], row[9], row[16], schoolCode);
+								i.importRepo.saveStudent(row[0], row[11], row[8], row[9], row[16], schoolCode);
 								studentCount++;
 							break;
 					
@@ -160,15 +160,17 @@ public class CelinaFiles {
 							for (String student : students) {
 							
 								//  sourceId, guardianId,  studentId,  firstName,  lastName,  email, type
-								Guardian g = new Guardian(row[0], row[11], student, row[8], row[9], row[12], "U");
-								i.importRepo.saveGuardian(g);
+								//Guardian g = new Guardian(row[0], row[11], student, row[8], row[9], row[12], "U");
+								i.importRepo.saveGuardian(row[0], row[11], student, row[8], row[9], row[12], "U");
 								guardianCount++;
 							};
 							break;
 						case "teacher":
 							// sourceid, teacherId, firstname, lastname,  email
-							Teacher t = new Teacher(row[0], row[11], row[8], row[9], row[12]);
-							i.importRepo.saveTeacher(t);
+							//Teacher t = new Teacher(row[0], row[11], row[8], row[9], row[12]);
+							i.importRepo.saveTeacher(
+								row[0], row[11], row[8], row[9], row[12]
+							);
 							teacherCount++;
 							
 							break;
@@ -212,8 +214,8 @@ public class CelinaFiles {
 			for (String [] row : data) {
 				// we only import Student demographics.
 				if (row[0].startsWith("Student_")) {
-					Demographics d = new Demographics(row[0], row[3], row[4], Boolean.parseBoolean(row[5]), Boolean.parseBoolean(row[6]), Boolean.parseBoolean(row[7]), Boolean.parseBoolean(row[8]), Boolean.parseBoolean(row[9]), Boolean.parseBoolean(row[11]));
-					i.importRepo.saveStudentDemographics(d);
+					//Demographics d = new Demographics(row[0], row[3], row[4], Boolean.parseBoolean(row[5]), Boolean.parseBoolean(row[6]), Boolean.parseBoolean(row[7]), Boolean.parseBoolean(row[8]), Boolean.parseBoolean(row[9]), Boolean.parseBoolean(row[11]));
+					i.importRepo.saveStudentDemographics(row[0], row[3], row[4], Boolean.parseBoolean(row[5]), Boolean.parseBoolean(row[6]), Boolean.parseBoolean(row[7]), Boolean.parseBoolean(row[8]), Boolean.parseBoolean(row[9]), Boolean.parseBoolean(row[11]));
 					studentCount++;
 				}
 			};

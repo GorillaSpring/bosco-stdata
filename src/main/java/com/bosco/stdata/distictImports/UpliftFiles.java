@@ -135,15 +135,20 @@ public class UpliftFiles {
                 if (!row[0].isBlank()) 
                 {
 
-                    Student s = new Student(row[0], row[0], row[2], row[1], row[6], row[5]);
+                    //Student s = new Student(row[0], row[0], row[2], row[1], row[6], row[5]);
 
-                    Demographics d = new Demographics(row[0], row[3], row[4], false, false, false, false, false, false);
+                    //Demographics d = new Demographics(row[0], row[3], row[4], false, false, false, false, false, false);
 
                     //  sourceId, guardianId,  studentId,  firstName,  lastName,  email, type
-                    Guardian g = new Guardian("Guardian_" + row[0], "G_" + row[0],  row[0],  row[10], row[11], row[12], row[9]);
+                    //Guardian g = new Guardian("Guardian_" + row[0], "G_" + row[0],  row[0],  row[10], row[11], row[12], row[9]);
 
-                    i.importRepo.saveStudent(s);
-                    i.importRepo.saveStudentDemographics(d);
+
+                    //String sourceId, String studentId, String firstName, String lastName, String grade, String schoolCode
+
+                    i.importRepo.saveStudent(row[0], row[0], row[2], row[1], row[6], row[5]);
+
+                    //i.importRepo.saveStudent(s);
+                    i.importRepo.saveStudentDemographics(row[0], row[3], row[4], false, false, false, false, false, false);
 
                     // 504
                     if (row[7] == "Yes")
@@ -153,7 +158,12 @@ public class UpliftFiles {
                     if (row[8] == "Yes")
                         i.importRepo.saveStudentProperty(row[0], "isEsl", "1");
 
-                    i.importRepo.saveGuardian(g);
+                    
+                    // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type
+                    i.importRepo.saveGuardian("Guardian_" + row[0], "G_" + row[0],  row[0],  row[10], row[11], row[12], row[9]);
+
+                    
+                    //i.importRepo.saveGuardian(g);
 
                     counter1++;
                 }
@@ -188,8 +198,10 @@ public class UpliftFiles {
                 {
 
                     // sourceid, teacherId, firstname, lastname,  email
-                    Teacher t = new Teacher(row[0], row[0], row[2], row[1], row[3]);
-                    i.importRepo.saveTeacher(t);
+                    //Teacher t = new Teacher(row[0], row[0], row[2], row[1], row[3]);
+                    i.importRepo.saveTeacher(
+                        row[0], row[0], row[2], row[1], row[3]
+                    );
                     counter1++;
                 }
             };

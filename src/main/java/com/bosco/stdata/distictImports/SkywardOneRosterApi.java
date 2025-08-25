@@ -7,13 +7,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.bosco.stdata.model.Demographics;
-import com.bosco.stdata.model.Guardian;
 import com.bosco.stdata.model.ImportDefinition;
 import com.bosco.stdata.model.ImportResult;
 import com.bosco.stdata.model.ImportSetting;
-import com.bosco.stdata.model.Student;
-import com.bosco.stdata.model.Teacher;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.service.SkywardOneRosterService;
@@ -218,15 +214,19 @@ public class SkywardOneRosterApi {
 
 
 
-                                Student s = new Student(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(),  userNode.get("givenName").asText(),  
-                                        userNode.get("familyName").asText(),
-                                        grade, schoolCode);
+                                // Student s = new Student(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(),  userNode.get("givenName").asText(),  
+                                //         userNode.get("familyName").asText(),
+                                //         grade, schoolCode);
                                 
                                 // so identifier should be our id.
                                 // grades[]  is an array of grades.  This is a bit weired.
                                 // Student s = new Student(userNode.get("sourcedId").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText());
                                 // 	//Student s = new Student(row[0], row[8], row[9]);
-                                i.importRepo.saveStudent(s);
+                                i.importRepo.saveStudent(
+                                    userNode.get("sourcedId").asText(), userNode.get("identifier").asText(),  userNode.get("givenName").asText(),  
+                                        userNode.get("familyName").asText(),
+                                        grade, schoolCode
+                                );
                                 studentCount++;
                                 break;
                         
@@ -243,8 +243,10 @@ public class SkywardOneRosterApi {
                                             
 
                                             String studentId = studentNode.get("sourcedId").asText();
-                                            Guardian g = new Guardian(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), studentId, userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType);
-                                            i.importRepo.saveGuardian(g);
+                                            //Guardian g = new Guardian(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), studentId, userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType);
+                                            i.importRepo.saveGuardian(
+                                                userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), studentId, userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType
+                                            );
                                             guardianCount++;
 
 
@@ -257,9 +259,11 @@ public class SkywardOneRosterApi {
 
                                 String teacherEmail = userNode.get("email").asText();
                                 // sourceid, teacherId, firstname, lastname,  email
-                                Teacher t = new Teacher(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail);
+                                //Teacher t = new Teacher(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail);
 
-                                i.importRepo.saveTeacher(t);
+                                i.importRepo.saveTeacher(
+                                    userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail
+                                );
                                 teacherCount++;
                                 
                                 break;
@@ -323,7 +327,21 @@ public class SkywardOneRosterApi {
                             String birthDate = demographicsNode.get("birthDate") == null ? "" : demographicsNode.get("birthDate").asText();
 
 
-                            Demographics d = new Demographics(sourceId,
+                            // Demographics d = new Demographics(sourceId,
+                            //     birthDate,
+                            //     demographicsNode.get("sex").asText(),
+                            //     Boolean.parseBoolean(demographicsNode.get("americanIndianOrAlaskaNative").asText()),
+                            //     Boolean.parseBoolean(demographicsNode.get("asian").asText()),
+                            //     Boolean.parseBoolean(demographicsNode.get("blackOrAfricanAmerican").asText()),
+                            //     Boolean.parseBoolean(demographicsNode.get("nativeHawaiianOrOtherPacificIslander").asText()),
+                            //     Boolean.parseBoolean(demographicsNode.get("white").asText()),
+                            //     Boolean.parseBoolean(demographicsNode.get("hispanicOrLatinoEthnicity").asText())
+                                
+                            //     );
+
+
+                            i.importRepo.saveStudentDemographics(
+                                sourceId,
                                 birthDate,
                                 demographicsNode.get("sex").asText(),
                                 Boolean.parseBoolean(demographicsNode.get("americanIndianOrAlaskaNative").asText()),
@@ -332,11 +350,7 @@ public class SkywardOneRosterApi {
                                 Boolean.parseBoolean(demographicsNode.get("nativeHawaiianOrOtherPacificIslander").asText()),
                                 Boolean.parseBoolean(demographicsNode.get("white").asText()),
                                 Boolean.parseBoolean(demographicsNode.get("hispanicOrLatinoEthnicity").asText())
-                                
-                                );
-
-
-                            i.importRepo.saveStudentDemographics(d);
+                            );
 
                             studentCount++;
                         }
@@ -441,6 +455,17 @@ public class SkywardOneRosterApi {
             System.out.println("Calling buildStudentTeacher();");
 
             i.importRepo.buildStudentTeacher();
+            
+
+              
+            i.importRepo.diffImports(baseImportId);
+
+            // validation on the data.
+            // check number of diffs vs the cutoff.
+
+
+            // this will mark the importId as the base.
+            i.importRepo.setImportBase(importDefId);
 
 
             LocalDateTime endDateTime = LocalDateTime.now();

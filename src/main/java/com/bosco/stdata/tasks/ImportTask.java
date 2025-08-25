@@ -81,7 +81,7 @@ public class ImportTask {
                         importResults.add(importResult);
                         
                         break;
-                    case "OneRosterApi":
+                    case "SkywardOneRosterApi":
                         importResult = SkywardOneRosterApi.Import(importDefId);
                         importResults.add(importResult);
 

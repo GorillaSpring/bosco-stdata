@@ -127,12 +127,16 @@ public class TestFiles {
                 {
 
                
-                    Student s = new Student(row[0], row[1], row[3], row[2], row[7], row[6]);
-                    Demographics d = new Demographics(row[0], row[4], row[5], false, false, false, false, false, false);
+                    //Student s = new Student(row[0], row[1], row[3], row[2], row[7], row[6]);
+                    //Demographics d = new Demographics(row[0], row[4], row[5], false, false, false, false, false, false);
                    //Guardian g = new Guardian("Guardian_" + row[0], row[0],  row[10], row[11], row[12], row[9]);
 
-                    i.importRepo.saveStudent(s);
-                    i.importRepo.saveStudentDemographics(d);
+                    i.importRepo.saveStudent(
+                        row[0], row[1], row[3], row[2], row[7], row[6]
+                    );
+                    i.importRepo.saveStudentDemographics(
+                        row[0], row[4], row[5], false, false, false, false, false, false
+                    );
 
                     // 504
                     // if (row[7] == "Yes")
@@ -175,8 +179,10 @@ public class TestFiles {
                 {
            
                     // sourceid, teacherId, firstname, lastname,  email
-                    Teacher t = new Teacher(row[0], row[1],  row[3], row[2], row[4]);
-                    i.importRepo.saveTeacher(t);
+                    //Teacher t = new Teacher(row[0], row[1],  row[3], row[2], row[4]);
+                    i.importRepo.saveTeacher(
+                        row[0], row[1],  row[3], row[2], row[4]
+                    );
                     counter1++;
                 }
         
@@ -214,8 +220,10 @@ public class TestFiles {
                     // We don't actually need it.
                 
                     //  sourceId, guardianId,  studentId,  firstName,  lastName,  email, type
-                    Guardian g = new Guardian(row[0], row[2], row[1],  row[5], row[4], row[6], row[3]);
-                    i.importRepo.saveGuardian(g);
+                    //Guardian g = new Guardian(row[0], row[2], row[1],  row[5], row[4], row[6], row[3]);
+                    i.importRepo.saveGuardian(
+                        row[0], row[2], row[1],  row[5], row[4], row[6], row[3]
+                    );
                     counter1++;
                 }
             

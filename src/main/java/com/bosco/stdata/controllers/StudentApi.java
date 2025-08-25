@@ -32,24 +32,7 @@ public class StudentApi {
         return sts;
     }
 
-    @GetMapping(value = "getStudentMap")
-    public List<TestMap> getStudentMap(@RequestParam("id") String id) {
 
-
-        System.out.println("Param: " + id);
-        // id will be 66.838101615
-        String [] params = id.split("\\.");
-
-        //var x = params[0];
-
-        System.out.println("District: " + params[0] + "  - Student : " + params[1]);
-
-        int districId = Integer.parseInt(params[0]);
-
-        List<TestMap> mapsForStudent = importRepo.studentMapsGetForStudent(districId, params[1]);
-
-        return mapsForStudent;
-    }
     
 
     @GetMapping("/student/studentDataRegister")
@@ -66,7 +49,6 @@ public class StudentApi {
 
         int districId = Integer.parseInt(params[0]);
 
-        List<TestMap> mapsForStudent = importRepo.studentMapsGetForStudent(districId, params[1]);
 
         return "Registered";
     }
@@ -85,7 +67,6 @@ public class StudentApi {
 
         int districId = Integer.parseInt(params[0]);
 
-        List<TestMap> mapsForStudent = importRepo.studentMapsGetForStudent(districId, params[1]);
 
         return "Unregistered";
     }
@@ -117,6 +98,32 @@ public class StudentApi {
 
         return sd;
     }
+
+    @GetMapping("/student/getStudent")
+    public BoscoStudent getStudent(@RequestParam("id") String id) {
+
+
+        System.out.println("Param: " + id);
+        // id will be 66.838101615
+        String [] params = id.split("\\.");
+        int districId = Integer.parseInt(params[0]);
+
+        int importId = importRepo.getBaseImportForDistrict(districId);
+
+
+
+        BoscoStudent bs = importRepo.studentBoscoForExport(importId, params[1]);
+
+        bs.setGuardians(importRepo.guardiansBoscoForStudent(importId, bs.getStudentId()));
+        bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(importId, bs.getStudentId()));
+
+
+
+
+
+        return bs;
+    }
+
 
     
     

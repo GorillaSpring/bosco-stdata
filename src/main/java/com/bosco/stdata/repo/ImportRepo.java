@@ -89,31 +89,6 @@ public class ImportRepo {
     //#endregion
 
 
-    public List<TestMap> studentMapsGetForStudent (int districId, String studentNumber) {
-        Object[] args = {
-            districId,
-            studentNumber
-        };
-
-        String sql = """
-            select 
-                districtId,
-                studentNumber,
-                schoolYear,
-                term,
-                subject,
-                level,
-                testScore
-            from student_map where districtId=? and studentNumber = ?;
-
-                    
-                """; 
-
-
-        return template.query(sql, new BeanPropertyRowMapper<>(TestMap.class), args);
-
-    }
-
    
     public List<SisAcademicGrade> sisAcademicGradesGet (int forDistrictId, String id) {
           Object[] args = {
@@ -505,6 +480,19 @@ public class ImportRepo {
         return impDef;
     }
 
+    public int getBaseImportForDistrict(int districtId) {
+        String sql = "select baseImportId from import_definition where districtId = ?;";
+
+
+        int baseImportId = template.queryForObject(
+                sql, 
+                Integer.class, 
+                districtId);
+
+        return baseImportId;
+
+    }
+
     public List<ImportSetting> getImportSettings(String importDefId) {
          String sql = "select * from import_setting where importDefId = '" + importDefId + "';";
 
@@ -638,6 +626,87 @@ public class ImportRepo {
 
 
         return template.query(sql, new BeanPropertyRowMapper<BoscoStudent>(BoscoStudent.class), args);
+
+        // System.out.println(sql);
+            
+        //     List<BoscoStudent> students = template.query(
+        //         sql,
+        //         new BeanPropertyRowMapper(BoscoStudent.class));
+
+        // return students;
+    }
+
+
+
+    // single student
+    public BoscoStudent studentBoscoForExport (int forImportId, String studentNumber) {
+
+        // 1 is changed
+        // 2 is new.
+
+
+        
+        // String sql = """
+        //         select 	
+        //             concat ('%s.' , s.studentNumber) as id,
+        //             s.firstName,
+        //             s.lastName,
+        //             s.dob,
+        //             s.gender,
+        //             s.studentNumber as studentId,
+        //             school.name as school,
+        //             s.schoolCode as schoolId,
+        //             %s as districId,
+        //             s.grade
+        //         from 
+        //             student s 
+        //             left join school school on school.importId = s.importId and school.sourceId = s.schoolCode
+        //         where 
+        //             s.importId = %s and s.changed = %s;
+        //         """.formatted(districtId, districtId, importId, changedFlag);
+        //     List<BoscoStudent> students = template.query(
+        //         sql,
+        //         new BeanPropertyRowMapper(BoscoStudent.class));
+
+        // return students;
+
+        Object[] args = {
+            forImportId,
+            studentNumber
+        };
+
+        String sql = """
+                select 	                    
+                    concat (concat (i.districtId, '.') , s.studentNumber) as id,
+                    s.firstName,
+                    s.lastName,
+                    s.dob,
+                    s.gender,
+                    s.studentNumber as studentId,
+                    school.name as school,
+                    s.schoolCode as schoolId,
+                    i.districtId,
+                    s.grade
+                from 
+                    student s 
+                    left join school school on school.importId = s.importId and school.sourceId = s.schoolCode
+                    join import i on i.id = s.importId
+                where 
+                    s.importId = ? 
+                    and s.studentNumber = ?;
+                """; //.formatted(districtId, districtId, importId, changedFlag);
+
+
+
+            BoscoStudent bst = template.queryForObject(
+                sql,
+                new BeanPropertyRowMapper<>(BoscoStudent.class),
+                args
+                );
+
+        return bst;
+
+        //return template.query(sql, new BeanPropertyRowMapper<BoscoStudent>(BoscoStudent.class), args);
 
         // System.out.println(sql);
             
@@ -859,29 +928,7 @@ public class ImportRepo {
     }
 
 
-    public List<Student> studentsForExport() {
-
-        String sql = "select * from student where importId = " + importId + " and changed > 0;";
-
-         List<Student> students = template.query(
-                sql,
-                new BeanPropertyRowMapper<>(Student.class));
-
-        return students;
-
-    }
-
-    public List<Guardian> guardiansForStudent (String studentSourceId) {
-
-        String sql = "select * from guardian where importId = " + importId + " and studentSourceId = '" + studentSourceId + "';";
-
-         List<Guardian> guardians = template.query(
-                sql,
-                new BeanPropertyRowMapper<>(Guardian.class));
-
-        return guardians;
-
-    }
+   
     
 
     //#endregion
@@ -971,24 +1018,25 @@ public class ImportRepo {
     }
     
     
-      public void saveStudent(Student student) {
-        
+
+
+      public void saveStudent(String sourceId, String studentId, String firstName, String lastName, String grade, String schoolCode) {
+    // String sourceId, String studentId, String firstName, String lastName, String grade, String schoolCode    
 
         Object[] args = {
             importId,
-            student.getSourceId(),
-            student.getStudentId(),
-            student.getFirstName(),
-            student.getLastName(),
-            student.getGrade(),
-            student.getSchoolCode(),
-            
-            student.getStudentId(),
-            student.getFirstName(),
-            student.getLastName(),
-            student.getGrade(),
-            student.getSchoolCode()
+            sourceId,
+            studentId,
+            firstName,
+            lastName,
+            grade,
+            schoolCode,
 
+            studentId,
+            firstName,
+            lastName,
+            grade,
+            schoolCode
         };
 
 
@@ -1012,23 +1060,37 @@ public class ImportRepo {
         
     }
 
+
     public void saveStudentProperty (String SourceId, String DbFieldName, String Value) {
         String sql = "update student set " + DbFieldName  + " = " + Value + "where importId = " + importId + " and sourceId='"  + SourceId + "'";
         template.update(sql);
     }
 
-    public void saveStudentDemographics (Demographics demographics) {
+    public void saveStudentDemographics ( String sourceId, 
+            String dob, 
+            String gender, 
+            Boolean americanIndianOrAlaskaNative, 
+            Boolean asian,
+            Boolean blackOrAfricanAmerican, 
+            Boolean nativeHawaiianOrOtherPacificIslander, 
+            Boolean white,
+            Boolean hispanicOrLatinoEthnicity) {
+
+       
+
+
          Object[] args = {
-            demographics.getDob(),
-            demographics.getGender(),
-            demographics.getAmericanIndianOrAlaskaNative(),
-            demographics.getAsian(),
-            demographics.getBlackOrAfricanAmerican(),
-            demographics.getNativeHawaiianOrOtherPacificIslander(),
-            demographics.getWhite(),
-            demographics.getHispanicOrLatinoEthnicity(),
-                        importId,
-            demographics.getSourceId(),
+
+            dob,
+            gender,
+            americanIndianOrAlaskaNative,
+            asian,
+            blackOrAfricanAmerican,
+            nativeHawaiianOrOtherPacificIslander,
+            white,
+            hispanicOrLatinoEthnicity,
+            importId,
+            sourceId
 
         };
 
@@ -1056,20 +1118,8 @@ public class ImportRepo {
     }
 
 
-    
-   
+     
 
-    public List<Student> findAllStudents() {
-
-        String sql = "select * from student";
-
-         List<Student> students = template.query(
-                sql,
-                new BeanPropertyRowMapper<>(Student.class));
-
-        return students;
-
-    }
 
     //#endregion
 
@@ -1119,31 +1169,26 @@ public class ImportRepo {
 
     //#region Guardians
 
-
-    
-    public void saveGuardian(Guardian guardian) {
+    public void saveGuardian(String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type) {
         // System.out.println("Added");
 
-
+ 
         Object[] args = {
             importId,
-            guardian.getSourceId(),
-            guardian.getStudentId(),
-            guardian.getGuardianId(),
-            guardian.getFirstName(),
-            guardian.getLastName(),
-            guardian.getEmail(),
-            guardian.getType(),
+            sourceId,
+            studentId,
+            guardianId,
+            firstName,
+            lastName,
+            email,
+            type,
 
-            guardian.getGuardianId(),
-            guardian.getFirstName(),
-            guardian.getLastName(),
-            guardian.getStudentId(),
-            guardian.getEmail(),
-            guardian.getType()
-
-                
-
+            guardianId,
+            firstName,
+            lastName,
+            studentId,
+            email,
+            type
             };
         
 
@@ -1167,39 +1212,31 @@ public class ImportRepo {
         
     }
 
-    public List<Guardian> findAllGuardians() {
 
-        String sql = "select * from guardian";
-
-         List<Guardian> guardians = template.query(
-                sql,
-                new BeanPropertyRowMapper<>(Guardian.class));
-
-        return guardians;
-
-    }
-
+    
+    
     //#endregion
 
     //#region Teachers
 
 
     
-    public void saveTeacher(Teacher teacher) {
+    public void saveTeacher(String sourceid, String teacherId, String firstname, String lastname, String email) {
         // System.out.println("Added");
 
        Object[] args = {
             importId,
-            teacher.getSourceId(),
-            teacher.getTeacherId(),
-            teacher.getFirstName(),
-            teacher.getLastName(),
-            teacher.getEmail(),
+            sourceid,
+            teacherId,
+            firstname,
+            lastname,
+            email,
 
-            teacher.getTeacherId(),
-            teacher.getFirstName(),
-            teacher.getLastName(),
-            teacher.getEmail()
+            teacherId,
+            firstname,
+            lastname,
+            email
+
 
         };
         
@@ -1220,17 +1257,7 @@ public class ImportRepo {
         
     }
 
-    public List<Teacher> findAllTeachers() {
-
-        String sql = "select * from teacher";
-
-         List<Teacher> teachers = template.query(
-                sql,
-                new BeanPropertyRowMapper<>(Teacher.class));
-
-        return teachers;
-
-    }
+  
 
     //#endregion
 
