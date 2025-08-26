@@ -381,6 +381,11 @@ public class ClassLinkOneRosterApi {
                         //{
                             //System.out.println("Update Student : " + sourceId);
 
+// SO for our Sandbox, the sourceId is just the id of the student.
+// we could eigher skip this and let it update 0 rows, or we could have config.
+
+                        //if (sourceId.toLowerCase().contains("student")) {
+
                             String birthDate = demographicsNode.get("birthDate") == null ? "" : demographicsNode.get("birthDate").asText();
 
 
@@ -410,9 +415,9 @@ public class ClassLinkOneRosterApi {
                             );
 
                             studentCount++;
-                        //}
                         
-            
+                        
+                        //}
                     
 
                     }

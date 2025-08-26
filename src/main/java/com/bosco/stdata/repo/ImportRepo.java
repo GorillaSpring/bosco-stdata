@@ -686,7 +686,13 @@ public class ImportRepo {
                     school.name as school,
                     s.schoolCode as schoolId,
                     i.districtId,
-                    s.grade
+                    s.grade,
+                    s.americanIndianOrAlaskaNative,
+                    s.asian,
+                    s.blackOrAfricanAmerican,
+                    s.nativeHawaiianOrOtherPacificIslander,
+                    s.white,
+                    s.hispanicOrLatinoEthnicity
                 from 
                     student s 
                     left join school school on school.importId = s.importId and school.sourceId = s.schoolCode

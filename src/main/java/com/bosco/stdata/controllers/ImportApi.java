@@ -26,4 +26,38 @@ public class ImportApi {
 
     }
 
+
+    
+    
+
+    @GetMapping("/import/runTaskTEST")
+    public String runTask() {
+         Thread taskThread = new Thread(() -> {
+            System.out.println("Starting manual task...");
+            try {
+                Thread.sleep(14000);
+                System.out.println("Manual task finished.");
+                importRepo.setSystemStatus("Import", 0);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.out.println("Manual task was interrupted.");
+                importRepo.setSystemStatus("Import", 0);
+
+            }
+        });
+
+        int status = importRepo.getSystemStatus("Import");
+        if (status > 0) {
+            return "Imports Are running -- Bailing";
+
+        }
+        else {
+
+            importRepo.setSystemStatus("Import", 1);
+            taskThread.start();
+            return "Task started";
+        }
+    }
+    
+
 }
