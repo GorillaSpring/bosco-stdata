@@ -41,6 +41,7 @@ public class TestFiles {
     public static ImportResult Import(String importDefId) {
 
         ImportResult result = new ImportResult();
+        
 
         try {
 
@@ -63,13 +64,15 @@ public class TestFiles {
             String archiveFolder =  ImportHelper.ValueForSetting(importSettings, "archiveFolder");
 
 
-            // Before we start, lets make sure there are files in the baseFolder
 
-            // TODO: lets do for the list of expected files;
-            Path filePath = Paths.get(baseFileFolder + "schools.csv");
-            if (!Files.exists(filePath)) {
-                throw new FileNotFoundException("Import File not found : " + filePath);
+
+
+            // Before we start, lets make sure there are files in the baseFolder
+            String[] files = {"guardians.csv", "schools.csv", "studentEnrollments.csv", "students.csv", "teacherEnrollments.csv", "teachers.csv"};
+            if (!ImportHelper.CheckFilesExist(baseFileFolder, files)) {
+                throw new FileNotFoundException("One or more import files missing!");
             }
+
 
             
         
@@ -87,7 +90,12 @@ public class TestFiles {
 
             int counter1 = 0;
 
+            String [] colNames = {"code", "name"};
+
+
             String[] fr = data.removeFirst();
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : schools.csv does not match column specs" );
 
           
             for (String [] row : data) {
@@ -107,6 +115,8 @@ public class TestFiles {
             data = msp.readCsvFile( baseFileFolder + "students.csv");
 
 
+
+
             // studentId                        0
             // studentNumber                    1
             // lastname                         2
@@ -119,6 +129,13 @@ public class TestFiles {
 
 
             fr = data.removeFirst();
+
+            colNames = new String[]{"studentId", "studentNumber", "lastName", "fistName", "dob", "gender", "schoolCode", "gradeCode"};
+            
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : students.csv does not match column specs" );
+
+
             counter1 = 0;
 
             //data.forEach(row -> {
@@ -164,6 +181,12 @@ public class TestFiles {
 
             fr = data.removeFirst();
 
+            // teacherSourceId	teacherId	lastName	firstName	email
+
+            colNames = new String[]{"teacherSourceId", "teacherId", "lastName", "firstName", "email"};
+            
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : teachers.csv does not match column specs" );
 
             // teacherSourceId       0
             // teacherId            1
@@ -199,6 +222,14 @@ public class TestFiles {
 
 
             fr = data.removeFirst();
+
+            // id	studentId	guardianId	type	lastName	firstName	email
+
+        
+            colNames = new String[]{"id", "studentId", "guardianId", "type", "lastName", "firstName", "email"};
+            
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : guardians.csv does not match column specs" );
 
 
             // sourceId     0
@@ -240,6 +271,15 @@ public class TestFiles {
             // classId
 
             fr = data.removeFirst();
+
+            // teacherId	classId
+
+
+            colNames = new String[]{"teacherId", "classId"};
+            
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : teacherenrollments.csv does not match column specs" );
+
             counter1 = 0;
 
             //data.forEach(row -> {
@@ -267,6 +307,12 @@ public class TestFiles {
             // classId
 
             fr = data.removeFirst();
+
+            colNames = new String[]{"studentId", "classId"};
+            
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : studentenrollments.csv does not match column specs" );
+
             counter1 = 0;
 
             //data.forEach(row -> {
@@ -295,7 +341,7 @@ public class TestFiles {
 
             // Now we move the files to the archive Folder
 
-            ImportHelper.MoveFiles(baseFileFolder, archiveFolder);
+            //ImportHelper.MoveFiles(baseFileFolder, archiveFolder);
 
             i.importRepo.logInfo("Moved Files to archive");
 

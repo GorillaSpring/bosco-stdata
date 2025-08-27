@@ -65,15 +65,16 @@ public class UpliftFiles {
             String archiveFolder =  ImportHelper.ValueForSetting(importSettings, "archiveFolder");
 
 
-            // Before we start, lets make sure there are files in the baseFolder
 
-            // TODO: lets do for the list of expected files;
-            Path filePath = Paths.get(baseFileFolder + "campuses.csv");
-            if (!Files.exists(filePath)) {
-                throw new FileNotFoundException("Import File not found : " + filePath);
+              // Before we start, lets make sure there are files in the baseFolder
+              // additional users NO
+              // additional_users.csv  NO
+            String[] files = {"academics_grades.csv", "attendance.csv", "campuses.csv", "discipline.csv", "mCLASS and MAP.csv", "state_assessment.csv", 
+            "students.csv", "teacherstudentassignements.csv", "TELPAS.csv", "users.csv"};
+            if (!ImportHelper.CheckFilesExist(baseFileFolder, files)) {
+                throw new FileNotFoundException("One or more import files missing!");
             }
 
-            
         
 
 
@@ -92,6 +93,13 @@ public class UpliftFiles {
 
             String[] fr = data.removeFirst();
 
+
+            String [] colNames = {"schoolcode", "schoolname"};
+
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : campuses.csv does not match column specs" );
+
+          
           
             for (String [] row : data) {
                 if (!row[0].isBlank()) 
@@ -127,6 +135,11 @@ public class UpliftFiles {
 
 
             fr = data.removeFirst();
+            colNames = new String[]{"studentid", "lastname", "firstname", "dob", "gender", "schoolcode", "gradecode", "is504", "englishlanguagelearner", "guardiantype", "guardianfirstname", "guardianlastname", "guardianemail"};
+
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : students.csv does not match column specs" );
+
             counter1 = 0;
 
             //data.forEach(row -> {
@@ -134,13 +147,6 @@ public class UpliftFiles {
 
                 if (!row[0].isBlank()) 
                 {
-
-                    //Student s = new Student(row[0], row[0], row[2], row[1], row[6], row[5]);
-
-                    //Demographics d = new Demographics(row[0], row[3], row[4], false, false, false, false, false, false);
-
-                    //  sourceId, guardianId,  studentId,  firstName,  lastName,  email, type
-                    //Guardian g = new Guardian("Guardian_" + row[0], "G_" + row[0],  row[0],  row[10], row[11], row[12], row[9]);
 
 
                     //String sourceId, String studentId, String firstName, String lastName, String grade, String schoolCode
@@ -181,6 +187,10 @@ public class UpliftFiles {
 
 
             fr = data.removeFirst();
+            colNames = new String[]{"userid", "lastname", "firstname", "email", "schoolcode", "userlevel"};
+
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : users.csv does not match column specs" );
 
 
             // userid       0
@@ -217,6 +227,12 @@ public class UpliftFiles {
             // userid
 
             fr = data.removeFirst();
+
+            colNames = new String[]{"studentid", "userid"};
+
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : teacherstudentassignements.csv does not match column specs" );
+
             counter1 = 0;
 
             //data.forEach(row -> {
@@ -250,6 +266,10 @@ public class UpliftFiles {
 
 
             fr = data.removeFirst();
+            colNames = new String[]{"StudentID", "Test", "SchoolYear", "TermName", "Subject", "Level", "TestScore"};
+
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : mCLASS and MAP.csv does not match column specs" );
 
             // studentId    0
             // test         1       MAP or MCLASS
@@ -306,6 +326,12 @@ public class UpliftFiles {
 
             fr = data.removeFirst();
 
+            colNames = new String[]{"studentid", "coursenumber", "coursename", "coursegrade", "schoolyear", "term"};
+
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : academics_grades.csv does not match column specs" );
+
+
             // studentId    0
             // coursenumber 1
             // coursename   2
@@ -342,6 +368,10 @@ public class UpliftFiles {
 
 
             fr = data.removeFirst();
+            colNames = new String[]{"studentid", "testdate", "stateassessmentsubject", "gradeduringassessment", "stateassessmentscore"};
+
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : state_assessment.csv does not match column specs" );
 
             // studentId    0
             // testdate
@@ -371,6 +401,12 @@ public class UpliftFiles {
 
 
             fr = data.removeFirst();
+
+            colNames = new String[]{"studentid", "issdays", "ossdays", "aepdays", "schoolyear"};
+
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : discipline.csv does not match column specs" );
+
 
             // studentId    0
             // issdays

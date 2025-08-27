@@ -60,7 +60,12 @@ public class CelinaFiles {
 
             String archiveFolder =  ImportHelper.ValueForSetting(importSettings, "archiveFolder");
 
-            // Before we start, lets make sure there are files in the baseFolder
+		    // Before we start, lets make sure there are files in the baseFolder
+            String[] files = {"demographics.csv", "enrollments.csv", "orgs.csv", "users.csv"};
+            if (!ImportHelper.CheckFilesExist(baseFileFolder, files)) {
+                throw new FileNotFoundException("One or more import files missing!");
+            }
+
 
             // TODO: lets do for the list of expected files;
             Path filePath = Paths.get(baseFileFolder + "orgs.csv");
@@ -90,6 +95,12 @@ public class CelinaFiles {
 
 			String[] fr = data.removeFirst();
 
+			String[] colNames = new String[]{"sourcedId", "status", "dateLastModified", "name", "type", "identifier", "parentSourcedId"};
+            
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : orgs.csv does not match column specs" );
+
+
 			for (String [] row : data) {
 
                 if (!row[0].isBlank()) 
@@ -118,6 +129,16 @@ public class CelinaFiles {
 			data = msp.readCsvFile( baseFileFolder + "users.csv");
 
 			fr = data.removeFirst();
+
+			// sourcedId	status	dateLastModified	enabledUserV1P1	orgSourcedIds	role	username	userIds	givenName	familyName	middleName	identifier	email	sms	phone	agentSourcedIds	grades	password
+
+
+			colNames = new String[]{"sourcedId", "status", "dateLastModified", "enabledUserV1P1", "orgSourcedIds", "role", "username", "userIds", "givenName", "familyName", "middleName", "identifier", "email", "sms", "phone", "agentSourcedIds", "grades", "password"};
+            
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : users.csv does not match column specs" );
+
+
 			// soureceId
 			// status
 			// dataLastModified
@@ -194,6 +215,11 @@ public class CelinaFiles {
 
 			data = msp.readCsvFile(baseFileFolder + "demographics.csv");
 			fr = data.removeFirst();
+			colNames = new String[]{"sourcedId", "status", "dateLastModified", "birthDate", "sex", "americanIndianOrAlaskaNative", "asian", "blackOrAfricanAmerican", "nativeHawaiianOrOtherPacificIslander", "white", "demographicRaceTwoOrMoreRaces", "hispanicOrLatinoEthnicity", "countryOfBirthCode", "stateOfBirthAbbreviation", "cityOfBirth", "publicSchoolResidenceStatus"};
+            
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : demographics.csv does not match column specs" );
+
 
 			// soureceId								0
 			// status
@@ -229,6 +255,12 @@ public class CelinaFiles {
 
 			data = msp.readCsvFile(baseFileFolder + "enrollments.csv");
 			fr = data.removeFirst();
+
+			colNames = new String[]{"sourcedId", "status", "dateLastModified", "classSourcedId", "schoolSourcedId", "userSourcedId", "role", "primary", "beginDate", "endDate"};
+            
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : enrollments.csv does not match column specs" );
+
 
 			// soureceId								0
 			// status
@@ -278,7 +310,7 @@ public class CelinaFiles {
 
             // Now we move the files to the archive Folder
 
-            ImportHelper.MoveFiles(baseFileFolder, archiveFolder);
+            //ImportHelper.MoveFiles(baseFileFolder, archiveFolder);
 
             i.importRepo.logInfo("Moved Files to archive");
 

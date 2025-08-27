@@ -1,7 +1,11 @@
 package com.bosco.stdata.service;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +18,11 @@ public class UserFileService {
 
     public List<String[]> readCsvFile(String filePath) {
         List<String[]> records = new ArrayList<>();
-        try (CSVReader csvReader = new CSVReader(new FileReader(filePath))) {
+        try (CSVReader csvReader = new CSVReader(
+            new BufferedReader(new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8))
+        //new FileReader(filePath)
+        
+        )) {
             String[] nextRecord;
             while ((nextRecord = csvReader.readNext()) != null) {
                 records.add(nextRecord);

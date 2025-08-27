@@ -346,8 +346,6 @@ public class ClassLinkOneRosterApi {
             studentCount = 0;
 
 
-            // SO AT THIS POINT, there are NO DEMOGRAPHICS
-
             // https://springtownisd-tx-v2.rosterserver.com/ims/oneroster/v1p1/demographics?filter=status%3D'active'&limit=100&offset=0&orderBy=asc
             requestUrl = apiBase + "ims/oneroster/v1p1/demographics?filter=status%3D'active'&limit=" + PAGE_SIZE + "&offset=" + PAGE_SIZE * pageNumber + "&orderBy=asc";
 
