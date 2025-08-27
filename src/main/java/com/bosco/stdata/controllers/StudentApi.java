@@ -5,10 +5,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.tasks.ImportTask;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.bosco.stdata.model.*; 
@@ -25,8 +28,15 @@ public class StudentApi {
 
     
 
-    @GetMapping("/student/studentDataRegister")
-    public String studentDataRegister(@RequestParam("id") String id) {
+    @Operation(
+        summary = "Register a student for SIS data",
+        description = "SIS data for this student will be sent SOON.  If any data changes during imports, it will be sent again",
+        tags = {"Bosco Endpoints"}
+        )
+
+
+    @GetMapping("/student/studentDataRegister/{id}")
+    public String studentDataRegister(@PathVariable String id) {
 
 
         System.out.println("Param: " + id);
@@ -43,8 +53,14 @@ public class StudentApi {
         return "Registered";
     }
     
-    @GetMapping("/student/studentDataUnRegister")
-    public String studentDataUnRegister(@RequestParam("id") String id) {
+    @Operation(
+        summary = "UnRegister a student for SIS data",
+        description = "When data is no longer need for this student",
+        tags = {"Bosco Endpoints"}
+        )
+
+    @GetMapping("/student/studentDataUnRegister/{id}")
+    public String studentDataUnRegister(@PathVariable String id) {
 
 
         System.out.println("Param: " + id);
@@ -61,8 +77,15 @@ public class StudentApi {
         return "Unregistered";
     }
     
-    @GetMapping("/student/getSisData")
-    public SisStudentData getSisData(@RequestParam("id") String id) {
+
+    @Operation(
+        summary = "SIS Data that will be sent to Bosco",
+        description = "This is the data that will be sent to Bosco on Register AND when new SIS data is imported",
+        tags = {"Bosco API Examples"}
+            )
+
+    @GetMapping("/student/getSisData/{id}")
+    public SisStudentData getSisData(@PathVariable String id) {
 
 
         System.out.println("Param: " + id);
@@ -89,8 +112,16 @@ public class StudentApi {
         return sd;
     }
 
-    @GetMapping("/student/getStudent")
-    public Student getStudent(@RequestParam("id") String id) {
+   
+
+      @Operation(
+        summary = "Student Data that will be sent to Bosco",
+        description = "This is the student data that will be sent to Bosco when they are NEW or CHANGED in the import",
+        tags = {"Bosco API Examples"}
+            )
+
+     @GetMapping("/student/getStudent/{id}")
+    public Student getStudentById(@PathVariable String id) {
 
 
         System.out.println("Param: " + id);

@@ -136,78 +136,13 @@ public  class ImportHelper {
 
             byte[] utf8Bytes = headerRow[i].getBytes(StandardCharsets.ISO_8859_1);
 
-            String s8 = new String(utf8Bytes, StandardCharsets.UTF_8);
+            String headerRowUtf8 = new String(utf8Bytes, StandardCharsets.UTF_8);
 
-                // defaultBytes = headerRow[i].getBytes();
-                // sd = new String(defaultBytes, StandardCharsets.UTF_8);
+            String trimmedHeaderRow = headerRowUtf8.replace("?", "");
           
-
-
-
-            String t8 = s8.replace("?", "");
-            //String td = sd.replace("?", "");
-
-            //System.out.println("8:" + s8 + " d:" + sd);
-            //System.out.println("t8:" + t8 + " td:" + td);
-
-            //System.out.println("HERE");
-
-            if (!t8.equalsIgnoreCase(headers[i])) {
+            if (!trimmedHeaderRow.equalsIgnoreCase(headers[i])) {
                 return false;
             }
-
-            // This one works.
-            // if (!headerRow[i].contains(headers[i])) {
-            //      return false;
-            // }
-            
-
-            // System.out.println("Checking : " +  headerRow[i] + " = " + headers[i]);
-            // String hrx = headerRow[i];
-            // String h = headers[i];
-
-
-
-            //  String hr =  convertFromUtf8ToIso(headerRow[i]);
-            // // String h = convertFromUtf8ToIso(headers[i]);
-
-
-            //  System.out.println("Checking : " +  hr + " = " + h);
-
-            //  if (!hr.equalsIgnoreCase(h)) {
-            //      return false;
-            // }
-            
-
-
-            // String hr =  new String(headerRow[i].getBytes(Charset.forName("utf-8")));
-            // String h = new String(headers[i].getBytes(Charset.forName("utf-8")));
-          
-            // byte[] ansiBytes = headerRow[i].getBytes(StandardCharsets.ISO_8859_1); // Or Charset.forName("Cp1252")
-   
-            // String hr = new String(ansiBytes, StandardCharsets.ISO_8859_1); // Or Charset.forName("Cp1252")
-         
-            
-            //ansiBytes = headers[i].getBytes(StandardCharsets.ISO_8859_1); // Or Charset.forName("Cp1252")
-   
-            //String h = new String(ansiBytes, StandardCharsets.ISO_8859_1); // Or Charset.forName("Cp1252")
-            //String h = headers[i];
-
-            //String h = new String(headerRow[i], );
-         
-
-            //  System.out.println("Checking : " +  headerRow[i] + " = " + headers[i]);
-            // // System.out.println("Checking : " +  hr + " = " + h);
-
-            // // if (!hr.equalsIgnoreCase(h)) {
-            // //     return false;
-            // // }
-        
-
-            // if (!headerRow[i].equalsIgnoreCase(headers[i])) {
-            //      return false;
-            // }
-            
 
 
         }

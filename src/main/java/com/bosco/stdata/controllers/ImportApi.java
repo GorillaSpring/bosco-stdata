@@ -1,15 +1,22 @@
 package com.bosco.stdata.controllers;
 
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bosco.stdata.model.ImportDefinition;
+import com.bosco.stdata.model.ImportLog;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.EmailService;
 import com.bosco.stdata.tasks.ImportTask;
 import com.bosco.stdata.utils.ImportHelper;
+
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.websocket.server.PathParam;
 
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -26,42 +33,133 @@ public class ImportApi {
     EmailService emailService;
 
 
-    @GetMapping("/import/runImport")
-    public String runImportNow() {
+    @Operation(
+        summary = "Run Imports NOW",
+        description = "Email will be sent if sendEmail is true. This will kick off the imports.  Please check Definitions to see what is active",
+        tags = {"Import Testing"}
+        )
+    @GetMapping("/import/runImport/{sendEmail}")
+    public String runImportNow(@PathVariable Boolean sendEmail) {
         //ImportTask importTask = new ImportTask();
 
-        String result = importTask.doImports();
+        String result = importTask.doImports(sendEmail);
 
         return result;
 
     }
 
 
-    @GetMapping("/import/testEmail")
-    public String getMethodName() {
-        emailService.sendSimpleMessage("benlevy3@gmail.com", "Tesing the email in bosco-stdata with props", "This is the email we are sending with props");
-        return "Sent";
-    }
-    
+  
 
-    @GetMapping("/test/testFilesExists")
-    public String testFilesExists() {
+
+    @Operation(
+            summary = "Get Logs for an import",
+            description = "For now, this just sends html back.",
+            tags = {"Import Defs"}
+            )
+    
+    @GetMapping("/import/getLogsHTML/{importId}")
+    public String getLogsHTML(@PathVariable int importId) {
+        List<ImportLog> logs = importRepo.getInfoLogs(importId);
+
+        String html = "<html>";
+        // we will return html
+
+        html += "<h6>Info Logs</h6>";
+        html += "<table><tr><th>ImportId</th><th>Info</th><th>Date</th></tr>";
+        for(ImportLog log: logs) {
+            html += """
+                <tr>
+                    <td>%d</td>
+
+                    <td>%s</td>
+                    <td>%s</td>
+                </tr>
+            """.formatted(log.getImportId(), log.getInfo(), log.getCreatedDateTime());
+
+            
+
+        }
+        html += "</table>";
+
+
+        logs = importRepo.getErrorLogs(importId);
+
+        html += "<h6>Errors</h6>";
+
+        html += "<table><tr><th>ImportId</th><th>Error</th><th>Date</th></tr>";
+        for(ImportLog log: logs) {
+            html += """
+                <tr>
+                    <td>%d</td>
+                    
+                    <td>%s</td>
+                    <td>%s</td>
+                </tr>
+            """.formatted(log.getImportId(), log.getError(), log.getCreatedDateTime());
+
+            
+
+        }
+        html += "</table>";
+
+
+        html += "</html>";
+
+        return html;
+
         
-        String baseFolder = "c:/test/importBase/uplift/";
-
-        String[] files = {"users.csv", "students.csv"};
-
-        Boolean exist = ImportHelper.CheckFilesExist(baseFolder, files);
-
-        if (exist)
-    
-            return "Exists";
-        else
-            return "NOT EXISTS";
     }
 
 
+     @Operation(
+            summary = "Get All Import Definitions",
+            description = "Get the status etc. of import definitions",
+            tags = {"Import Defs"}
+            )
+
+    @GetMapping("/import/importDefs")
+    public List<ImportDefinition> importDefs() {
+        
+
+        List<ImportDefinition> defs = importRepo.getAllImportDefinitions();
+
+        return defs;
+
+        //return "TODO Get defs";
+    }
     
+
+
+    
+    @Operation(
+            summary = "Turn on or off Import",
+            description = "BoscoClasslinkOneRosterApi, BoscoSkywardApi, CelinaFiles, ClintSkywardApi, SpringtownOneRosterApi, TestFiles, UpliftFiles",
+            tags = {"Import Defs"}
+            )
+    @GetMapping("/import/setImportDef/{id}/{active}")
+    public String setImportDef(@PathVariable String id, @PathVariable Boolean active) {
+
+        importRepo.setImportDefActive(id, active);
+
+        if (active) {
+            return "Set Import Def for " + id + " to Active";
+        }
+        else {
+            return "Set Import Def for " + id + " to Disabled";
+        }
+
+
+
+    }
+
+    
+    
+     @Operation(
+            summary = "Just testing running a thread",
+            description = "This will be removed soon.",
+            tags = {"Testing"}
+            )
 
     @GetMapping("/import/runTaskTEST")
     public String runTask() {
@@ -91,6 +189,21 @@ public class ImportApi {
             return "Task started";
         }
     }
+
+
+      @Operation(
+            summary = "Just testing sending an email",
+            description = "This will be removed soon.",
+            tags = {"Testing"}
+            )
+
+      @GetMapping("/import/testEmail")
+    public String getMethodName() {
+        emailService.sendSimpleMessage("benlevy3@gmail.com", "Tesing the email in bosco-stdata with props", "This is the email we are sending with props");
+        return "Sent";
+    }
+    
+
     
 
 }

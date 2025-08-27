@@ -14,6 +14,7 @@ import com.bosco.stdata.distictImports.UpliftFiles;
 import com.bosco.stdata.model.ImportDefinition;
 import com.bosco.stdata.model.ImportResult;
 import com.bosco.stdata.repo.ImportRepo;
+import com.bosco.stdata.service.EmailService;
 
 
 
@@ -23,13 +24,19 @@ public class ImportTask {
     @Autowired
     ImportRepo importRepo;
 
+    @Autowired
+    EmailService emailService;
+
+
     public ImportTask() {}
 
-    public String doImports () {
+    public String doImports (Boolean sendEmail) {
 
 
         // this will do all the imports.
         // we should check if it is running before we do this, but just incase.
+
+        
 
         int importStatus = importRepo.getSystemStatus("Import");
 
@@ -40,7 +47,7 @@ public class ImportTask {
         else {
             Thread taskThread = new Thread(() -> {
                
-                processImports();
+                processImports(sendEmail);
             });
 
 
@@ -56,11 +63,15 @@ public class ImportTask {
 
     }
 
-    private void processImports() {
+    private void processImports(Boolean sendEmail) {
+
+        // so this will send email when done!
+        
         try {
 
             List<ImportResult> importResults = new ArrayList<>();
 
+            
             List<ImportDefinition> importDefs = importRepo.getActiveImportDefinitions();
             for (ImportDefinition importDef : importDefs)
             {
@@ -118,16 +129,39 @@ public class ImportTask {
                 }
             }
 
-            importResults.forEach(ir -> {
+            
+            String emailBody = "<html><h6>Imports</h6>";
+            emailBody += "<ul>";
+
+
+            for (ImportResult ir : importResults) {
                 if (ir.success) {
+                    emailBody += "<li> Success: " + ir.districtId + " ImportId : " + ir.importId + "  : <a href='http://localhost:8080/import/getLogsHTML/" + ir.importId  + "'>Logs</a>";
                     System.out.println("Import: " + ir.districtId + " ID: " + ir.importId);
                 }
                 else {
+                    emailBody += "<li> Failed: " + ir.districtId + " ImportId : " + ir.importId  + "  : <a href='http://localhost:8080/import/getLogsHTML/" + ir.importId  + "'>Logs</a>";
                     System.out.println("FAILD Import:" + ir.districtId + " ID: " + ir.importId);
                     System.out.println(ir.errorMessage);
-                }
 
-            }); 
+                }
+            }
+
+            emailBody += "</ul></html>";
+
+            // importResults.forEach(ir -> {
+            //     if (ir.success) {
+                    
+            //         System.out.println("Import: " + ir.districtId + " ID: " + ir.importId);
+            //     }
+            //     else {
+            //         System.out.println("FAILD Import:" + ir.districtId + " ID: " + ir.importId);
+            //         System.out.println(ir.errorMessage);
+            //     }
+
+            // }); 
+
+            emailService.sendSimpleMessage("BenLevy3@gmail.com",  "Import Results", emailBody);
 
             System.out.println("DONE");
             importRepo.setSystemStatus("Import", 0);

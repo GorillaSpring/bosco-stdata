@@ -40,6 +40,38 @@ public class ImportRepo {
     }
 
 
+    //#region Logs
+
+    public List<ImportLog> getInfoLogs(int importId) {
+        Object[] args = {
+            //forDistrictId,
+            importId
+        };
+
+        String sql = """
+           select * from log_info where importId = ?;
+                """; 
+
+
+        return template.query(sql, new BeanPropertyRowMapper<>(ImportLog.class), args);
+    }
+
+
+     public List<ImportLog> getErrorLogs(int importId) {
+        Object[] args = {
+            //forDistrictId,
+            importId
+        };
+
+        String sql = """
+           select * from log_error where importId = ?;
+                """; 
+
+
+        return template.query(sql, new BeanPropertyRowMapper<>(ImportLog.class), args);
+    }
+    //#endregion
+
     //#region Testing
 
     
@@ -67,6 +99,20 @@ public class ImportRepo {
         };
 
         String sql = "update system_status set status=? where systemKey = ?;";
+
+        int rows = template.update(sql, args);
+    }
+
+    
+    public void setImportDefActive (String id, Boolean active) {
+
+        Object[] args = {
+            active,
+            id
+
+        };
+
+        String sql = "update import_definition set active=? where id = ?;";
 
         int rows = template.update(sql, args);
     }
@@ -459,6 +505,17 @@ public class ImportRepo {
     public List<ImportDefinition> getActiveImportDefinitions() {
         
          String sql = "select * from import_definition where active = 1";
+
+         List<ImportDefinition> impDefs = template.query(
+                sql,
+                new BeanPropertyRowMapper<ImportDefinition>(ImportDefinition.class));
+
+        return impDefs;
+    }
+
+     public List<ImportDefinition> getAllImportDefinitions() {
+        
+         String sql = "select * from import_definition";
 
          List<ImportDefinition> impDefs = template.query(
                 sql,
