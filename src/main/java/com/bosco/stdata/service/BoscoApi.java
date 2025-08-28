@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.bosco.stdata.model.*;
 import com.bosco.stdata.repo.ImportRepo;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import java.io.BufferedWriter;
@@ -19,13 +20,87 @@ public class BoscoApi {
 
     private final ImportRepo importRepo;
     private final EmailService emailService;
+    private final BoscoTokenService boscoTokenService;
+    private final BoscoClient boscoClient;
     
 
-    BoscoApi(ImportRepo importRepo, EmailService emailService) {
+    private final int PAGE_SIZE = 100;
+
+    BoscoApi(ImportRepo importRepo, EmailService emailService, BoscoTokenService boscoTokenService, BoscoClient boscoClient) {
         this.importRepo = importRepo;
         this.emailService = emailService;
+        this.boscoTokenService = boscoTokenService;
+        this.boscoClient = boscoClient;
         
         
+        
+    }
+
+
+    // for testing:
+
+    // http://localhost:9090/oauth2/token
+
+    public JsonNode getStudent (String id) {
+       
+
+        String token = authBosco();
+        // Now we test sending this:
+
+        String stringIdToSend = "9999999.444444";
+
+        // http://localhost:9090/bosco/api/students/9999999.444444'
+        String getUrl = "http://localhost:9090/bosco/api/students/" + id;
+        //String getUrl = "http://localhost:9090/bosco/api/students";
+
+        JsonNode resNode = null;
+        try {
+            resNode = boscoClient.get(getUrl, token );
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+        return resNode;
+    }
+
+    public JsonNode getStudents (int pageNumber) {
+       
+
+        String token = authBosco();
+        // Now we test sending this:
+
+        String stringIdToSend = "9999999.444444";
+
+        // http://localhost:9090/bosco/api/students/9999999.444444'
+        
+
+
+        //String getUrl = "http://localhost:9090/bosco/api/students";
+
+        String getUrl = "http://localhost:9090/bosco/api/students?page=" + pageNumber + "&size=" + PAGE_SIZE + "&active=true";
+
+        JsonNode resNode = null;
+        try {
+            resNode = boscoClient.get(getUrl, token );
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+        return resNode;
+    }
+
+    private String authBosco() {
+        String clientId = "0oau4l5aoxkTY20ka697";
+        String clientSecret = "bHHS9uTMxwg6lRGUXZWz8olwSl92afT2_nPZuno4FRbfn622Qle0wgCWpk4TxOdY";
+        String tokenUrl = "http://localhost:9090/oauth2/token";
+        String token = boscoTokenService.getAccessToken(clientId, clientSecret, tokenUrl);
+
+        return token;
+
     }
 
 

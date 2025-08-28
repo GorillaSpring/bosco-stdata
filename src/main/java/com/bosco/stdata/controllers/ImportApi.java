@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bosco.stdata.model.ImportDefinition;
 import com.bosco.stdata.model.ImportLog;
 import com.bosco.stdata.repo.ImportRepo;
+import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.service.EmailService;
 import com.bosco.stdata.tasks.ImportTask;
 import com.bosco.stdata.utils.ImportHelper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.websocket.server.PathParam;
@@ -31,6 +34,93 @@ public class ImportApi {
 
     @Autowired
     EmailService emailService;
+
+    @Autowired 
+    BoscoApi boscoApi;
+    
+
+    
+    @Operation(
+            summary = "Testing Bosco get student 1000000.422576716 ",
+            description = "This will be removed soon.",
+            tags = {"Testing"}
+            )
+
+    @GetMapping("/import/boscoStudent")
+    public String boscoStudent() {
+
+        System.out.println("in testTbWeb");
+
+        JsonNode resNode = boscoApi.getStudent("1000000.422576716");
+
+        // we expect it is NOT an array
+
+        // if (resNode.isArray()) {
+        //     return "Got Array";
+        // }
+        // else {
+        //     return "Not Array";
+        // }
+
+        String studentName = resNode.get("firstName").asText() + " " + resNode.get("lastName").asText();
+
+        //return resNode.toPrettyString();
+        
+        return studentName;
+    }
+    
+    @Operation(
+            summary = "Testing Bosco web get Strudents",
+            description = "This will be removed soon.",
+            tags = {"Testing"}
+            )
+    @GetMapping("/import/boscoStudents")
+    public String boscoStudents() {
+
+        System.out.println("in testTbWeb");
+
+        // So we get  all the pages
+        int pageNumber = 0;
+        Boolean done = false;
+
+        String results = "Students: \n\n";
+
+
+        while (!done) {
+            JsonNode resNode = boscoApi.getStudents(pageNumber);
+            if (resNode.size() > 0) {
+
+                if (resNode.isArray()) {
+                    System.out.println("Getting students page: " + pageNumber);
+            
+                    ArrayNode arrayNode = (ArrayNode) resNode;
+
+                    for (JsonNode studentNode: arrayNode) {
+                        results += studentNode.get("firstName").asText() + " " + studentNode.get("lastName").asText() + "\n";
+                    }
+
+                    pageNumber++;
+                
+                }
+                else {
+                    done = true;
+                    results = "NOT ARRAY";
+
+                }
+
+            }
+            else {
+                done = true;
+            }
+
+            
+        }
+        return results;
+
+
+        
+    }
+    
 
 
     @Operation(
