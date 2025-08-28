@@ -101,7 +101,7 @@ public class TestFiles {
             for (String [] row : data) {
                 if (!row[0].isBlank()) 
                 {
-                    i.importRepo.saveSchool(row[0], row[1]);
+                    i.importRepo.saveSchool(row[0], row[1], row[0]);
                     counter1++;
                 }
 

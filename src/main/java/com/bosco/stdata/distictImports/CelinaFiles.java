@@ -106,7 +106,7 @@ public class CelinaFiles {
                 if (!row[0].isBlank()) 
                 {
 					if (row[4].equals("school")) {
-						i.importRepo.saveSchool(row[0], row[3]);
+						i.importRepo.saveSchool(row[0], row[3], row[0]);
 	    	            counter1++;
 
 					}
@@ -167,11 +167,11 @@ public class CelinaFiles {
 						
 						case "student":
 								String[] orgs = ((String)row[4]).split(",");
-								String schoolCode = orgs[0];
+								String schoolSourceId = orgs[0];
 
 
 								//Student s = new Student(row[0], row[11], row[8], row[9], row[16], schoolCode);
-								i.importRepo.saveStudent(row[0], row[11], row[8], row[9], row[16], schoolCode);
+								i.importRepo.saveStudent(row[0], row[11], row[8], row[9], row[16], schoolSourceId);
 								studentCount++;
 							break;
 					

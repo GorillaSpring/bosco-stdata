@@ -17,7 +17,13 @@ public class School {
 	/*
 	 * Different schools can have different grades in their levels
 	 */
+
+
+	 private String schoolCode;
+
 	private String grades;
+
+	
 
     private String name;
 

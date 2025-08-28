@@ -229,12 +229,12 @@ public class ImportRepo {
                     s.gender,
                     s.studentNumber as studentId,
                     school.name as school,
-                    s.schoolCode as schoolId,
+                    school.schoolCode as schoolId,
                     i.districtId,
                     s.grade
                 from 
                     student s 
-                    left join school school on school.importId = s.importId and school.sourceId = s.schoolCode
+                    left join school school on school.importId = s.importId and school.sourceId = s.schoolSourceId
                     join import i on i.id = s.importId
                 where 
                     s.importId = ? 
@@ -586,7 +586,8 @@ public class ImportRepo {
         String sql = """
               select 
                     i.districtId,
-                    s.name
+                    s.name,
+                    s.schoolCode
                 from 
                     school s
                     join import i on i.id = s.importId
@@ -630,30 +631,6 @@ public class ImportRepo {
         // 2 is new.
 
 
-        
-        // String sql = """
-        //         select 	
-        //             concat ('%s.' , s.studentNumber) as id,
-        //             s.firstName,
-        //             s.lastName,
-        //             s.dob,
-        //             s.gender,
-        //             s.studentNumber as studentId,
-        //             school.name as school,
-        //             s.schoolCode as schoolId,
-        //             %s as districId,
-        //             s.grade
-        //         from 
-        //             student s 
-        //             left join school school on school.importId = s.importId and school.sourceId = s.schoolCode
-        //         where 
-        //             s.importId = %s and s.changed = %s;
-        //         """.formatted(districtId, districtId, importId, changedFlag);
-        //     List<BoscoStudent> students = template.query(
-        //         sql,
-        //         new BeanPropertyRowMapper(BoscoStudent.class));
-
-        // return students;
 
         Object[] args = {
             forImportId,
@@ -669,12 +646,12 @@ public class ImportRepo {
                     s.gender,
                     s.studentNumber as studentId,
                     school.name as school,
-                    s.schoolCode as schoolId,
+                    school.schoolCode as schoolId,
                     i.districtId,
                     s.grade
                 from 
                     student s 
-                    left join school school on school.importId = s.importId and school.sourceId = s.schoolCode
+                    left join school school on school.importId = s.importId and school.sourceId = s.schoolSourceId
                     join import i on i.id = s.importId
                 where 
                     s.importId = ? 
@@ -702,30 +679,6 @@ public class ImportRepo {
         // 2 is new.
 
 
-        
-        // String sql = """
-        //         select 	
-        //             concat ('%s.' , s.studentNumber) as id,
-        //             s.firstName,
-        //             s.lastName,
-        //             s.dob,
-        //             s.gender,
-        //             s.studentNumber as studentId,
-        //             school.name as school,
-        //             s.schoolCode as schoolId,
-        //             %s as districId,
-        //             s.grade
-        //         from 
-        //             student s 
-        //             left join school school on school.importId = s.importId and school.sourceId = s.schoolCode
-        //         where 
-        //             s.importId = %s and s.changed = %s;
-        //         """.formatted(districtId, districtId, importId, changedFlag);
-        //     List<BoscoStudent> students = template.query(
-        //         sql,
-        //         new BeanPropertyRowMapper(BoscoStudent.class));
-
-        // return students;
 
         Object[] args = {
             forImportId,
@@ -741,7 +694,7 @@ public class ImportRepo {
                     s.gender,
                     s.studentNumber as studentId,
                     school.name as school,
-                    s.schoolCode as schoolId,
+                    school.schoolCode as schoolId,
                     i.districtId,
                     s.grade,
                     s.americanIndianOrAlaskaNative,
@@ -752,7 +705,7 @@ public class ImportRepo {
                     s.hispanicOrLatinoEthnicity
                 from 
                     student s 
-                    left join school school on school.importId = s.importId and school.sourceId = s.schoolCode
+                    left join school school on school.importId = s.importId and school.sourceId = s.schoolSourceId
                     join import i on i.id = s.importId
                 where 
                     s.importId = ? 
@@ -1044,24 +997,27 @@ public class ImportRepo {
 
     //#region School
 
-    public void saveSchool(String sourceId, String name) {
+    public void saveSchool(String sourceId, String name, String schoolCode) {
         //System.out.println("Added");
 
         Object[] args = {
             importId,
             sourceId,
             name,
-            name
+            schoolCode,
+            name,
+            schoolCode
         };
 
 
         
         String sql = """
             insert into
-                school (importId, sourceId, name)
-            values (?, ?, ?)
+                school (importId, sourceId, name, schoolCode)
+            values (?, ?, ?, ?)
             on duplicate key update
-                name = ?;
+                name = ?,
+                schoolCode = ?;
                 """;
 
         int rows = template.update(sql, args);
@@ -1083,7 +1039,7 @@ public class ImportRepo {
     
 
 
-      public void saveStudent(String sourceId, String studentId, String firstName, String lastName, String grade, String schoolCode) {
+      public void saveStudent(String sourceId, String studentId, String firstName, String lastName, String grade, String schoolSourceId) {
     // String sourceId, String studentId, String firstName, String lastName, String grade, String schoolCode    
 
         Object[] args = {
@@ -1093,27 +1049,27 @@ public class ImportRepo {
             firstName,
             lastName,
             grade,
-            schoolCode,
+            schoolSourceId,
 
             studentId,
             firstName,
             lastName,
             grade,
-            schoolCode
+            schoolSourceId
         };
 
 
         String sql = """
                 
                 insert into
-                    student (importId, sourceId, studentNumber, firstName, lastName, grade, schoolCode)
+                    student (importId, sourceId, studentNumber, firstName, lastName, grade, schoolSourceId)
                 values (?, ?, ?, ?, ?, ?, ?)
                 on duplicate key update
                     studentNumber = ?,
                     firstName = ?,
                     lastName = ?,
                     grade = ?,
-                    schoolCode = ?;
+                    schoolSourceId = ?;
 
                 """;
 

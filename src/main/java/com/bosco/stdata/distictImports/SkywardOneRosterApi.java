@@ -136,7 +136,10 @@ public class SkywardOneRosterApi {
                         String sourceId = orgsNode.get("sourcedId").asText();
                         String name = orgsNode.get("name").asText();
 
-                        i.importRepo.saveSchool(sourceId, name);
+                        String identifier = orgsNode.get("identifier").asText();
+                        // 
+
+                        i.importRepo.saveSchool(sourceId, name, identifier);
                         schoolCount++;
 
                     
@@ -187,13 +190,13 @@ public class SkywardOneRosterApi {
 
                                 // ** So, there is orgs array.  Has "Entity_2"  this is the school.
 
-                                String schoolCode = "X";
+                                String schoolSourceId = "X";
                                 JsonNode schoolNode = userNode.get("orgs");
                                 if (schoolNode != null) {
                                     if (schoolNode.isArray()) {
                                             if (schoolNode.size() > 0) {
                                                 JsonNode schoolElement = schoolNode.get(0);
-                                                schoolCode = schoolElement.get("sourcedId").asText();
+                                                schoolSourceId = schoolElement.get("sourcedId").asText();
                                             }
 
                                     }
@@ -225,7 +228,7 @@ public class SkywardOneRosterApi {
                                 i.importRepo.saveStudent(
                                     userNode.get("sourcedId").asText(), userNode.get("identifier").asText(),  userNode.get("givenName").asText(),  
                                         userNode.get("familyName").asText(),
-                                        grade, schoolCode
+                                        grade, schoolSourceId
                                 );
                                 studentCount++;
                                 break;

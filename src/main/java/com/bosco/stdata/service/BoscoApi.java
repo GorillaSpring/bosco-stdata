@@ -18,11 +18,14 @@ import java.util.List;
 public class BoscoApi {
 
     private final ImportRepo importRepo;
-
+    private final EmailService emailService;
     
 
-    BoscoApi(ImportRepo importRepo) {
+    BoscoApi(ImportRepo importRepo, EmailService emailService) {
         this.importRepo = importRepo;
+        this.emailService = emailService;
+        
+        
     }
 
 
@@ -37,6 +40,11 @@ public class BoscoApi {
 
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
+
+        // if there are any new or changed schools, we will simply send an email.
+
+        String newSchools = "<ul>";
+        Boolean areNewSchools = false;
 
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outFileName)))
@@ -53,6 +61,8 @@ public class BoscoApi {
 
                 List<School> schools = importRepo.schoolsBoscoForExport(importId, 2);
                 for (School bs : schools) {
+                    areNewSchools = true;
+                    newSchools += "<li> NEW: " + bs.getSchoolCode() + " - " + bs.getName() + "</li>\n";
                     writer.write(ow.writeValueAsString(bs));
                     writer.write("\n");
                 }
@@ -60,6 +70,9 @@ public class BoscoApi {
                 writer.write("------------ CHANGED SCHOOLS ----------------\n");
                 schools = importRepo.schoolsBoscoForExport(importId, 1);
                 for (School bs : schools) {
+                    areNewSchools = true;
+                    newSchools += "<li> CHANGED: " + bs.getSchoolCode() + " - " + bs.getName() + "</li>\n";
+
                     writer.write(ow.writeValueAsString(bs));
                     writer.write("\n");
                 }
@@ -149,8 +162,13 @@ public class BoscoApi {
             }
         
 
+            newSchools += "</ul>";
 
 
+            if (areNewSchools) {
+                System.out.println("Sending new or changed schools email");
+                emailService.sendSimpleMessage("BenLevy3@gmail.com",  "New or Changed Schools", newSchools);
+            }
 
         
         

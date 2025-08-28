@@ -159,10 +159,11 @@ public class ClassLinkOneRosterApi {
 
                     String sourceId = orgsNode.get("sourcedId").asText();
                     String name = orgsNode.get("name").asText();
+                    String identifier = orgsNode.get("identifier").asText();
 
                     //System.out.println("School : " + sourceId + " - " + name);
 
-                    i.importRepo.saveSchool(sourceId, name);
+                    i.importRepo.saveSchool(sourceId, name, identifier);
                     schoolCount++;
 
                 
@@ -224,13 +225,13 @@ public class ClassLinkOneRosterApi {
 
                                 // ** So, there is orgs array.  Has "Entity_2"  this is the school.
 
-                                String schoolCode = "X";
+                                String schoolSourceId = "X";
                                 JsonNode schoolNode = userNode.get("orgs");
                                 if (schoolNode != null) {
                                     if (schoolNode.isArray()) {
                                             if (schoolNode.size() > 0) {
                                                 JsonNode schoolElement = schoolNode.get(0);
-                                                schoolCode = schoolElement.get("sourcedId").asText();
+                                                schoolSourceId = schoolElement.get("sourcedId").asText();
                                             }
 
                                     }
@@ -261,7 +262,7 @@ public class ClassLinkOneRosterApi {
                                 // 	//Student s = new Student(row[0], row[8], row[9]);
                                 i.importRepo.saveStudent(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(),  userNode.get("givenName").asText(),  
                                         userNode.get("familyName").asText(),
-                                        grade, schoolCode);
+                                        grade, schoolSourceId);
                                 studentCount++;
                                 break;
                         
