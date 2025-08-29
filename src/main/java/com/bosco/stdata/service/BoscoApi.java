@@ -1,6 +1,7 @@
 package com.bosco.stdata.service;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.bosco.stdata.model.*;
@@ -26,6 +27,19 @@ public class BoscoApi {
 
     private final int PAGE_SIZE = 100;
 
+    @Value("${bosco.api.authUrl}")
+    private String authUrl;
+
+    @Value("${bosco.api.baseUrl}")
+    private String baseUrl;
+
+    @Value("${bosco.api.clientId}")
+    private String clientId;
+
+    @Value("${bosco.api.clientSecret}")
+    private String clientSecret;
+        
+
     BoscoApi(ImportRepo importRepo, EmailService emailService, BoscoTokenService boscoTokenService, BoscoClient boscoClient) {
         this.importRepo = importRepo;
         this.emailService = emailService;
@@ -37,9 +51,67 @@ public class BoscoApi {
     }
 
 
-    // for testing:
 
-    // http://localhost:9090/oauth2/token
+    public String postStudentToBosco (String id) {
+           String token = authBosco();
+
+           String postUrl = baseUrl + "students";
+
+            System.out.println("Param: " + id);
+        // id will be 66.838101615
+        String [] params = id.split("\\.");
+        int districId = Integer.parseInt(params[0]);
+
+        int importId = importRepo.getBaseImportForDistrict(districId);
+
+
+
+        Student bs = importRepo.studentBoscoForExport(importId, params[1]);
+
+        bs.setGuardians(importRepo.guardiansBoscoForStudent(importId, bs.getStudentId()));
+        bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(importId, bs.getStudentId()));
+
+           String res = boscoClient.postStudent(postUrl, token, bs);
+
+           return res;
+    }
+
+
+
+    public String putStudentToBosco (String id) {
+        String token = authBosco();
+        
+        String postUrl = baseUrl + "students/{id}";
+
+            System.out.println("Param: " + id);
+        // id will be 66.838101615
+        String [] params = id.split("\\.");
+        int districId = Integer.parseInt(params[0]);
+
+        int importId = importRepo.getBaseImportForDistrict(districId);
+
+
+
+        Student bs = importRepo.studentBoscoForExport(importId, params[1]);
+
+        bs.setGuardians(importRepo.guardiansBoscoForStudent(importId, bs.getStudentId()));
+        bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(importId, bs.getStudentId()));
+
+        String res = boscoClient.putStudent(postUrl, token, bs);
+
+        return res;
+    }
+
+    public String deleteStudentToBosco (String id) {
+        String token = authBosco();
+        
+        String postUrl = baseUrl + "students/{id}";
+
+        String res = boscoClient.deleteStudent(postUrl, token, id);
+
+      
+        return res;
+    }
 
     public JsonNode getStudent (String id) {
        
@@ -47,11 +119,7 @@ public class BoscoApi {
         String token = authBosco();
         // Now we test sending this:
 
-        String stringIdToSend = "9999999.444444";
-
-        // http://localhost:9090/bosco/api/students/9999999.444444'
-        String getUrl = "http://localhost:9090/bosco/api/students/" + id;
-        //String getUrl = "http://localhost:9090/bosco/api/students";
+        String getUrl = baseUrl + "students/" + id;
 
         JsonNode resNode = null;
         try {
@@ -71,15 +139,8 @@ public class BoscoApi {
         String token = authBosco();
         // Now we test sending this:
 
-        String stringIdToSend = "9999999.444444";
-
-        // http://localhost:9090/bosco/api/students/9999999.444444'
         
-
-
-        //String getUrl = "http://localhost:9090/bosco/api/students";
-
-        String getUrl = "http://localhost:9090/bosco/api/students?page=" + pageNumber + "&size=" + PAGE_SIZE + "&active=true";
+        String getUrl = baseUrl + "students?page=" + pageNumber + "&size=" + PAGE_SIZE + "&active=true";
 
         JsonNode resNode = null;
         try {
@@ -94,10 +155,10 @@ public class BoscoApi {
     }
 
     private String authBosco() {
-        String clientId = "0oau4l5aoxkTY20ka697";
-        String clientSecret = "bHHS9uTMxwg6lRGUXZWz8olwSl92afT2_nPZuno4FRbfn622Qle0wgCWpk4TxOdY";
-        String tokenUrl = "http://localhost:9090/oauth2/token";
-        String token = boscoTokenService.getAccessToken(clientId, clientSecret, tokenUrl);
+
+       
+        
+        String token = boscoTokenService.getAccessToken(clientId, clientSecret, authUrl);
 
         return token;
 
@@ -105,6 +166,8 @@ public class BoscoApi {
 
 
     public Boolean sendImportToBosco (int importId, int baseImportId) throws IOException {
+
+        String token = authBosco();
 
         // for now we just write to a file
         String dateFolder = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss"));
@@ -120,6 +183,13 @@ public class BoscoApi {
 
         String newSchools = "<ul>";
         Boolean areNewSchools = false;
+
+        int newStudents = 0;
+        int changedStudents = 0;
+        int deletedStudents = 0;
+        int newTeachers = 0;
+        int changedTeachers = 0;
+        int deletedTeachers = 0;
 
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outFileName)))
@@ -140,6 +210,8 @@ public class BoscoApi {
                     newSchools += "<li> NEW: " + bs.getSchoolCode() + " - " + bs.getName() + "</li>\n";
                     writer.write(ow.writeValueAsString(bs));
                     writer.write("\n");
+
+                    importRepo.logInfo("There is a new shool: " + bs.getSchoolCode() + " - " + bs.getName());
                 }
 
                 writer.write("------------ CHANGED SCHOOLS ----------------\n");
@@ -150,6 +222,8 @@ public class BoscoApi {
 
                     writer.write(ow.writeValueAsString(bs));
                     writer.write("\n");
+
+                    importRepo.logInfo("There is a changed shool: " + bs.getSchoolCode() + " - " + bs.getName());
                 }
 
 
@@ -159,6 +233,9 @@ public class BoscoApi {
                 for (Teacher bu : teachers) {
                     writer.write(ow.writeValueAsString(bu));
                     writer.write("\n");
+
+                    newTeachers++;
+                    boscoClient.postTeacher(baseUrl + "users", token, bu);
                 }
 
                 writer.write("------------ CHANGED TEACHERS ----------------\n");
@@ -166,6 +243,9 @@ public class BoscoApi {
                 for (Teacher bu : teachers) {
                     writer.write(ow.writeValueAsString(bu));
                     writer.write("\n");
+
+                    changedTeachers++;
+                    boscoClient.putTeacher(baseUrl + "users/{id}", token, bu);
                 }
                 
 
@@ -182,6 +262,8 @@ public class BoscoApi {
 
                     writer.write(ow.writeValueAsString(bs));
                     writer.write("\n");
+                    newStudents++;
+                    boscoClient.postStudent(baseUrl + "students", token, bs);
 
 
                 }
@@ -200,6 +282,9 @@ public class BoscoApi {
 
                     writer.write(ow.writeValueAsString(bs));
                     writer.write("\n");
+
+                    changedStudents++;
+                    boscoClient.putStudent(baseUrl + "students/{id}", token, bs);
 
 
                 }
@@ -222,6 +307,8 @@ public class BoscoApi {
                     dss = importRepo.teacherIdsDeletedFromImport(importId, baseImportId);
                     for (String ds : dss) {
                         writer.write(ds + "\n");
+                        boscoClient.deleteStudent(baseUrl + "users/{id}", token, ds);
+                        deletedTeachers++;
                     }
 
                     writer.write("------------ DELETED STUDENTS ----------------\n");
@@ -229,6 +316,8 @@ public class BoscoApi {
                     dss = importRepo.studentIdsDeletedFromImport(importId, baseImportId);
                     for (String ds : dss) {
                         writer.write(ds + "\n");
+                        boscoClient.deleteStudent(baseUrl + "students/{id}", token, ds);
+                        deletedStudents++;
                     }
 
                 }
@@ -239,18 +328,19 @@ public class BoscoApi {
 
             newSchools += "</ul>";
 
+            // log coungs.
+            importRepo.logInfo("New Students: " + newStudents);
+            importRepo.logInfo("Changed Students: " + changedStudents);
+            importRepo.logInfo("Deleted Students: " + deletedStudents);
+            importRepo.logInfo("New Teachers: " + newTeachers);
+            importRepo.logInfo("Changed Teachers: " + changedTeachers);
+            importRepo.logInfo("Deleted Teachers: " + deletedTeachers);
+
 
             if (areNewSchools) {
                 System.out.println("Sending new or changed schools email");
                 emailService.sendSimpleMessage("BenLevy3@gmail.com",  "New or Changed Schools", newSchools);
             }
-
-        
-        
-
-
-
-
 
 
         return true;

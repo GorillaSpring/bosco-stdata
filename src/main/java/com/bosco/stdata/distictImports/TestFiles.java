@@ -348,10 +348,20 @@ public class TestFiles {
 
             // do the diff
 
-            i.importRepo.diffImports(baseImportId);
+            if (baseImportId == 0) {
+                i.importRepo.logInfo("This is the BASE Import");
+                i.importRepo.setAllNewImports();
+            }
+            else {
+                i.importRepo.logInfo("Doing Diff with " + baseImportId);
+
+                i.importRepo.diffImports(baseImportId);
+            }
 
             // validation on the data.
             // check number of diffs vs the cutoff.
+
+
 
 
             // this will mark the importId as the base.

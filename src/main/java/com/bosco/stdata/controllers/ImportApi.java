@@ -39,6 +39,49 @@ public class ImportApi {
     BoscoApi boscoApi;
     
 
+    @Operation(
+            summary = "Testing Bosco POST StData Student to Bosco ",
+            description = "This will be removed soon.",
+            tags = {"Testing"}
+            )
+
+    @GetMapping("/import/boscoPostStudent/{id}")
+    public String bocoPostStudent(@PathVariable String id) {
+
+        String res = boscoApi.postStudentToBosco(id);
+
+        return res;
+    }
+
+    
+    @Operation(
+        summary = "Testing Bosco PUT StData Student to Bosco ",
+        description = "This will be removed soon.",
+        tags = {"Testing"}
+        )
+
+    @GetMapping("/import/boscoPutStudent/{id}")
+    public String boscoPutStudent(@PathVariable String id) {
+
+        String res = boscoApi.putStudentToBosco(id);
+
+        return res;
+    }
+
+    @Operation(
+            summary = "Testing Bosco Delete student from Bosco ",
+            description = "This will be removed soon.",
+            tags = {"Testing"}
+            )
+
+    @GetMapping("/import/boscoDeleteStudent/{id}")
+    public String bocoDeleteStudent(@PathVariable String id) {
+
+        String res = boscoApi.deleteStudentToBosco(id);
+
+        return res;
+    }
+
     
     @Operation(
             summary = "Testing Bosco get student 1000000.422576716 ",

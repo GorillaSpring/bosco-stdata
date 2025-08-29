@@ -442,6 +442,18 @@ public class ImportRepo {
         return this.importId;
     }
 
+    public void setAllNewImports() {
+
+         Object[] args = {
+            importId
+
+        };
+
+        String sql = "call set_all_new_imports(?)";
+
+        int rows = template.update(sql, args);
+    }
+
     public void diffImports (int baseImportId) {
         Object[] args = {
             importId,
@@ -741,7 +753,7 @@ public class ImportRepo {
 
         String sql = """
              select
-                concat (concat (i.districtId, '.') , t.sourceId) as id,
+                concat (concat (i.districtId, '.') , t.teacherId) as id,
                 t.firstName,
                 t.lastName,
                 t.email
