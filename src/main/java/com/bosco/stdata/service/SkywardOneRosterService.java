@@ -19,7 +19,7 @@ public class SkywardOneRosterService {
 
   // this is used for NON oneroster apis.
   public JsonNode fetchSkywardApi(String apiUrl, String token) throws Exception {
-    JsonNode data = skywardClient.get(apiUrl, token);
+    JsonNode data = skywardClient.getSkyward(apiUrl, token);
 
     return data;
   }

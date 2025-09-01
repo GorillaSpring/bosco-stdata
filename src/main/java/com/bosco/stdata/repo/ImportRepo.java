@@ -209,6 +209,36 @@ public class ImportRepo {
 
 
 
+    
+    public List<String> studentSourceIdsForImport (int forImportId) {
+          Object[] args = {
+            
+            forImportId            
+        };
+
+
+        String sql = """
+               select sourceId from student where importId = ?;
+                """; 
+
+
+        return template.queryForList(sql, String.class, args);
+    }
+
+    public List<String> studentNumbersForImport (int forImportId) {
+          Object[] args = {
+            
+            forImportId            
+        };
+
+
+        String sql = """
+               select studentNumber from student where importId = ?;
+                """; 
+
+
+        return template.queryForList(sql, String.class, args);
+    }
 
      public List<Student> boscoStudentsGet(int forImportId) {
 
@@ -454,6 +484,30 @@ public class ImportRepo {
         int rows = template.update(sql, args);
     }
 
+
+
+     public ImportChanges importChangesFromBase (int forImportId, int baseImportId) {
+         String sql = "call check_diff_counts (?, ?)";
+
+
+         Object[] args = {
+            forImportId,
+            baseImportId
+
+        };
+
+
+         ImportChanges impChanges = template.queryForObject(
+                sql,
+                args,
+
+                new BeanPropertyRowMapper<>(ImportChanges.class)
+                                );
+
+        return impChanges;
+    }
+
+
     public void diffImports (int baseImportId) {
         Object[] args = {
             importId,
@@ -466,6 +520,9 @@ public class ImportRepo {
         int rows = template.update(sql, args);
 
     }        
+
+
+
 
     public void setImportBase (String importDefId) {
         Object[] args = {

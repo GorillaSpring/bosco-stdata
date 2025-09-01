@@ -2,16 +2,18 @@ package com.bosco.stdata.distictImports;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+import com.bosco.stdata.config.AppConfig;
 import com.bosco.stdata.model.ImportDefinition;
 import com.bosco.stdata.model.ImportResult;
 import com.bosco.stdata.model.ImportSetting;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
+import com.bosco.stdata.service.BoscoClient;
 import com.bosco.stdata.service.SkywardOneRosterService;
 import com.bosco.stdata.service.SkywardTokenService;
 import com.bosco.stdata.utils.ImportHelper;
@@ -22,6 +24,10 @@ import jakarta.annotation.PostConstruct;
 
 @Component
 public class SkywardOneRosterApi {
+
+    private final BoscoClient boscoClient;
+
+    private final AppConfig appConfig;
 
     @Autowired
     ImportRepo importRepo;
@@ -47,10 +53,119 @@ public class SkywardOneRosterApi {
 
     static String apiBase = "";
 
+    static Boolean useSkywardSpEd = false;  
+
+    SkywardOneRosterApi(AppConfig appConfig, BoscoClient boscoClient) {
+        this.appConfig = appConfig;
+        this.boscoClient = boscoClient;
+    }
+
     @PostConstruct
     public void init() {
         System.out.println("SkywardOneRosterApi - init()");
         i = this;
+    }
+
+    public static String GetSpecialEducationEnrollmentTX (String importDefId) {
+        // this will call the skyward SpecialEducationEnrollmentTX for each student?
+        // https://sandbox.skyward.com/BoscoK12SandboxAPI/SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/627224118
+
+
+        try {
+            ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
+
+            int baseImportId = importDef.getBaseImportId();
+
+
+            List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
+
+            districtId = importDef.getDistrictId();
+
+            clientId = ImportHelper.ValueForSetting(importSettings, "clientId");
+
+            clientSecret =  ImportHelper.ValueForSetting(importSettings, "clientSecret");
+            
+            tokenUrl =  ImportHelper.ValueForSetting(importSettings, "tokenUrl");
+            apiBase =  ImportHelper.ValueForSetting(importSettings, "apiBase");
+
+
+            useSkywardSpEd = Boolean.parseBoolean(ImportHelper.ValueForSetting(importSettings, "useSkywardSpEd"));
+
+
+            LocalDateTime startDateTime = LocalDateTime.now();
+
+            
+
+            System.out.println("Import One Roster Start");
+
+            String token = i.tokenService.getAccessToken(clientId, clientSecret, tokenUrl);
+
+            int studentsChecked = 0;
+
+            // now we need to go through for every student!
+
+            // apiBase is:  https://sandbox.skyward.com/BoscoK12SandboxAPI/
+
+            JsonNode data;
+            List<String> studentSourceIds =i.importRepo.studentSourceIdsForImport(baseImportId);
+
+            //studentNumbers.add("218879766");
+
+            for (String studentSourceId: studentSourceIds) {
+                 //data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
+
+                // trim the Student_ from it
+                String[] sss = studentSourceId.split("_");
+
+                 try {
+                    // https://sandbox.skyward.com/BoscoK12SandboxAPI/SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/25
+                    // https://sandbox.skyward.com/BoscoK12SandboxAPI/SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/25
+
+                    
+                    data = i.skywardOneRosterService.fetchSkywardApi(apiBase + "SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/" + sss[1], token);
+
+                    System.out.println("\nFOUND for student: " + studentSourceId);
+
+                    System.out.println(data.toPrettyString());
+
+                    // now lets try to parse it
+                    if (data.isArray()) {
+                         ArrayNode arrayNode = (ArrayNode) data;
+                         
+
+                         // do it this way..
+
+                         JsonNode theNode = arrayNode.get(0);
+
+                        String stateInstructionalSettingCode = theNode.get("StateInstructionalSettingCode").asText();
+
+                        System.out.println("StateInstructionalSettingCode : " + stateInstructionalSettingCode);
+
+                         // see one note for the resulst and to pare.
+
+                         
+                    }
+
+                 }
+                catch (Exception ex) {
+          
+                    System.out.print(".");
+                    // System.out.println("Did not find for student: " + studentSourceId);
+                    //  System.out.println(ex.toString());
+                }
+
+
+            }
+
+
+        }
+        catch (Exception ex) {
+          
+            System.out.println(ex.toString());
+        }
+
+        return "OK";
+
     }
 
     public static ImportResult Import(String importDefId) {
@@ -234,26 +349,30 @@ public class SkywardOneRosterApi {
                                 break;
                         
                             case "guardian":
-                                // we only pull in if the email is not null or empty
-                                String email = userNode.get("email").asText();
-                                String guardianType = "U";
-                                if (email != null && !email.isEmpty()) {
+                                // If we are using useSkywardSpEd then we will get the guardians THERE.
+                                if (!useSkywardSpEd) {
 
-                                    JsonNode agentNodes = userNode.get("agents");
+                                    // we only pull in if the email is not null or empty
+                                    String email = userNode.get("email").asText();
+                                    String guardianType = "U";
+                                    if (email != null && !email.isEmpty()) {
 
-                                    if (agentNodes.isArray()) {
-                                        for (JsonNode studentNode: agentNodes) {
-                                            
+                                        JsonNode agentNodes = userNode.get("agents");
 
-                                            String studentId = studentNode.get("sourcedId").asText();
-                                            //Guardian g = new Guardian(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), studentId, userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType);
-                                            i.importRepo.saveGuardian(
-                                                userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), studentId, userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType
-                                            );
-                                            guardianCount++;
+                                        if (agentNodes.isArray()) {
+                                            for (JsonNode studentNode: agentNodes) {
+                                                
+
+                                                String studentId = studentNode.get("sourcedId").asText();
+                                                //Guardian g = new Guardian(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), studentId, userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType);
+                                                i.importRepo.saveGuardian(
+                                                    userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), studentId, userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType
+                                                );
+                                                guardianCount++;
 
 
 
+                                            }
                                         }
                                     }
                                 }
@@ -297,90 +416,7 @@ public class SkywardOneRosterApi {
 
             
 
-            // now the demographics
-
-
-            System.out.println("Getting Student Demographics");
-
-            pageNumber = 0;
-            studentCount = 0;
-
-
-            filter = "status='active'";
-            data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/demographics", filter, token, pageNumber);
-
-            while ( data.size() > 0) {
-                    
-                
-
-                if (data.isArray()) {
-                    ArrayNode arrayNode = (ArrayNode) data;
-                    for (JsonNode demographicsNode: arrayNode) {
-
-                        String sourceId = demographicsNode.get("sourcedId").asText();
-
-                        //System.out.println(sourceId);
-
-                        // SO this is not true for Clint.
-                        if (sourceId.toLowerCase().contains("student"))
-                        //if (sourceId.startsWith("Student_")) 
-                        {
-                            //System.out.println("Update Student : " + sourceId);
-
-                            String birthDate = demographicsNode.get("birthDate") == null ? "" : demographicsNode.get("birthDate").asText();
-
-
-                            // Demographics d = new Demographics(sourceId,
-                            //     birthDate,
-                            //     demographicsNode.get("sex").asText(),
-                            //     Boolean.parseBoolean(demographicsNode.get("americanIndianOrAlaskaNative").asText()),
-                            //     Boolean.parseBoolean(demographicsNode.get("asian").asText()),
-                            //     Boolean.parseBoolean(demographicsNode.get("blackOrAfricanAmerican").asText()),
-                            //     Boolean.parseBoolean(demographicsNode.get("nativeHawaiianOrOtherPacificIslander").asText()),
-                            //     Boolean.parseBoolean(demographicsNode.get("white").asText()),
-                            //     Boolean.parseBoolean(demographicsNode.get("hispanicOrLatinoEthnicity").asText())
-                                
-                            //     );
-
-
-                            i.importRepo.saveStudentDemographics(
-                                sourceId,
-                                birthDate,
-                                demographicsNode.get("sex").asText(),
-                                Boolean.parseBoolean(demographicsNode.get("americanIndianOrAlaskaNative").asText()),
-                                Boolean.parseBoolean(demographicsNode.get("asian").asText()),
-                                Boolean.parseBoolean(demographicsNode.get("blackOrAfricanAmerican").asText()),
-                                Boolean.parseBoolean(demographicsNode.get("nativeHawaiianOrOtherPacificIslander").asText()),
-                                Boolean.parseBoolean(demographicsNode.get("white").asText()),
-                                Boolean.parseBoolean(demographicsNode.get("hispanicOrLatinoEthnicity").asText())
-                            );
-
-                            studentCount++;
-                        }
-                        
             
-                    
-
-                    }
-                
-                    
-                }
-                else {
-                    System.out.println("Not Array");
-                }
-
-                // next page
-                pageNumber++;
-
-                System.out.println("Getting Demographics page : " + pageNumber);
-                data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/demographics", filter, token, pageNumber);
-
-
-            }
-            i.importRepo.logInfo ("Demographics updated: " + studentCount);
-
-        
-
             // now the classes
             System.out.println("Getting Enrollments");
 
@@ -459,6 +495,105 @@ public class SkywardOneRosterApi {
 
             i.importRepo.buildStudentTeacher();
             
+
+
+            // now the demographics
+
+            // So we can get all of this + more from the
+            // 'https://sandbox.skyward.com/BoscoK12SandboxAPI/SpecialEducation/StudentDemographic/1/25'
+            // these are one offs, and should be run only as needed (new students)
+            // maybe updated once a week or so.
+
+
+            // if we use the SkywardSpEd, this is done at the END of the imports
+            // we only need to do for NEW studens.
+
+            if (!useSkywardSpEd) {
+
+                System.out.println("Getting Student Demographics");
+
+                pageNumber = 0;
+                studentCount = 0;
+
+
+                filter = "status='active'";
+                data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/demographics", filter, token, pageNumber);
+
+                while ( data.size() > 0) {
+                        
+                    
+
+                    if (data.isArray()) {
+                        ArrayNode arrayNode = (ArrayNode) data;
+                        for (JsonNode demographicsNode: arrayNode) {
+
+                            String sourceId = demographicsNode.get("sourcedId").asText();
+
+                            //System.out.println(sourceId);
+
+                            // SO this is not true for Clint.
+                            if (sourceId.toLowerCase().contains("student"))
+                            //if (sourceId.startsWith("Student_")) 
+                            {
+                                //System.out.println("Update Student : " + sourceId);
+
+                                String birthDate = demographicsNode.get("birthDate") == null ? "" : demographicsNode.get("birthDate").asText();
+
+
+                                // Demographics d = new Demographics(sourceId,
+                                //     birthDate,
+                                //     demographicsNode.get("sex").asText(),
+                                //     Boolean.parseBoolean(demographicsNode.get("americanIndianOrAlaskaNative").asText()),
+                                //     Boolean.parseBoolean(demographicsNode.get("asian").asText()),
+                                //     Boolean.parseBoolean(demographicsNode.get("blackOrAfricanAmerican").asText()),
+                                //     Boolean.parseBoolean(demographicsNode.get("nativeHawaiianOrOtherPacificIslander").asText()),
+                                //     Boolean.parseBoolean(demographicsNode.get("white").asText()),
+                                //     Boolean.parseBoolean(demographicsNode.get("hispanicOrLatinoEthnicity").asText())
+                                    
+                                //     );
+
+
+                                i.importRepo.saveStudentDemographics(
+                                    sourceId,
+                                    birthDate,
+                                    demographicsNode.get("sex").asText(),
+                                    Boolean.parseBoolean(demographicsNode.get("americanIndianOrAlaskaNative").asText()),
+                                    Boolean.parseBoolean(demographicsNode.get("asian").asText()),
+                                    Boolean.parseBoolean(demographicsNode.get("blackOrAfricanAmerican").asText()),
+                                    Boolean.parseBoolean(demographicsNode.get("nativeHawaiianOrOtherPacificIslander").asText()),
+                                    Boolean.parseBoolean(demographicsNode.get("white").asText()),
+                                    Boolean.parseBoolean(demographicsNode.get("hispanicOrLatinoEthnicity").asText())
+                                );
+
+                                studentCount++;
+                            }
+                            
+                
+                        
+
+                        }
+                    
+                        
+                    }
+                    else {
+                        System.out.println("Not Array");
+                    }
+
+                    // next page
+                    pageNumber++;
+
+                    System.out.println("Getting Demographics page : " + pageNumber);
+                    data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/demographics", filter, token, pageNumber);
+
+
+                }
+                i.importRepo.logInfo ("Demographics updated: " + studentCount);
+
+            }
+
+
+
+
 
               
             i.importRepo.diffImports(baseImportId);

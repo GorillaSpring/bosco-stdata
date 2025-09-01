@@ -21,7 +21,7 @@ public class BoscoApi {
 
     private final ImportRepo importRepo;
     private final EmailService emailService;
-    private final BoscoTokenService boscoTokenService;
+    
     private final BoscoClient boscoClient;
     
 
@@ -40,10 +40,10 @@ public class BoscoApi {
     private String clientSecret;
         
 
-    BoscoApi(ImportRepo importRepo, EmailService emailService, BoscoTokenService boscoTokenService, BoscoClient boscoClient) {
+    BoscoApi(ImportRepo importRepo, EmailService emailService,  BoscoClient boscoClient) {
         this.importRepo = importRepo;
         this.emailService = emailService;
-        this.boscoTokenService = boscoTokenService;
+        
         this.boscoClient = boscoClient;
         
         
@@ -155,13 +155,8 @@ public class BoscoApi {
     }
 
     private String authBosco() {
-
-       
-        
-        String token = boscoTokenService.getAccessToken(clientId, clientSecret, authUrl);
-
+        String token = boscoClient.getAccessToken(clientId, clientSecret, authUrl);
         return token;
-
     }
 
 
@@ -316,7 +311,8 @@ public class BoscoApi {
                     dss = importRepo.studentIdsDeletedFromImport(importId, baseImportId);
                     for (String ds : dss) {
                         writer.write(ds + "\n");
-                        boscoClient.deleteStudent(baseUrl + "students/{id}", token, ds);
+                        //THIS IS FAILING
+                        //boscoClient.deleteStudent(baseUrl + "students/{id}", token, ds);
                         deletedStudents++;
                     }
 

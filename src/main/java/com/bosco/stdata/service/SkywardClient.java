@@ -19,24 +19,57 @@ public class SkywardClient {
 
     public JsonNode get(String url, String token) throws Exception {
 
-    HttpHeaders headers = new HttpHeaders();
+      HttpHeaders headers = new HttpHeaders();
 
-    
-    headers.setBearerAuth(token);
-    headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+      
+      headers.setBearerAuth(token);
+      headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-    HttpEntity<Void> request = new HttpEntity<>(headers);
+      HttpEntity<Void> request = new HttpEntity<>(headers);
 
-    ResponseEntity<JsonNode> response =
-        restTemplate.exchange(url, HttpMethod.GET, request, JsonNode.class);
+      ResponseEntity<JsonNode> response =
+          restTemplate.exchange(url, HttpMethod.GET, request, JsonNode.class);
 
-    JsonNode responseBody = response.getBody();
-    if (responseBody == null || !responseBody.fields().hasNext()) {
-      throw new IllegalStateException(
-          "Empty or invalid response from Skyward API for: " + "students");
+      JsonNode responseBody = response.getBody();
+      if (responseBody == null || !responseBody.fields().hasNext()) {
+        throw new IllegalStateException(
+            "Empty or invalid response from Skyward API for: " + "students");
+      }
+
+      Map.Entry<String, JsonNode> entry = responseBody.fields().next();
+      return entry.getValue();
     }
 
-    Map.Entry<String, JsonNode> entry = responseBody.fields().next();
-    return entry.getValue();
+    public JsonNode getSkyward(String url, String token) throws Exception {
+
+      HttpHeaders headers = new HttpHeaders();
+
+      
+      headers.setBearerAuth(token);
+      headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+      HttpEntity<Void> request = new HttpEntity<>(headers);
+
+      
+
+      ResponseEntity<JsonNode> response =
+          restTemplate.exchange(url, HttpMethod.GET, request, JsonNode.class);
+
+      //System.err.println(response.getBody());
+
+      JsonNode responseBody = response.getBody();
+
+      return responseBody;
+
+
+
+
+      // if (responseBody == null || !responseBody.fields().hasNext()) {
+      // throw new IllegalStateException(
+      //     "Empty or invalid response from Skyward API for: " + "students");
+      // }
+
+      // Map.Entry<String, JsonNode> entry = responseBody.fields().next();
+      // return entry.getValue();
   }
 }

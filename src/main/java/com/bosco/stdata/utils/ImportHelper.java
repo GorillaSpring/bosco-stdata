@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.bosco.stdata.model.ImportChanges;
 import com.bosco.stdata.model.ImportSetting;
 
 
@@ -51,6 +52,33 @@ public  class ImportHelper {
                 }
         
     }
+
+
+    public static Boolean CheckTooManyChanges (ImportChanges impChanges, double maxAllowedChangesPercent) {
+        // return true if too many changes.
+
+        // maxAllowedChangesPercent is   0.1 for 10%,   0.2 for 20% etc.
+
+         double percentDiff = Math.abs(impChanges.baseStudentCount - impChanges.importStudentCount) / 
+                (
+                    (impChanges.baseStudentCount + impChanges.importStudentCount) / 2
+                )
+
+                ;
+
+            if (percentDiff > maxAllowedChangesPercent)
+                return true;
+
+            
+            if ((int)(impChanges.importStudentCount * maxAllowedChangesPercent) > impChanges.importStudentChanged) {
+                // the sutdents changed is greater then 10% so bail.
+
+                return true;
+            }
+
+            return false;
+    }
+
 
     public static void MoveFiles (String sourcePath, String targetPath) throws Exception {
 

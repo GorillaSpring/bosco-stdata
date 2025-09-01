@@ -356,10 +356,18 @@ public class TestFiles {
                 i.importRepo.logInfo("Doing Diff with " + baseImportId);
 
                 i.importRepo.diffImports(baseImportId);
+
+
+                i.importRepo.logInfo("Checking Changes");
+                ImportChanges ic = i.importRepo.importChangesFromBase(importId, baseImportId);
+                i.importRepo.logInfo("Base Count: " + ic.baseStudentCount + " St Count: " + ic.importStudentCount + " Changed: " + ic.importStudentChanged);
+
+                if (ImportHelper.CheckTooManyChanges(ic, 0.1)) {
+                     throw new Exception("Too Many Changes in import.  See logs for counts" );
+                }
+
             }
 
-            // validation on the data.
-            // check number of diffs vs the cutoff.
 
 
 

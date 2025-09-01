@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bosco.stdata.model.ImportChanges;
 import com.bosco.stdata.model.ImportDefinition;
 import com.bosco.stdata.model.ImportLog;
 import com.bosco.stdata.repo.ImportRepo;
@@ -181,8 +182,43 @@ public class ImportApi {
 
     }
 
+     @Operation(
+        summary = "Run Skyward SpecialEducationEnrollmentTX  test ",
+        description = "Testing",
+        tags = {"Import Testing"}
+        )
+    @GetMapping("/import/runImportSpEd/{sendEmail}")
+    public String runImportSpEdNow(@PathVariable Boolean sendEmail) {
+        //ImportTask importTask = new ImportTask();
+
+
+        
+
+        String result = importTask.doSkywardSpedTest();
+
+        return result;
+
+    }
+
 
   
+
+    
+    @Operation(
+        summary = "Check Import difs testing",
+        description = "This will be the check for % changes",
+        tags = {"Import Testing"}
+        )
+    @GetMapping("/import/testChanges/{importId}/{baseImportId}")
+    public String runImportNow(@PathVariable int importId, @PathVariable int baseImportId) {
+        
+        ImportChanges ic = importRepo.importChangesFromBase(importId, baseImportId);
+
+        
+
+        return "Base Count: " + ic.baseStudentCount + " St Count: " + ic.importStudentCount + " Changed: " + ic.importStudentChanged;
+
+    }
 
 
     @Operation(

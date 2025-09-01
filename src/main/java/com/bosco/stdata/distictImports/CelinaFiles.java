@@ -310,14 +310,23 @@ public class CelinaFiles {
 
             // Now we move the files to the archive Folder
 
-            //ImportHelper.MoveFiles(baseFileFolder, archiveFolder);
+            ImportHelper.MoveFiles(baseFileFolder, archiveFolder);
 
             i.importRepo.logInfo("Moved Files to archive");
 
 
-            // do the diff
+			if (baseImportId == 0) {
+				i.importRepo.logInfo("This is the BASE Import");
+                i.importRepo.setAllNewImports();
+            }
+            else {
+                i.importRepo.logInfo("Doing Diff with " + baseImportId);
 
-            i.importRepo.diffImports(baseImportId);
+                i.importRepo.diffImports(baseImportId);
+            }
+
+
+            
 
             // validation on the data.
             // check number of diffs vs the cutoff.
