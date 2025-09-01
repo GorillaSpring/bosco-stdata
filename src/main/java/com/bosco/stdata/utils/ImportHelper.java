@@ -61,7 +61,7 @@ public  class ImportHelper {
 
          double percentDiff = Math.abs(impChanges.baseStudentCount - impChanges.importStudentCount) / 
                 (
-                    (impChanges.baseStudentCount + impChanges.importStudentCount) / 2
+                    (impChanges.baseStudentCount + impChanges.importStudentCount) / 2.0
                 )
 
                 ;
@@ -70,7 +70,12 @@ public  class ImportHelper {
                 return true;
 
             
-            if ((int)(impChanges.importStudentCount * maxAllowedChangesPercent) > impChanges.importStudentChanged) {
+
+            // so 23 * 0.1 = 2.3   => 2 > 0
+            // should this be less?
+
+
+            if ((int)(impChanges.importStudentCount * maxAllowedChangesPercent) < impChanges.importStudentChanged) {
                 // the sutdents changed is greater then 10% so bail.
 
                 return true;

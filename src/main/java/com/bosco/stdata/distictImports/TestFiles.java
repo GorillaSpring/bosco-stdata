@@ -66,6 +66,8 @@ public class TestFiles {
 
 
 
+            
+
 
             // Before we start, lets make sure there are files in the baseFolder
             String[] files = {"guardians.csv", "schools.csv", "studentEnrollments.csv", "students.csv", "teacherEnrollments.csv", "teachers.csv"};
@@ -357,13 +359,17 @@ public class TestFiles {
 
                 i.importRepo.diffImports(baseImportId);
 
+                if (importDef.getForceLoad()) {
+                    i.importRepo.logInfo("Force Load Set, so not checking for too many changes");
+                }
+                else {
+                   i.importRepo.logInfo("Checking Changes");
+                    ImportChanges ic = i.importRepo.importChangesFromBase(importId, baseImportId);
+                    i.importRepo.logInfo("Base Count: " + ic.baseStudentCount + " St Count: " + ic.importStudentCount + " Changed: " + ic.importStudentChanged);
 
-                i.importRepo.logInfo("Checking Changes");
-                ImportChanges ic = i.importRepo.importChangesFromBase(importId, baseImportId);
-                i.importRepo.logInfo("Base Count: " + ic.baseStudentCount + " St Count: " + ic.importStudentCount + " Changed: " + ic.importStudentChanged);
-
-                if (ImportHelper.CheckTooManyChanges(ic, 0.1)) {
-                     throw new Exception("Too Many Changes in import.  See logs for counts" );
+                    if (ImportHelper.CheckTooManyChanges(ic, 0.1)) {
+                        throw new Exception("Too Many Changes in import.  See logs for counts" );
+                    }
                 }
 
             }
