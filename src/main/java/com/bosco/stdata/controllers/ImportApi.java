@@ -337,26 +337,42 @@ public class ImportApi {
             try {
                 Thread.sleep(14000);
                 System.out.println("Manual task finished.");
-                importRepo.setSystemStatus("Import", 0);
+                ImportHelper.importRunning = false;
+                //importRepo.setSystemStatus("Import", 0);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.out.println("Manual task was interrupted.");
-                importRepo.setSystemStatus("Import", 0);
+                ImportHelper.importRunning = false;
+
+                //importRepo.setSystemStatus("Import", 0);
 
             }
         });
 
-        int status = importRepo.getSystemStatus("Import");
-        if (status > 0) {
-            return "Imports Are running -- Bailing";
+        if (ImportHelper.importRunning) {
+            return "Imports are running -- bail";
 
         }
         else {
-
-            importRepo.setSystemStatus("Import", 1);
+            ImportHelper.importRunning = true;
             taskThread.start();
-            return "Task started";
+            return "Started Task";
+
+
         }
+
+        // int status = importRepo.getSystemStatus("Import");
+        // if (status > 0) {
+        //     return "Imports Are running -- Bailing";
+
+        // }
+        // else {
+
+        //     importRepo.setSystemStatus("Import", 1);
+
+        //     taskThread.start();
+        //     return "Task started";
+        // }
     }
 
 

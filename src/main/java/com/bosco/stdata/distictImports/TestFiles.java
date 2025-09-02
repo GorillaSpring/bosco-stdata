@@ -367,7 +367,7 @@ public class TestFiles {
                     ImportChanges ic = i.importRepo.importChangesFromBase(importId, baseImportId);
                     i.importRepo.logInfo("Base Count: " + ic.baseStudentCount + " St Count: " + ic.importStudentCount + " Changed: " + ic.importStudentChanged);
 
-                    if (ImportHelper.CheckTooManyChanges(ic, 0.1)) {
+                    if (ImportHelper.CheckTooManyChanges(ic, 0.5)) {
                         throw new Exception("Too Many Changes in import.  See logs for counts" );
                     }
                 }

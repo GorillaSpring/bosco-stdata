@@ -71,7 +71,13 @@ public class BoscoApi {
         bs.setGuardians(importRepo.guardiansBoscoForStudent(importId, bs.getStudentId()));
         bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(importId, bs.getStudentId()));
 
-           String res = boscoClient.postStudent(postUrl, token, bs);
+        String res;
+        try {
+            res = boscoClient.postStudent(postUrl, token, bs);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            res = e.getMessage();
+        }
 
            return res;
     }
@@ -97,7 +103,13 @@ public class BoscoApi {
         bs.setGuardians(importRepo.guardiansBoscoForStudent(importId, bs.getStudentId()));
         bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(importId, bs.getStudentId()));
 
-        String res = boscoClient.putStudent(postUrl, token, bs);
+        String res;
+        try {
+            res = boscoClient.putStudent(postUrl, token, bs);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            res = e.getMessage();
+        }
 
         return res;
     }
@@ -107,7 +119,13 @@ public class BoscoApi {
         
         String postUrl = baseUrl + "students/{id}";
 
-        String res = boscoClient.deleteStudent(postUrl, token, id);
+        String res;
+        try {
+            res = boscoClient.deleteStudent(postUrl, token, id);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+             res = e.getMessage();
+        }
 
       
         return res;
@@ -160,7 +178,7 @@ public class BoscoApi {
     }
 
 
-    public Boolean sendImportToBosco (int importId, int baseImportId) throws IOException {
+    public Boolean sendImportToBosco (int importId, int baseImportId) throws Exception {
 
         String token = authBosco();
 
@@ -187,139 +205,118 @@ public class BoscoApi {
         int deletedTeachers = 0;
 
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outFileName)))
-            {
-                writer.write("Bosco Sync " + importId + "\n\n");
 
-                if (baseImportId == 0) {
-                    writer.write(" *******  NO BASE IMPORT - THIS IS FIRST LOAD *******\n\n");
-                }
 
 
                    // this will send all the imported stuff to bosco
-                writer.write("------------ NEW SCHOOLS ----------------\n");
 
-                List<School> schools = importRepo.schoolsBoscoForExport(importId, 2);
-                for (School bs : schools) {
-                    areNewSchools = true;
-                    newSchools += "<li> NEW: " + bs.getSchoolCode() + " - " + bs.getName() + "</li>\n";
-                    writer.write(ow.writeValueAsString(bs));
-                    writer.write("\n");
+            List<School> schools = importRepo.schoolsBoscoForExport(importId, 2);
+            for (School bs : schools) {
+                areNewSchools = true;
+                newSchools += "<li> NEW: " + bs.getSchoolCode() + " - " + bs.getName() + "</li>\n";
 
-                    importRepo.logInfo("There is a new shool: " + bs.getSchoolCode() + " - " + bs.getName());
-                }
-
-                writer.write("------------ CHANGED SCHOOLS ----------------\n");
-                schools = importRepo.schoolsBoscoForExport(importId, 1);
-                for (School bs : schools) {
-                    areNewSchools = true;
-                    newSchools += "<li> CHANGED: " + bs.getSchoolCode() + " - " + bs.getName() + "</li>\n";
-
-                    writer.write(ow.writeValueAsString(bs));
-                    writer.write("\n");
-
-                    importRepo.logInfo("There is a changed shool: " + bs.getSchoolCode() + " - " + bs.getName());
-                }
-
-
-                writer.write("------------ NEW TEACHERS ----------------\n");
-
-                List<Teacher> teachers = importRepo.teacherBoscoGetForExport(importId, 2);
-                for (Teacher bu : teachers) {
-                    writer.write(ow.writeValueAsString(bu));
-                    writer.write("\n");
-
-                    newTeachers++;
-                    boscoClient.postTeacher(baseUrl + "users", token, bu);
-                }
-
-                writer.write("------------ CHANGED TEACHERS ----------------\n");
-                teachers = importRepo.teacherBoscoGetForExport(importId, 1);
-                for (Teacher bu : teachers) {
-                    writer.write(ow.writeValueAsString(bu));
-                    writer.write("\n");
-
-                    changedTeachers++;
-                    boscoClient.putTeacher(baseUrl + "users/{id}", token, bu);
-                }
-                
-
-                writer.write("------------ NEW STUDENTS ----------------\n");
-                List<Student> bss = importRepo.studentsBoscoForExport(importId, 2);
-
-                for (Student bs : bss) {
-
-                    
-                    bs.setGuardians(importRepo.guardiansBoscoForStudent(importId, bs.getStudentId()));
-                    bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(importId, bs.getStudentId()));
-
-                    // make this pretty json and log.
-
-                    writer.write(ow.writeValueAsString(bs));
-                    writer.write("\n");
-                    newStudents++;
-                    boscoClient.postStudent(baseUrl + "students", token, bs);
-
-
-                }
-
-
-                writer.write("------------ CHANGED STUDENTS ----------------\n");
-                bss = importRepo.studentsBoscoForExport(importId, 1);
-
-                for (Student bs : bss) {
-
-                    
-                    bs.setGuardians(importRepo.guardiansBoscoForStudent(importId, bs.getStudentId()));
-                    bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(importId, bs.getStudentId()));
-
-                    // make this pretty json and log.
-
-                    writer.write(ow.writeValueAsString(bs));
-                    writer.write("\n");
-
-                    changedStudents++;
-                    boscoClient.putStudent(baseUrl + "students/{id}", token, bs);
-
-
-                }
-
-                
-
-                // if baseImportId = 0 then we have no deleted.
-
-                if (baseImportId != 0) {
-
-
-                    List<String> dss;
-
-                    writer.write("------------ DELETED SCHOOLS ----------------\n");
-                    writer.write("    *** NOT YET IMPLEMENTS \n");
-                    
-                    //  ** WE NEED TO SORT THIS OUT!! ***
-                    writer.write("------------ DELETED TEACHERS ----------------\n");
-
-                    dss = importRepo.teacherIdsDeletedFromImport(importId, baseImportId);
-                    for (String ds : dss) {
-                        writer.write(ds + "\n");
-                        boscoClient.deleteStudent(baseUrl + "users/{id}", token, ds);
-                        deletedTeachers++;
-                    }
-
-                    writer.write("------------ DELETED STUDENTS ----------------\n");
-
-                    dss = importRepo.studentIdsDeletedFromImport(importId, baseImportId);
-                    for (String ds : dss) {
-                        writer.write(ds + "\n");
-                        //THIS IS FAILING
-                        //boscoClient.deleteStudent(baseUrl + "students/{id}", token, ds);
-                        deletedStudents++;
-                    }
-
-                }
-
-                writer.write("---------------------------------\n");
+                importRepo.logInfo("There is a new shool: " + bs.getSchoolCode() + " - " + bs.getName());
             }
+
+            schools = importRepo.schoolsBoscoForExport(importId, 1);
+            for (School bs : schools) {
+                areNewSchools = true;
+                newSchools += "<li> CHANGED: " + bs.getSchoolCode() + " - " + bs.getName() + "</li>\n";
+
+
+                importRepo.logInfo("There is a changed shool: " + bs.getSchoolCode() + " - " + bs.getName());
+            }
+
+
+            System.out.println("------------ NEW TEACHERS ----------------\n");
+
+            List<Teacher> teachers = importRepo.teacherBoscoGetForExport(importId, 2);
+            for (Teacher bu : teachers) {
+
+                newTeachers++;
+                boscoClient.postTeacher(baseUrl + "users", token, bu);
+            }
+
+            System.out.println("------------ CHANGED TEACHERS ----------------\n");
+            teachers = importRepo.teacherBoscoGetForExport(importId, 1);
+            for (Teacher bu : teachers) {
+
+                changedTeachers++;
+                //boscoClient.putTeacher(baseUrl + "users/{id}", token, bu);
+                boscoClient.putTeacher(baseUrl + "users/updateInfo/{id}", token, bu);
+            }
+            
+
+            System.out.println("------------ NEW STUDENTS ----------------\n");
+            List<Student> bss = importRepo.studentsBoscoForExport(importId, 2);
+
+            for (Student bs : bss) {
+
+                
+                bs.setGuardians(importRepo.guardiansBoscoForStudent(importId, bs.getStudentId()));
+                bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(importId, bs.getStudentId()));
+
+                // make this pretty json and log.
+
+                newStudents++;
+                boscoClient.postStudent(baseUrl + "students", token, bs);
+
+
+            }
+
+
+            System.out.println("------------ CHANGED STUDENTS ----------------\n");
+            bss = importRepo.studentsBoscoForExport(importId, 1);
+
+            for (Student bs : bss) {
+
+                
+                bs.setGuardians(importRepo.guardiansBoscoForStudent(importId, bs.getStudentId()));
+                bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(importId, bs.getStudentId()));
+
+                // make this pretty json and log.
+
+                changedStudents++;
+                boscoClient.putStudent(baseUrl + "students/{id}", token, bs);
+
+
+            }
+
+            
+
+            // if baseImportId = 0 then we have no deleted.
+
+            if (baseImportId != 0) {
+
+
+                List<String> dss;
+
+                System.out.println("------------ DELETED SCHOOLS ----------------\n");
+                System.out.println("    *** NOT YET IMPLEMENTS \n");
+                
+                //  ** WE NEED TO SORT THIS OUT!! ***
+                System.out.println("------------ DELETED TEACHERS ----------------\n");
+
+                dss = importRepo.teacherIdsDeletedFromImport(importId, baseImportId);
+                for (String ds : dss) {
+                    // TO CHECK
+                    boscoClient.deleteTeacher(baseUrl + "users/{id}", token, ds);
+                    deletedTeachers++;
+                }
+
+                System.out.println("------------ DELETED STUDENTS ----------------\n");
+
+                dss = importRepo.studentIdsDeletedFromImport(importId, baseImportId);
+                for (String ds : dss) {
+                    //THIS IS FAILING
+                    boscoClient.deleteStudent(baseUrl + "students/{id}", token, ds);
+                    deletedStudents++;
+                }
+
+            }
+
+            System.out.println("---------------------------------\n");
+            
         
 
             newSchools += "</ul>";

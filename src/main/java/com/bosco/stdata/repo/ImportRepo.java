@@ -80,28 +80,28 @@ public class ImportRepo {
 
     //#region Import System
 
-    public int getSystemStatus (String key) {
-        String sql = "select status from system_status where systemKey = ?;";
+    // public int getSystemStatus (String key) {
+    //     String sql = "select status from system_status where systemKey = ?;";
 
-        int status = template.queryForObject(
-                sql, 
-                Integer.class, 
-                key);
+    //     int status = template.queryForObject(
+    //             sql, 
+    //             Integer.class, 
+    //             key);
 
-        return status;
-    }
+    //     return status;
+    // }
 
-    public void setSystemStatus (String key, int status) {
+    // public void setSystemStatus (String key, int status) {
 
-        Object[] args = {
-            status,
-            key
-        };
+    //     Object[] args = {
+    //         status,
+    //         key
+    //     };
 
-        String sql = "update system_status set status=? where systemKey = ?;";
+    //     String sql = "update system_status set status=? where systemKey = ?;";
 
-        int rows = template.update(sql, args);
-    }
+    //     int rows = template.update(sql, args);
+    // }
 
     
     public void setImportDefActive (String id, Boolean active) {
@@ -259,13 +259,14 @@ public class ImportRepo {
                     s.gender,
                     s.studentNumber as studentId,
                     school.name as school,
-                    school.schoolCode as schoolId,
+                    ms.ncesSchoolId as schoolId,
                     i.districtId,
                     s.grade
                 from 
                     student s 
-                    left join school school on school.importId = s.importId and school.sourceId = s.schoolSourceId
                     join import i on i.id = s.importId
+                    join school school on school.importId = s.importId and school.sourceId = s.schoolSourceId
+                    join map_school_code_nces_school_id ms on ms.districtId = i.districtId and ms.schoolCode = school.schoolCode
                 where 
                     s.importId = ? 
                     
@@ -508,6 +509,47 @@ public class ImportRepo {
     }
 
 
+
+     public Boolean saveStudentSped (int districtId, String studentScourceId, 
+        String stateInstructionalSettingCode, 
+        String stateChildCountFundCode,
+        int specialEducationEnrollmentTXID,
+        String startDate,
+        String endDate,
+        Boolean multiplyDisabled,
+        String entryComment,
+        String exitComment
+     
+     ) {
+         String sql = "call student_sped_add (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+
+         Object[] args = {
+            districtId,
+            studentScourceId,
+            stateInstructionalSettingCode,
+            stateChildCountFundCode,
+            specialEducationEnrollmentTXID,
+            startDate,
+            endDate,
+            multiplyDisabled,
+            entryComment,
+            exitComment
+
+        };
+
+
+         int isChanged = template.queryForObject(
+                sql,
+                args,
+                Integer.class
+
+                                );
+
+        return (isChanged > 0);
+    }
+
+
     public void diffImports (int baseImportId) {
         Object[] args = {
             importId,
@@ -607,7 +649,7 @@ public class ImportRepo {
     }
 
     public int getBaseImportForDistrict(int districtId) {
-        String sql = "select baseImportId from import_definition where districtId = ?;";
+        String sql = "select baseImportId from import_definition where districtId = ? and isStudentSource=1;";
 
 
         int baseImportId = template.queryForObject(
@@ -714,14 +756,15 @@ public class ImportRepo {
                     s.dob,
                     s.gender,
                     s.studentNumber as studentId,
-                    school.name as school,
-                    school.schoolCode as schoolId,
+                    school.name as school,                    
+                    ms.ncesSchoolId as schoolId,
                     i.districtId,
                     s.grade
                 from 
                     student s 
-                    left join school school on school.importId = s.importId and school.sourceId = s.schoolSourceId
                     join import i on i.id = s.importId
+                    join school school on school.importId = s.importId and school.sourceId = s.schoolSourceId
+                    join map_school_code_nces_school_id ms on ms.districtId = i.districtId and ms.schoolCode = school.schoolCode
                 where 
                     s.importId = ? 
                     and s.changed = ?;
@@ -763,7 +806,7 @@ public class ImportRepo {
                     s.gender,
                     s.studentNumber as studentId,
                     school.name as school,
-                    school.schoolCode as schoolId,
+                    ms.ncesSchoolId as schoolId,
                     i.districtId,
                     s.grade,
                     s.americanIndianOrAlaskaNative,
@@ -774,8 +817,9 @@ public class ImportRepo {
                     s.hispanicOrLatinoEthnicity
                 from 
                     student s 
-                    left join school school on school.importId = s.importId and school.sourceId = s.schoolSourceId
                     join import i on i.id = s.importId
+                    join school school on school.importId = s.importId and school.sourceId = s.schoolSourceId
+                    join map_school_code_nces_school_id ms on ms.districtId = i.districtId and ms.schoolCode = school.schoolCode
                 where 
                     s.importId = ? 
                     and s.studentNumber = ?;

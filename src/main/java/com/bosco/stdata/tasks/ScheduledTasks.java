@@ -8,6 +8,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.bosco.stdata.repo.ImportRepo;
+import com.bosco.stdata.utils.ImportHelper;
+
+import jakarta.el.ImportHandler;
 
 @Component
 public class ScheduledTasks {
@@ -19,10 +22,8 @@ public class ScheduledTasks {
     public void reportCurrentTime() {
 
 
-        int status = importRepo.getSystemStatus("Import");
-        if (status > 0) {
-            System.out.println("The imports are running so do nonthing in tick");
-
+        if (ImportHelper.importRunning) {
+            System.out.println("Import Running - bail");
         }
         else {
 
@@ -33,6 +34,22 @@ public class ScheduledTasks {
 
             System.out.println("Tick: Current time: " + formattedDate);
         }
+
+
+        // int status = importRepo.getSystemStatus("Import");
+        // if (status > 0) {
+        //     System.out.println("The imports are running so do nonthing in tick");
+
+        // }
+        // else {
+
+
+        //     Date date = new Date(System.currentTimeMillis());
+        //     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Example format
+        //     String formattedDate = sdf.format(date);
+
+        //     System.out.println("Tick: Current time: " + formattedDate);
+        // }
     }
 
     @Scheduled(cron = "0 0 10 * * MON-FRI") // Runs at 10 AM on weekdays

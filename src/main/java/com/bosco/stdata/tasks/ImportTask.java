@@ -15,6 +15,7 @@ import com.bosco.stdata.model.ImportDefinition;
 import com.bosco.stdata.model.ImportResult;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.EmailService;
+import com.bosco.stdata.utils.ImportHelper;
 
 
 
@@ -47,9 +48,9 @@ public class ImportTask {
 
         
 
-        int importStatus = importRepo.getSystemStatus("Import");
+        //int importStatus = importRepo.getSystemStatus("Import");
 
-        if (importStatus > 0) {
+        if (ImportHelper.importRunning) {
             System.out.println("Imports are running, so we will bail");
             return "Imports are running, so we will bail";
         }
@@ -60,7 +61,8 @@ public class ImportTask {
             });
 
 
-            importRepo.setSystemStatus("Import", 1);
+            ImportHelper.importRunning = true;
+            //importRepo.setSystemStatus("Import", 1);
             taskThread.start();
 
             return "Imports Running";
@@ -173,12 +175,14 @@ public class ImportTask {
             emailService.sendSimpleMessage("BenLevy3@gmail.com",  "Import Results", emailBody);
 
             System.out.println("DONE");
-            importRepo.setSystemStatus("Import", 0);
+            ImportHelper.importRunning = false;
+            //importRepo.setSystemStatus("Import", 0);
 
         }
         catch (Exception e) {
             System.out.println("Exception : " + e.getMessage());
-            importRepo.setSystemStatus("Import", 0);
+            ImportHelper.importRunning = false;
+            //importRepo.setSystemStatus("Import", 0);
 
         }
         // catch (InterruptedException e) {
@@ -191,26 +195,6 @@ public class ImportTask {
 
     }
 
-    private void xprocessImports() {
-
-
-
-
-        System.out.println("Processing Imports");
-         System.out.println("Starting import in doImport...");
-                try {
-
-                    TestFiles.Import("SomeDef");
-                    SkywardOneRosterApi.Import("NotherDef");
-                    Thread.sleep(14000);
-                    System.out.println("----  import finished in doImport.");
-                    importRepo.setSystemStatus("Import", 0);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    System.out.println(" ---  import interupted in doImport.");
-                    importRepo.setSystemStatus("Import", 0);
-
-                }
-    }
+   
 
 }

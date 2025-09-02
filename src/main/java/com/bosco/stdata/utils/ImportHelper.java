@@ -20,6 +20,8 @@ import com.bosco.stdata.model.ImportSetting;
 
 public  class ImportHelper {
 
+    public static Boolean importRunning = false;
+
     public static String ValueForSetting(List<ImportSetting> inputSettings, String setting)  throws Exception{
 
          ImportSetting is = inputSettings.stream()

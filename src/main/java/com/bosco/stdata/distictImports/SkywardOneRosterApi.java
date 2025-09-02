@@ -6,7 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+
 import com.bosco.stdata.config.AppConfig;
 import com.bosco.stdata.model.ImportDefinition;
 import com.bosco.stdata.model.ImportResult;
@@ -54,6 +58,7 @@ public class SkywardOneRosterApi {
     static String apiBase = "";
 
     static Boolean useSkywardSpEd = false;  
+    static Boolean tempSkipSkyward = true;
 
     SkywardOneRosterApi(AppConfig appConfig, BoscoClient boscoClient) {
         this.appConfig = appConfig;
@@ -188,6 +193,8 @@ public class SkywardOneRosterApi {
             
             tokenUrl =  ImportHelper.ValueForSetting(importSettings, "tokenUrl");
             apiBase =  ImportHelper.ValueForSetting(importSettings, "apiBase");
+
+            useSkywardSpEd = Boolean.parseBoolean(ImportHelper.ValueForSetting(importSettings, "useSkywardSpEd"));
 
             LocalDateTime startDateTime = LocalDateTime.now();
 
@@ -340,6 +347,10 @@ public class SkywardOneRosterApi {
                                 // grades[]  is an array of grades.  This is a bit weired.
                                 // Student s = new Student(userNode.get("sourcedId").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText());
                                 // 	//Student s = new Student(row[0], row[8], row[9]);
+
+                                // for Ciint we are getting USRstudent231311 or Student_XXXXX
+
+
                                 i.importRepo.saveStudent(
                                     userNode.get("sourcedId").asText(), userNode.get("identifier").asText(),  userNode.get("givenName").asText(),  
                                         userNode.get("familyName").asText(),
@@ -350,7 +361,8 @@ public class SkywardOneRosterApi {
                         
                             case "guardian":
                                 // If we are using useSkywardSpEd then we will get the guardians THERE.
-                                if (!useSkywardSpEd) {
+                                if (tempSkipSkyward) {
+                                //if (!useSkywardSpEd) {
 
                                     // we only pull in if the email is not null or empty
                                     String email = userNode.get("email").asText();
@@ -489,12 +501,7 @@ public class SkywardOneRosterApi {
             i.importRepo.logInfo ("Saved StudentClasses: " + studentCount);
             i.importRepo.logInfo ("Saved TeacherClasses: " + teacherCount);
 
-            // build the student teacher table
-
-            System.out.println("Calling buildStudentTeacher();");
-
-            i.importRepo.buildStudentTeacher();
-            
+      
 
 
             // now the demographics
@@ -508,7 +515,8 @@ public class SkywardOneRosterApi {
             // if we use the SkywardSpEd, this is done at the END of the imports
             // we only need to do for NEW studens.
 
-            if (!useSkywardSpEd) {
+            if (tempSkipSkyward) {
+            //if (!useSkywardSpEd) {
 
                 System.out.println("Getting Student Demographics");
 
@@ -591,8 +599,176 @@ public class SkywardOneRosterApi {
 
             }
 
+      // build the student teacher table
+
+            System.out.println("Calling buildStudentTeacher();");
+
+            i.importRepo.buildStudentTeacher();
+            
 
 
+        // testing getting SpEd stuff.
+
+            if (useSkywardSpEd) {
+
+
+
+                //JsonNode data;
+                List<String> studentSourceIds =i.importRepo.studentSourceIdsForImport(importId);
+
+                //studentNumbers.add("218879766");
+
+                for (String studentSourceId: studentSourceIds) {
+                    //data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
+
+                    // trim the Student_ from it
+
+                    // for Clint we have some that are USRstudent231311
+
+                    // Student_10009
+
+                    String studentId = studentSourceId.replace("Student_", "").replace("USRstudent", "");
+
+
+
+                    // String[] sss = studentSourceId.split("_");
+
+                    // if (sss.length > 1)
+                    //     studentId = sss[1];
+                    // else
+                    //     studentId = student
+
+
+                    try {
+                        // https://sandbox.skyward.com/BoscoK12SandboxAPI/SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/25
+                        // https://sandbox.skyward.com/BoscoK12SandboxAPI/SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/25
+
+                        
+                        data = i.skywardOneRosterService.fetchSkywardApi(apiBase + "SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/" + studentId, token);
+
+                        //System.out.println("\nFOUND for student: " + studentSourceId);
+
+                        //System.out.println(data.toPrettyString());
+
+                        // now lets try to parse it
+                        if (data.isArray()) {
+                            ArrayNode arrayNode = (ArrayNode) data;
+                            
+
+                            // do it this way..
+
+                            JsonNode theNode = arrayNode.get(0);
+
+                            if (theNode != null && !theNode.isNull()) {
+
+                                // String stateInstructionalSettingCode = theNode.get("StateInstructionalSettingCode").asText();
+
+                                // System.out.println("StateInstructionalSettingCode : " + stateInstructionalSettingCode);
+
+
+                                System.out.println("Adding SpEd " + studentSourceId);
+
+                                String stateInstructionalSettingCode = "";
+                                String stateChildCountFundCode = "";
+                                int specialEducationEnrollmentTXID = 0;
+                                String startDate = "";
+                                String endDate = "";
+
+                                Boolean multiplyDisabled = false;
+
+                                String entryComment = "";
+                                String exitComment = "";
+
+                                JsonNode getIfExistsNode = theNode.get("EndDate");
+                                if (getIfExistsNode != null && !getIfExistsNode.isNull()) {
+                                    endDate = getIfExistsNode.asText();
+                                }
+
+                                getIfExistsNode = theNode.get("StartDate");
+                                if (getIfExistsNode != null && !getIfExistsNode.isNull()) {
+                                    startDate = getIfExistsNode.asText();
+                                }
+
+
+                                getIfExistsNode = theNode.get("StateInstructionalSettingCode");
+                                if (getIfExistsNode != null && !getIfExistsNode.isNull()) {
+                                    stateInstructionalSettingCode = getIfExistsNode.asText();
+                                }
+
+                                 getIfExistsNode = theNode.get("StateChildCountFundCode");
+                                if (getIfExistsNode != null && !getIfExistsNode.isNull()) {
+                                    stateChildCountFundCode = getIfExistsNode.asText();
+                                }
+
+                                getIfExistsNode = theNode.get("SpecialEducationEnrollmentTXID");
+                                if (getIfExistsNode != null && !getIfExistsNode.isNull()) {
+                                    specialEducationEnrollmentTXID = Integer.parseInt(getIfExistsNode.asText());
+                                }
+                                //String endDate = theNode.get("EndDate").asText();
+
+                                
+                                getIfExistsNode = theNode.get("MultiplyDisabled");
+                                if (getIfExistsNode != null && !getIfExistsNode.isNull()) {
+                                    multiplyDisabled = Boolean.parseBoolean(getIfExistsNode.asText());
+                                }
+
+                                getIfExistsNode = theNode.get("EntryComment");
+                                if (getIfExistsNode != null && !getIfExistsNode.isNull()) {
+                                    entryComment = getIfExistsNode.asText();
+                                }
+
+                                getIfExistsNode = theNode.get("ExitComment");
+                                if (getIfExistsNode != null && !getIfExistsNode.isNull()) {
+                                    exitComment = getIfExistsNode.asText();
+                                }
+
+                                
+                                Boolean changed = i.importRepo.saveStudentSped(districtId, studentSourceId, 
+                                    stateInstructionalSettingCode,
+                                    stateChildCountFundCode,
+                                    specialEducationEnrollmentTXID,
+                                    startDate,
+                                    
+                                    endDate,
+                                    multiplyDisabled,
+                                    entryComment,
+                                    exitComment
+                                    
+                                
+                                );
+
+                                if (changed)
+                                    System.out.println("CHANGED SPED " + studentSourceId);
+
+                                // see one note for the resulst and to pare.
+
+                            }
+                        }
+
+                    }
+                    catch (HttpClientErrorException  hcee) {
+                        // System.out.println(".");
+                        // this is expected. not found!
+
+                        // if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                        //                 System.err.println("Error 404: Resource not found at " + url);
+                        //                 // Implement specific 404 handling logic here
+                        //             } else {
+                        //                 System.err.println("HTTP Client Error: " + e.getStatusCode() + " - " + e.getMessage());
+                        //             }
+
+                    }
+                    catch (Exception ex) {
+            
+                        // this is another exception (ie bad data in Json Node)
+                        System.out.println(studentSourceId);
+                        System.out.println(ex.toString());
+                        // System.out.println("Did not find for student: " + studentSourceId);
+                        //  System.out.println(ex.toString());
+                    }
+                }
+                
+            }
 
 
               
@@ -603,7 +779,7 @@ public class SkywardOneRosterApi {
 
 
             // this will mark the importId as the base.
-            i.importRepo.setImportBase(importDefId);
+            //i.importRepo.setImportBase(importDefId);
 
 
             LocalDateTime endDateTime = LocalDateTime.now();
@@ -632,14 +808,7 @@ public class SkywardOneRosterApi {
 
         return result;
 
-        // just to confirm
-
-        // int importStatus = i.importRepo.getSystemStatus("Import");
-
-        // System.out.println("In SkywardOneRosterApi. Import :  "  + importStatus);
-
-        // String token = i.tokenService.getAccessToken(clientId, clientSecret, tokenUrl);
-
+      
 
     }
 

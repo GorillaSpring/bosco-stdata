@@ -68,7 +68,7 @@ public class BoscoClient {
         // return entry.getValue();
     }
 
-    public String postStudent (String url, String token, Student student) {
+    public String postStudent (String url, String token, Student student) throws Exception {
           HttpHeaders headers = new HttpHeaders();
 
 
@@ -96,19 +96,20 @@ public class BoscoClient {
         //ResponseEntity<Student> responseEntity = restTemplate.postForEntity(url, student, Student.class);
 //        restTemplate.postForObject(url, request, null)
          if (responseEntity.getStatusCode() == HttpStatus.CREATED) {
-            System.out.println("Person created successfully!");
-            Student createdStudent = responseEntity.getBody();
-            System.out.println("Created Student: " + createdStudent.getFirstName());
-            System.out.println("Response Headers: " + responseEntity.getHeaders());
+            // System.out.println("Person created successfully!");
+            // Student createdStudent = responseEntity.getBody();
+            // System.out.println("Created Student: " + createdStudent.getFirstName());
+            // System.out.println("Response Headers: " + responseEntity.getHeaders());
         } else {
-            System.out.println("Failed to create person. Status code: " + responseEntity.getStatusCode());
+            //System.out.println("Failed to create person. Status code: " + responseEntity.getStatusCode());
+            throw new Exception("Failed to create Student. Status code: " + responseEntity.getStatusCode());
         }
 
         return "OK";
     }
 
 
-    public String putStudent (String url, String token, Student student) {
+    public String putStudent (String url, String token, Student student) throws Exception {
           HttpHeaders headers = new HttpHeaders();
 
 
@@ -135,25 +136,26 @@ public class BoscoClient {
         );
 
          if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            System.out.println("Student updated  successfully!");
-            Student updatedStudent = responseEntity.getBody();
-            System.out.println("Updated Student: " + updatedStudent.getFirstName());
-            System.out.println("Response Headers: " + responseEntity.getHeaders());
+            // System.out.println("Student updated  successfully!");
+            // Student updatedStudent = responseEntity.getBody();
+            // System.out.println("Updated Student: " + updatedStudent.getFirstName());
+            // System.out.println("Response Headers: " + responseEntity.getHeaders());
         } else {
-            System.out.println("Failed to update student. Status code: " + responseEntity.getStatusCode());
+            //System.out.println("Failed to update student. Status code: " + responseEntity.getStatusCode());
+            throw new Exception("Failed to Update Student. Status code: " + responseEntity.getStatusCode());
         }
 
         return "OK";
     }
 
 
-     public String deleteStudent (String url, String token, String studentId) {
+     public String deleteStudent (String url, String token, String studentId) throws Exception {
         HttpHeaders headers = new HttpHeaders();
 
         // this will need to be worked on.
 
 
-          // This will get the same student back.
+          // This will get the same student back.`
         
         headers.setBearerAuth(token);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -173,20 +175,21 @@ public class BoscoClient {
             studentId // URI variable for the ID
         );
 
-        if (responseEntity.getStatusCode() == HttpStatus.CREATED) {
-            System.out.println("Student deleted successfully!");
-            String result = responseEntity.getBody();
-            System.out.println("Student Deleted response: " + result);
-            System.out.println("Response Headers: " + responseEntity.getHeaders());
+        if (responseEntity.getStatusCode() == HttpStatus.NO_CONTENT) {
+            // System.out.println("Student deleted successfully!");
+            // String result = responseEntity.getBody();
+            // System.out.println("Student Deleted response: " + result);
+            // System.out.println("Response Headers: " + responseEntity.getHeaders());
         } else {
-            System.out.println("Failed to Delete Student. Status code: " + responseEntity.getStatusCode());
+            //stem.out.println("Failed to Delete Student. Status code: " + responseEntity.getStatusCode());
+            throw new Exception("Failed to DELETE Student. Status code: " + responseEntity.getStatusCode());
         }
 
         return "OK";
 
     }
 
-    public String postTeacher (String url, String token, Teacher teacher) {
+    public String postTeacher (String url, String token, Teacher teacher) throws Exception {
           
         HttpHeaders headers = new HttpHeaders();
 
@@ -212,18 +215,20 @@ public class BoscoClient {
         //ResponseEntity<Student> responseEntity = restTemplate.postForEntity(url, student, Student.class);
 //        restTemplate.postForObject(url, request, null)
          if (responseEntity.getStatusCode() == HttpStatus.CREATED) {
-            System.out.println("Teacher created successfully!");
-            Teacher teacherCreated = responseEntity.getBody();
-            System.out.println("Created Teacher: " + teacherCreated.getFirstName());
-            System.out.println("Response Headers: " + responseEntity.getHeaders());
+            // System.out.println("Teacher created successfully!");
+            // Teacher teacherCreated = responseEntity.getBody();
+            // System.out.println("Created Teacher: " + teacherCreated.getFirstName());
+            // System.out.println("Response Headers: " + responseEntity.getHeaders());
         } else {
-            System.out.println("Failed to create Teacher. Status code: " + responseEntity.getStatusCode());
+            //System.out.println("Failed to create Teacher. Status code: " + responseEntity.getStatusCode());
+            throw new Exception("Failed to create Teacher. Status code: " + responseEntity.getStatusCode());
+            
         }
 
         return "OK";
     }
 
-    public String putTeacher (String url, String token, Teacher teacher) {
+    public String putTeacher (String url, String token, Teacher teacher) throws Exception {
           HttpHeaders headers = new HttpHeaders();
 
 
@@ -249,18 +254,19 @@ public class BoscoClient {
         );
 
          if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            System.out.println("Teacher updated  successfully!");
-            Teacher updatedTeacher = responseEntity.getBody();
-            System.out.println("Updated Teacher: " + updatedTeacher.getFirstName());
-            System.out.println("Response Headers: " + responseEntity.getHeaders());
+            // System.out.println("Teacher updated  successfully!");
+            // Teacher updatedTeacher = responseEntity.getBody();
+            // System.out.println("Updated Teacher: " + updatedTeacher.getFirstName());
+            // System.out.println("Response Headers: " + responseEntity.getHeaders());
         } else {
-            System.out.println("Failed to update teacher. Status code: " + responseEntity.getStatusCode());
+            //System.out.println("Failed to update teacher. Status code: " + responseEntity.getStatusCode());
+            throw new Exception("Failed to update Teacher. Status code: " + responseEntity.getStatusCode());
         }
 
         return "OK";
     }
 
-    public String deleteTeacher (String url, String token, String teacherId) {
+    public String deleteTeacher (String url, String token, String teacherId) throws Exception {
         HttpHeaders headers = new HttpHeaders();
 
         // this will need to be worked on.
@@ -286,13 +292,14 @@ public class BoscoClient {
             teacherId // URI variable for the ID
         );
 
-        if (responseEntity.getStatusCode() == HttpStatus.CREATED) {
-            System.out.println("Teacher deleted successfully!");
-            String result = responseEntity.getBody();
-            System.out.println("Teacher Deleted response: " + result);
-            System.out.println("Response Headers: " + responseEntity.getHeaders());
+        if (responseEntity.getStatusCode() == HttpStatus.NO_CONTENT) {
+            // System.out.println("Teacher deleted successfully!");
+            // String result = responseEntity.getBody();
+            // System.out.println("Teacher Deleted response: " + result);
+            // System.out.println("Response Headers: " + responseEntity.getHeaders());
         } else {
-            System.out.println("Failed to DELETE Teacher. Status code: " + responseEntity.getStatusCode());
+            throw new Exception("Failed to DELETE Teacher. Status code: " + responseEntity.getStatusCode());
+            //System.out.println("Failed to DELETE Teacher. Status code: " + responseEntity.getStatusCode());
         }
 
         return "OK";
