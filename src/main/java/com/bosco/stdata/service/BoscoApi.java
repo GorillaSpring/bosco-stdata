@@ -3,7 +3,7 @@ package com.bosco.stdata.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
+import com.bosco.stdata.config.AppConfig;
 import com.bosco.stdata.model.*;
 import com.bosco.stdata.repo.ImportRepo;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,6 +18,8 @@ import java.util.List;
 
 @Service
 public class BoscoApi {
+
+    private final AppConfig appConfig;
 
     private final ImportRepo importRepo;
     private final EmailService emailService;
@@ -40,11 +42,13 @@ public class BoscoApi {
     private String clientSecret;
         
 
-    BoscoApi(ImportRepo importRepo, EmailService emailService,  BoscoClient boscoClient) {
+    BoscoApi(ImportRepo importRepo, EmailService emailService,  BoscoClient boscoClient, AppConfig appConfig) {
         this.importRepo = importRepo;
         this.emailService = emailService;
         
         this.boscoClient = boscoClient;
+        
+        this.appConfig = appConfig;
         
         
         
@@ -179,6 +183,13 @@ public class BoscoApi {
 
 
     public Boolean sendImportToBosco (int importId, int baseImportId) throws Exception {
+
+
+        // for logging if run from api
+
+        importRepo.setImportId(importId);
+        
+        
 
         String token = authBosco();
 

@@ -5,8 +5,9 @@ import lombok.Data;
 @Data
 public class SisMclass {
     public String schoolYear;
-    public String term;
+    public String period;
     public String subject;
-    public String level;
-
+    public String proficiency;
+    public String score;
+    public String _class = "com.bosco.model.ScorableAcademicRecord";
 }

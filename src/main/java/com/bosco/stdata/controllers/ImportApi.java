@@ -202,6 +202,20 @@ public class ImportApi {
 
 
   
+    @Operation(
+        summary = "Send Import To Bosco",
+        description = "This will jsut do the send to bosco (AGAIN)",
+        tags = {"Import Testing"}
+        )
+    @GetMapping("/import/sendToBosco/{importId}/{baseImportId}")
+    public String sendToBosco(@PathVariable int importId, @PathVariable int baseImportId) {
+        //ImportTask importTask = new ImportTask();
+
+        String result = importTask.sendImportToBosco(importId, baseImportId);
+
+        return result;
+
+    }
 
     
     @Operation(

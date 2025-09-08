@@ -779,7 +779,7 @@ public class SkywardOneRosterApi {
 
 
             // this will mark the importId as the base.
-            //i.importRepo.setImportBase(importDefId);
+            i.importRepo.setImportBase(importDefId);
 
 
             LocalDateTime endDateTime = LocalDateTime.now();

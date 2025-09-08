@@ -30,6 +30,12 @@ public class ImportRepo {
 
     ImportRepo() {}
 
+    // we do this if we reload the bosco imports from the api.
+    // just for logging.
+    public void setImportId(int importId) {
+        this.importId = importId;
+    }
+
     public JdbcTemplate getTemplate() {
         return template;
     }
@@ -143,7 +149,18 @@ public class ImportRepo {
         };
 
         String sql = """
-           select * from sis_academic_grade where id = ?;
+           select 
+                schoolYear,
+                term as period,
+                courseNumber as code,
+                courseName as subject,
+                grade as score
+            
+
+            from 
+                sis_academic_grade 
+            where 
+                id = ?;
                 """; 
 
 
@@ -157,11 +174,35 @@ public class ImportRepo {
         };
 
         String sql = """
-           select * from sis_map where id = ?;
+           select 
+                schoolYear,
+                term as period,
+                subject,
+                level as proficiency,
+                score
+
+            from 
+                sis_map 
+            where 
+                id = ?;
                 """; 
 
 
         return template.query(sql, new BeanPropertyRowMapper<>(SisMap.class), args);
+    }
+
+    public List<XSisMap> sisMapsGetX (int forDistrictId, String id) {
+          Object[] args = {
+            //forDistrictId,
+            id
+        };
+
+        String sql = """
+           select * from sis_map where id = ?;
+                """; 
+
+
+        return template.query(sql, new BeanPropertyRowMapper<>(XSisMap.class), args);
     }
 
 
@@ -172,7 +213,17 @@ public class ImportRepo {
         };
 
         String sql = """
-           select * from sis_mclass where id = ?;
+           select 
+                schoolYear,
+                term as period,
+                subject,
+                level as proficiency,
+                score
+
+            from 
+                sis_mclass 
+            where 
+                id = ?;
                 """; 
 
 
@@ -186,25 +237,33 @@ public class ImportRepo {
         };
 
         String sql = """
-           select * from sis_staar where id = ?;
+           select 
+                testDate as date,
+                stateAssessmentSubject as subject,
+                gradeDuringAssessment as grade,
+                stateAssessmentScore as proficiency
+            from 
+                sis_staar 
+            where 
+                id = ?;
                 """; 
 
 
         return template.query(sql, new BeanPropertyRowMapper<>(SisStaar.class), args);
     }
 
-    public List<SisDiscipline> sisDisciplinesGet (int forDistrictId, String id) {
+    public List<SisDisciplineHelper> sisDisciplinesGet (int forDistrictId, String id) {
           Object[] args = {
             //forDistrictId,
             id
         };
 
-        String sql = """
+        String sql = """    
            select * from sis_discipline where id = ?;
                 """; 
 
 
-        return template.query(sql, new BeanPropertyRowMapper<>(SisDiscipline.class), args);
+        return template.query(sql, new BeanPropertyRowMapper<>(SisDisciplineHelper.class), args);
     }
 
 
@@ -711,29 +770,60 @@ public class ImportRepo {
         return template.query(sql, new BeanPropertyRowMapper<>(School.class), args);
     }
          
-    public List<Teacher> teachersBoscoForExport (int forImportId, int changedFlag) {
+    // public List<Teacher> teachersBoscoForExport (int forImportId, int changedFlag) {
 
-        Object[] args = {
+    //     Object[] args = {
+    //         forImportId,
+    //         changedFlag
+    //     };
+
+    //     String sql = """
+    //             select 
+    //                 concat (concat (i.districtId, '.') , t.teacherId) as id,
+    //                 t.firstName,
+    //                 t.lastName,
+    //                 t.email,
+    //                 'TEACHER' as role,
+    //                 i.districtId as organizationId
+    //             from 
+    //                 teacher t
+    //                 join import i on i.id = t.importId
+    //             where 
+    //                 t.importId = ? 
+    //                 and t.changed = ?;
+    //             """;
+
+    //     return template.query(sql, new BeanPropertyRowMapper<>(Teacher.class), args);
+        
+    // }
+
+    // THIS ONE.
+
+    public List<Teacher> teacherBoscoGetForExport(int forImportId, int changedFlag) {
+          Object[] args = {
             forImportId,
             changedFlag
         };
 
         String sql = """
-                select 
-                    concat (concat (i.districtId, '.') , t.teacherId) as id,
-                    t.firstName,
-                    t.lastName,
-                    t.email
-                from 
-                    teacher t
-                    join import i on i.id = t.importId
-                where 
-                    t.importId = ? 
-                    and t.changed = ?;
-                """;
+             select
+                concat (concat (i.districtId, '.') , t.teacherId) as id,
+                t.firstName,
+                t.lastName,
+                LOWER(t.email) as email,
+                'TEACHER' as role,
+                i.districtId as organizationId,
+                t.teacherId as userId
+            from
+                teacher t
+                join import i on i.id = t.importId
+            where
+                t.importId = ?
+                and t.changed = ?;
+                """; 
 
-        return template.query(sql, new BeanPropertyRowMapper<>(Teacher.class), args);
-        
+
+        return template.query(sql, new BeanPropertyRowMapper<Teacher>(Teacher.class), args);
     }
     
     public List<Student> studentsBoscoForExport(int forImportId, int changedFlag) {
@@ -759,7 +849,13 @@ public class ImportRepo {
                     school.name as school,                    
                     ms.ncesSchoolId as schoolId,
                     i.districtId,
-                    s.grade
+                    s.grade,
+                    s.americanIndianOrAlaskaNative,
+                    s.asian,
+                    s.blackOrAfricanAmerican,
+                    s.nativeHawaiianOrOtherPacificIslander,
+                    s.white,
+                    s.hispanicOrLatinoEthnicity
                 from 
                     student s 
                     join import i on i.id = s.importId
@@ -846,29 +942,7 @@ public class ImportRepo {
         // return students;
     }
 
-    public List<Teacher> teacherBoscoGetForExport(int forImportId, int changedFlag) {
-          Object[] args = {
-            forImportId,
-            changedFlag
-        };
-
-        String sql = """
-             select
-                concat (concat (i.districtId, '.') , t.teacherId) as id,
-                t.firstName,
-                t.lastName,
-                t.email
-            from
-                teacher t
-                join import i on i.id = t.importId
-            where
-                t.importId = ?
-                and t.changed = ?;
-                """; 
-
-
-        return template.query(sql, new BeanPropertyRowMapper<Teacher>(Teacher.class), args);
-    }
+  
 
 
 
@@ -886,7 +960,7 @@ public class ImportRepo {
                     g.firstName,
                     g.lastName,
                     g.type,
-                    g.email
+                    LOWER(g.email) as email
                 from
                     student s
                     join guardian g on g.importId = s.importId and g.studentSourceId = s.sourceId

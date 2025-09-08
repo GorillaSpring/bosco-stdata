@@ -5,9 +5,10 @@ import lombok.Data;
 @Data
 public class SisAcademicGrade {
     public String schoolYear;
-    public String term;
-    public String courseNumber;
-    public String courseName;
-    public int grade;
+    public String period;
+    public String code;
+    public String subject;
+    public String score;
 
+    public String _class = "com.bosco.model.ScorableAcademicRecord";
 }

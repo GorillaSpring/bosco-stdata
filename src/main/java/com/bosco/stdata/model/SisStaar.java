@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class SisStaar {
-    public String testDate;
-    public String stateAssessmentSubject;
-    public String gradeDuringAssessment;
-    public String stateAssessmentScore;
-
+    public String date;
+    public String subject;
+    public String grade;
+    public String proficiency;
+    public String _class = "com.bosco.model.ScorableAcademicRecord";
 }

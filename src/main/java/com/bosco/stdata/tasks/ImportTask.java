@@ -14,6 +14,7 @@ import com.bosco.stdata.distictImports.UpliftFiles;
 import com.bosco.stdata.model.ImportDefinition;
 import com.bosco.stdata.model.ImportResult;
 import com.bosco.stdata.repo.ImportRepo;
+import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.service.EmailService;
 import com.bosco.stdata.utils.ImportHelper;
 
@@ -28,9 +29,23 @@ public class ImportTask {
     @Autowired
     EmailService emailService;
 
+    @Autowired 
+    BoscoApi boscoApi;
+
 
     public ImportTask() {}
 
+
+    public String sendImportToBosco(int importId, int baseImportId ) {
+        try {
+            boscoApi.sendImportToBosco(importId, baseImportId);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return "Sending";
+    }
 
 
     public String doSkywardSpedTest () {

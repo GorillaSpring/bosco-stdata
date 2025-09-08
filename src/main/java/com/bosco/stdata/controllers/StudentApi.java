@@ -7,6 +7,7 @@ import com.bosco.stdata.tasks.ImportTask;
 
 import io.swagger.v3.oas.annotations.Operation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,13 +101,46 @@ public class StudentApi {
 
 
         SisStudentData sd = new SisStudentData();
-        sd.id = id;
+        sd._id = id;
+        sd.academicRecords.grades.records = importRepo.sisAcademicGradesGet(districId, id);
+        sd.academicRecords.map.records = importRepo.sisMapsGet(districId, id);
+        sd.academicRecords.mclass.records = importRepo.sisMclassGet(districId, id);
+        sd.academicRecords.staar.records = importRepo.sisStaarsGet(districId, id);
 
-        sd.academicGrades = importRepo.sisAcademicGradesGet(districId, id);
-        sd.maps = importRepo.sisMapsGet(districId, id);
-        sd.mclasses = importRepo.sisMclassGet(districId, id);
-        sd.staars = importRepo.sisStaarsGet(districId, id);
-        sd.disciplines = importRepo.sisDisciplinesGet(districId, id);
+
+        List<SisDisciplineHelper> sisDisciplineHelpers = new ArrayList<>();
+        sisDisciplineHelpers = importRepo.sisDisciplinesGet(districId, id);
+        //** this we have to build classes from the results.
+        for (SisDisciplineHelper sdh : sisDisciplineHelpers) {
+            SisDiscipline dis = new SisDiscipline();
+            
+            dis.schoolYear = sdh.schoolYear;
+            dis.counts = new SisDisciplineCounts();
+            if (!sdh.issDays.trim().equals(""))
+                dis.counts.setISS(Integer.parseInt(sdh.issDays));
+            if (!sdh.ossDays.trim().equals(""))
+                dis.counts.setOSS(Integer.parseInt(sdh.ossDays));
+            if (!sdh.aepDays.trim().equals(""))
+                dis.counts.setDAEP(Integer.parseInt(sdh.aepDays));
+
+
+
+            sd.academicRecords.discipline.records.add(dis);
+        }
+        
+        
+
+        // List<SisMap> maps = new ArrayList<>();
+
+        // maps = importRepo.sisMapsGet(districId, id);
+
+        //sd.academicRecords.add(maps);
+
+        // sd.academicGrades = importRepo.sisAcademicGradesGet(districId, id);
+        // sd.maps = importRepo.sisMapsGet(districId, id);
+        // sd.mclasses = importRepo.sisMclassGet(districId, id);
+        // sd.staars = importRepo.sisStaarsGet(districId, id);
+        // sd.disciplines = importRepo.sisDisciplinesGet(districId, id);
 
 
         return sd;

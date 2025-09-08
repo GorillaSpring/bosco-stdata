@@ -13,7 +13,9 @@ public class Teacher {
 	private String email;
     private String title;
 
-
+	private String organizationId;
+	private String role;
+	private String userId;
   
     
 
