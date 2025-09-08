@@ -131,9 +131,15 @@ public  class ImportHelper {
 
         
 
+        System.out.println("Checking Import Files");
         for (String fileName : fileNames) {
+
+            
+
             Path filePath = Paths.get(baseFolder + fileName);
+            System.out.println("  -- Checking: " + filePath.toString());
             if (!Files.exists(filePath)) {
+                System.out.println("   ------ DID NOT FIND");
                 return false;
             }
         }
@@ -156,6 +162,7 @@ public  class ImportHelper {
 
 
         if (headerRow.length != headers.length) {
+            System.out.println("  ---   ERROR lenght of col headers is different --- ");
             return false;
         }
         for (int i = 0; i < headerRow.length; i++) {
@@ -169,15 +176,41 @@ public  class ImportHelper {
 
 
 
-            byte[] utf8Bytes = headerRow[i].getBytes(StandardCharsets.ISO_8859_1);
+            byte[] utf8Bytes = headerRow[i].trim().getBytes(StandardCharsets.ISO_8859_1);
 
             String headerRowUtf8 = new String(utf8Bytes, StandardCharsets.UTF_8);
 
-            String trimmedHeaderRow = headerRowUtf8.replace("?", "");
+            String trimmedHeaderRow = headerRowUtf8.replace("?", ""); //.replace("_", "");
+
+            // EntryIEP_Date
+
+            // String thr = trimmedHeaderRow.replace("_", "");
+
+            // String th = headers[i].trim().replace("_", "");
+
+
+
+                 
+
           
-            if (!trimmedHeaderRow.equalsIgnoreCase(headers[i])) {
+            int res = trimmedHeaderRow.compareToIgnoreCase(headers[i]);
+            //int res = thr.compareToIgnoreCase(th);
+
+            // if res 
+            // if (res != 0) {
+            //     // just try the old way.
+            //     res = headerRow[i].trim().compareToIgnoreCase(headers[i].trim());
+            // }
+
+            if (res != 0) {
+                 System.out.println("   ---- Error in Clo headers - [" + trimmedHeaderRow + "] : []" + headers[i] + "]");
                 return false;
             }
+
+            // if (!trimmedHeaderRow.equalsIgnoreCase(headers[i].replace("_", ""))) {
+            //     System.out.println("   ---- Error in Clo headers - " + trimmedHeaderRow + " : " + headers[i]);
+            //     return false;
+            // }
 
 
         }

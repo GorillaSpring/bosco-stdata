@@ -30,6 +30,13 @@ public class Student {
 	private Boolean white;
 	private Boolean hispanicOrLatinoEthnicity;
 
+	private Boolean isEsl;
+	private Boolean is504;
+	private Boolean isBilingual;
+
+	private Boolean isSpecialEd;
+	private String entryIepDate;
+
 	
     private List<Guardian> guardians = new ArrayList();
     private List<String> teacherIds = new ArrayList();

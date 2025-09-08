@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.bosco.stdata.distictImports.CelinaFiles;
 import com.bosco.stdata.distictImports.ClassLinkOneRosterApi;
+import com.bosco.stdata.distictImports.MelissaFiles;
 import com.bosco.stdata.distictImports.SkywardOneRosterApi;
 import com.bosco.stdata.distictImports.TestFiles;
 import com.bosco.stdata.distictImports.UpliftFiles;
@@ -127,6 +128,11 @@ public class ImportTask {
                     default:
 
                             switch (importDefId) {
+                                case "MelissaFiles":
+                                    importResult = MelissaFiles.Import(importDefId);
+                                    importResults.add(importResult);
+
+                                    break;
                                 case "Testing":
                                     // This is used for code testing, not import testing
                                     //TestImportTests.Test(importRepo, "Testing");

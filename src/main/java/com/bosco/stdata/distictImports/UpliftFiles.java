@@ -148,21 +148,28 @@ public class UpliftFiles {
                 if (!row[0].isBlank()) 
                 {
 
+                    Boolean is504 = row[7].equals("Yes");
+                    Boolean isEsl = row[8].equals("Yes");
+
+
 
                     //String sourceId, String studentId, String firstName, String lastName, String grade, String schoolCode
 
                     i.importRepo.saveStudent(row[0], row[0], row[2], row[1], row[6], row[5]);
 
                     //i.importRepo.saveStudent(s);
-                    i.importRepo.saveStudentDemographics(row[0], row[3], row[4], false, false, false, false, false, false);
+                    i.importRepo.saveStudentDemographics(row[0], row[3], row[4], false, false, false, false, false, false,
+                    isEsl, is504, false
+                    
+                    );
 
                     // 504
-                    if (row[7] == "Yes")
-                        i.importRepo.saveStudentProperty(row[0], "is504", "1");
+                    // if (row[7] == "Yes")
+                    //     i.importRepo.saveStudentProperty(row[0], "is504", "1");
 
-                    // isEsl
-                    if (row[8] == "Yes")
-                        i.importRepo.saveStudentProperty(row[0], "isEsl", "1");
+                    // // isEsl
+                    // if (row[8] == "Yes")
+                    //     i.importRepo.saveStudentProperty(row[0], "isEsl", "1");
 
                     
                     // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type

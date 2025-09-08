@@ -40,6 +40,12 @@ public class CelinaFiles {
     }
 
     public static ImportResult Import(String importDefId)  {
+
+		// This is now not going to be the roster stuff.  Just the 
+		//  map
+		// telpass (weired one.)
+
+
         ImportResult result = new ImportResult();
         try {
               ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
@@ -241,7 +247,11 @@ public class CelinaFiles {
 				// we only import Student demographics.
 				if (row[0].startsWith("Student_")) {
 					//Demographics d = new Demographics(row[0], row[3], row[4], Boolean.parseBoolean(row[5]), Boolean.parseBoolean(row[6]), Boolean.parseBoolean(row[7]), Boolean.parseBoolean(row[8]), Boolean.parseBoolean(row[9]), Boolean.parseBoolean(row[11]));
-					i.importRepo.saveStudentDemographics(row[0], row[3], row[4], Boolean.parseBoolean(row[5]), Boolean.parseBoolean(row[6]), Boolean.parseBoolean(row[7]), Boolean.parseBoolean(row[8]), Boolean.parseBoolean(row[9]), Boolean.parseBoolean(row[11]));
+					i.importRepo.saveStudentDemographics(row[0], row[3], row[4], Boolean.parseBoolean(row[5]), Boolean.parseBoolean(row[6]), Boolean.parseBoolean(row[7]), Boolean.parseBoolean(row[8]), Boolean.parseBoolean(row[9]), Boolean.parseBoolean(row[11]),
+					false, false, false
+					
+					
+					);
 					studentCount++;
 				}
 			};

@@ -410,7 +410,8 @@ public class ClassLinkOneRosterApi {
                                 Boolean.parseBoolean(demographicsNode.get("blackOrAfricanAmerican").asText()),
                                 Boolean.parseBoolean(demographicsNode.get("nativeHawaiianOrOtherPacificIslander").asText()),
                                 Boolean.parseBoolean(demographicsNode.get("white").asText()),
-                                Boolean.parseBoolean(demographicsNode.get("hispanicOrLatinoEthnicity").asText())
+                                Boolean.parseBoolean(demographicsNode.get("hispanicOrLatinoEthnicity").asText()),
+                                false, false, false
                             );
 
                             studentCount++;

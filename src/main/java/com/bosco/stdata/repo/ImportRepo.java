@@ -855,7 +855,13 @@ public class ImportRepo {
                     s.blackOrAfricanAmerican,
                     s.nativeHawaiianOrOtherPacificIslander,
                     s.white,
-                    s.hispanicOrLatinoEthnicity
+                    s.hispanicOrLatinoEthnicity,
+                    s.isEsl,
+                    s.is504,
+                    s.isBilingual,
+                    s.isSpecialEd,
+                    s.entryIepDate
+
                 from 
                     student s 
                     join import i on i.id = s.importId
@@ -910,7 +916,12 @@ public class ImportRepo {
                     s.blackOrAfricanAmerican,
                     s.nativeHawaiianOrOtherPacificIslander,
                     s.white,
-                    s.hispanicOrLatinoEthnicity
+                    s.hispanicOrLatinoEthnicity,
+                    s.isEsl,
+                    s.is504,
+                    s.isBilingual,
+                    s.isSpecialEd,
+                    s.entryIepDate
                 from 
                     student s 
                     join import i on i.id = s.importId
@@ -1268,9 +1279,15 @@ public class ImportRepo {
 
 
     public void saveStudentProperty (String SourceId, String DbFieldName, String Value) {
-        String sql = "update student set " + DbFieldName  + " = " + Value + "where importId = " + importId + " and sourceId='"  + SourceId + "'";
+        String sql = "update student set " + DbFieldName  + " = " + Value + " where importId = " + importId + " and sourceId='"  + SourceId + "';";
         template.update(sql);
     }
+
+    public void saveStudentPropertyString (String SourceId, String DbFieldName, String Value) {
+        String sql = "update student set " + DbFieldName  + " = '" + Value + "' where importId = " + importId + " and sourceId='"  + SourceId + "';";
+        template.update(sql);
+    }
+
 
     public void saveStudentDemographics ( String sourceId, 
             String dob, 
@@ -1280,7 +1297,10 @@ public class ImportRepo {
             Boolean blackOrAfricanAmerican, 
             Boolean nativeHawaiianOrOtherPacificIslander, 
             Boolean white,
-            Boolean hispanicOrLatinoEthnicity) {
+            Boolean hispanicOrLatinoEthnicity,
+            Boolean isEsl,
+            Boolean is504,
+            Boolean isBilingual) {
 
        
 
@@ -1295,6 +1315,9 @@ public class ImportRepo {
             nativeHawaiianOrOtherPacificIslander,
             white,
             hispanicOrLatinoEthnicity,
+            isEsl,
+            is504,
+            isBilingual,
             importId,
             sourceId
 
@@ -1314,7 +1337,10 @@ public class ImportRepo {
                     blackOrAfricanAmerican = ?,
                     nativeHawaiianOrOtherPacificIslander = ?,
                     white = ?,
-                    hispanicOrLatinoEthnicity = ?
+                    hispanicOrLatinoEthnicity = ?,
+                    isEsl = ?,
+                    is504 = ?,
+                    isBilingual = ?
                 where
                     importId = ?
                     and sourceId = ?;
