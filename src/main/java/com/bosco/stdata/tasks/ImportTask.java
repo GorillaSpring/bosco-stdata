@@ -11,6 +11,7 @@ import com.bosco.stdata.distictImports.ClassLinkOneRosterApi;
 import com.bosco.stdata.distictImports.MelissaFiles;
 import com.bosco.stdata.distictImports.SkywardOneRosterApi;
 import com.bosco.stdata.distictImports.TestFiles;
+import com.bosco.stdata.distictImports.Testing;
 import com.bosco.stdata.distictImports.UpliftFiles;
 import com.bosco.stdata.model.ImportDefinition;
 import com.bosco.stdata.model.ImportResult;
@@ -136,6 +137,7 @@ public class ImportTask {
                                 case "Testing":
                                     // This is used for code testing, not import testing
                                     //TestImportTests.Test(importRepo, "Testing");
+                                    Testing.Test(importDefId);
                                     break;
                                 case "TestFiles":
                                     //TestFiles.Import(importRepo, boscoApi, importDefId);

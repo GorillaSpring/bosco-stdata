@@ -7,13 +7,24 @@ import lombok.Data;
 
 @Data
 public class SisStudentData {
-    public String _id;  // student id  DDD.SSSSS
 
     // academicRecords
+  //public List<SisMap> map = new ArrayList<>();
 
-    public SisAcademicRecords academicRecords = new SisAcademicRecords();
+    public List<SisAcademicGrade> grades = new ArrayList<>();
+    public List<SisMap> map = new ArrayList<>();
+    public List<SisMclass> mclass = new ArrayList<>();
+    public List<SisStaar> staar = new ArrayList<>();
+    public List<SisDiscipline> discipline = new ArrayList<>();
 
-     public String _class = "com.bosco.model.datasource.SISData";
+//    public SisGrades grades = new SisGrades();
+    //public SisMaps map = new SisMaps();
+    //public SisMclasses mclass = new SisMclasses();
+    //public SisStaars staar = new SisStaars();
+
+    //public SisDisciplines discipline = new SisDisciplines();
+
+    // Next is Telpas
 
     // public List<SisMap> maps = new ArrayList<>();
 

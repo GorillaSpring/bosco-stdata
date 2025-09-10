@@ -9,6 +9,7 @@ public class SisAcademicGrade {
     public String code;
     public String subject;
     public String score;
+    public String csacode;
 
-    public String _class = "com.bosco.model.ScorableAcademicRecord";
+    //public String _class = "com.bosco.model.ScorableAcademicRecord";
 }

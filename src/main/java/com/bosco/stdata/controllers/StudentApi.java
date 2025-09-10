@@ -101,12 +101,22 @@ public class StudentApi {
 
 
         SisStudentData sd = new SisStudentData();
-        sd._id = id;
-        sd.academicRecords.grades.records = importRepo.sisAcademicGradesGet(districId, id);
-        sd.academicRecords.map.records = importRepo.sisMapsGet(districId, id);
-        sd.academicRecords.mclass.records = importRepo.sisMclassGet(districId, id);
-        sd.academicRecords.staar.records = importRepo.sisStaarsGet(districId, id);
 
+        
+        sd.grades = importRepo.sisAcademicGradesGet(districId, id);
+        // Grades is missing csacode;
+
+        sd.map = importRepo.sisMapsGet(districId, id);
+        // map is missing proficiencyCode and csacode
+        sd.mclass = importRepo.sisMclassGet(districId, id);
+        // mclass is missing proficiencyCode and csacode
+
+        sd.staar = importRepo.sisStaarsGet(districId, id);
+        // star is missing code, proficiencyCode and csacode
+        
+
+
+        // discipline is missing grade.
 
         List<SisDisciplineHelper> sisDisciplineHelpers = new ArrayList<>();
         sisDisciplineHelpers = importRepo.sisDisciplinesGet(districId, id);
@@ -125,7 +135,8 @@ public class StudentApi {
 
 
 
-            sd.academicRecords.discipline.records.add(dis);
+            //sd.academicRecords.discipline.records.add(dis);
+            sd.discipline.add(dis);
         }
         
         

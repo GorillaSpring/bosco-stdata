@@ -191,19 +191,19 @@ public class ImportRepo {
         return template.query(sql, new BeanPropertyRowMapper<>(SisMap.class), args);
     }
 
-    public List<XSisMap> sisMapsGetX (int forDistrictId, String id) {
-          Object[] args = {
-            //forDistrictId,
-            id
-        };
+    // public List<XSisMap> sisMapsGetX (int forDistrictId, String id) {
+    //       Object[] args = {
+    //         //forDistrictId,
+    //         id
+    //     };
 
-        String sql = """
-           select * from sis_map where id = ?;
-                """; 
+    //     String sql = """
+    //        select * from sis_map where id = ?;
+    //             """; 
 
 
-        return template.query(sql, new BeanPropertyRowMapper<>(XSisMap.class), args);
-    }
+    //     return template.query(sql, new BeanPropertyRowMapper<>(XSisMap.class), args);
+    // }
 
 
      public List<SisMclass> sisMclassGet (int forDistrictId, String id) {
@@ -258,6 +258,8 @@ public class ImportRepo {
             id
         };
 
+
+        // check how used and what to add.
         String sql = """    
            select * from sis_discipline where id = ?;
                 """; 

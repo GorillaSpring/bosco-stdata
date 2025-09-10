@@ -9,5 +9,9 @@ public class SisMclass {
     public String subject;
     public String proficiency;
     public String score;
-    public String _class = "com.bosco.model.ScorableAcademicRecord";
+
+    public String proficiencyCode;
+    public String csacode;
+
+    //public String _class = "com.bosco.model.ScorableAcademicRecord";
 }

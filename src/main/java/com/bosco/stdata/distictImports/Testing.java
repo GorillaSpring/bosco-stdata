@@ -1,0 +1,121 @@
+package com.bosco.stdata.distictImports;
+
+//import org.springframework.batch.core.repository.persistence.ExecutionContext;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.stereotype.Component;
+
+import com.bosco.stdata.model.ImportResult;
+import com.bosco.stdata.repo.ImportRepo;
+import com.bosco.stdata.service.BoscoApi;
+import com.bosco.stdata.teaModel.FixedTest;
+import com.bosco.stdata.teaModel.Person;
+import com.bosco.stdata.utils.TeaStaarFlatFileReader;
+
+import jakarta.annotation.PostConstruct;
+
+@Component
+public class Testing {
+
+    // this is just for testing while we are doing dev.
+    // not a real import
+
+     @Autowired
+    ImportRepo importRepo;
+
+    @Autowired 
+    BoscoApi boscoApi;
+    
+
+    private static Testing i;  // instance
+
+    @PostConstruct
+    public void init() {
+        System.out.println("Testing - init()");
+        i = this;
+    }
+
+    public static void Test(String importDefId) {
+        System.out.println("Test Starting");
+
+        // try to create a file reader
+
+
+
+
+
+        TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
+
+        tsfr.TestTokenizerFT();
+
+
+        // OK, this is working so we can use it as a model.
+        FlatFileItemReader<FixedTest> ft = tsfr.ftReader();
+
+
+        //FlatFileItemReader<FixedTest> ft = tsfr.fixedLengthItemReader();
+
+        ft.open(new ExecutionContext());
+
+        try {
+            FixedTest t = ft.read();
+
+            while (t != null) {
+                System.out.println(" READ FixedTest : " + t);
+
+                t = ft.read();
+            }
+            
+
+            System.out.println("Done");
+        }
+        catch (Exception ex) {
+            System.out.println("EXCEPTION : " + ex.getMessage());
+            System.out.println(ex.getStackTrace());
+        }
+
+        // FlatFileItemReader<Person> ps = tsfr.personItemReader();
+
+        // ps.open(new ExecutionContext());
+
+        // int count = 0;
+
+        // try {
+        //     //ps.open(new ExecutionContext());
+        //     Person p = ps.read();
+
+        //     while (p != null) {
+        //         System.out.println(" READ Person : " + p.getFirstName());
+
+        //         p = ps.read();
+        //     }
+            
+            
+
+            
+
+
+        //     System.out.println("Test Ending");
+
+        // }
+        // catch (Exception ex) {
+        //     System.out.println("EXCEPTION : " + ex.getMessage());
+        //     System.out.println(ex.getStackTrace());
+        // }
+
+    }
+
+
+    public static ImportResult Import(String importDefId) {
+        System.out.println("TESTING HERE");
+
+        ImportResult result = new ImportResult();
+
+        result.success = true;
+
+        return result;
+    }
+
+}
