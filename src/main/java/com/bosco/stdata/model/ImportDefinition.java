@@ -13,4 +13,9 @@ public class ImportDefinition {
     private Boolean forceLoad;
     private int baseImportId;
     private LocalDateTime lastRunDate;
+
+
+    // here we can add a flag to scramble the email
+
+    private Boolean setNoEmails;
 }

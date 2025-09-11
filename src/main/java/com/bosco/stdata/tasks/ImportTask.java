@@ -195,7 +195,10 @@ public class ImportTask {
 
             // }); 
 
-            emailService.sendSimpleMessage("BenLevy3@gmail.com",  "Import Results", emailBody);
+            if (sendEmail) {
+
+                emailService.sendSimpleMessage("BenLevy3@gmail.com",  "Import Results", emailBody);
+            }
 
             System.out.println("DONE");
             ImportHelper.importRunning = false;

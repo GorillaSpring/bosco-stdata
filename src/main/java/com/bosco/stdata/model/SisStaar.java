@@ -16,8 +16,9 @@ public class SisStaar {
 
 
     // not sure if needed
-    public String date;
+    // REMOVE THIS!
+    public String testDate;
 
     
-    //public String _class = "com.bosco.model.ScorableAcademicRecord";
+    
 }

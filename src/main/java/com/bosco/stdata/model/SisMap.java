@@ -14,5 +14,4 @@ public class SisMap {
     public String csacode;
 
 
-    //public String _class = "com.bosco.model.ScorableAcademicRecord";
 }

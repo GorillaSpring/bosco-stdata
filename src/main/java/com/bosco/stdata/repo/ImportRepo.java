@@ -142,7 +142,7 @@ public class ImportRepo {
 
 
    
-    public List<SisAcademicGrade> sisAcademicGradesGet (int forDistrictId, String id) {
+    public List<SisGrades> sisGradesGet (int forDistrictId, String id) {
           Object[] args = {
             //forDistrictId,
             id
@@ -151,20 +151,21 @@ public class ImportRepo {
         String sql = """
            select 
                 schoolYear,
-                term as period,
-                courseNumber as code,
-                courseName as subject,
-                grade as score
+                period,
+                code,
+                subject,
+                score,
+                csaCode
             
 
             from 
-                sis_academic_grade 
+                sis_grade 
             where 
                 id = ?;
                 """; 
 
 
-        return template.query(sql, new BeanPropertyRowMapper<>(SisAcademicGrade.class), args);
+        return template.query(sql, new BeanPropertyRowMapper<>(SisGrades.class), args);
     }
 
     public List<SisMap> sisMapsGet (int forDistrictId, String id) {
@@ -176,10 +177,12 @@ public class ImportRepo {
         String sql = """
            select 
                 schoolYear,
-                term as period,
+                period,
                 subject,
-                level as proficiency,
-                score
+                proficiency,
+                proficiencyCode,
+                score,
+                csaCode
 
             from 
                 sis_map 
@@ -191,19 +194,7 @@ public class ImportRepo {
         return template.query(sql, new BeanPropertyRowMapper<>(SisMap.class), args);
     }
 
-    // public List<XSisMap> sisMapsGetX (int forDistrictId, String id) {
-    //       Object[] args = {
-    //         //forDistrictId,
-    //         id
-    //     };
-
-    //     String sql = """
-    //        select * from sis_map where id = ?;
-    //             """; 
-
-
-    //     return template.query(sql, new BeanPropertyRowMapper<>(XSisMap.class), args);
-    // }
+   
 
 
      public List<SisMclass> sisMclassGet (int forDistrictId, String id) {
@@ -215,10 +206,12 @@ public class ImportRepo {
         String sql = """
            select 
                 schoolYear,
-                term as period,
+                period,
                 subject,
-                level as proficiency,
-                score
+                proficiency,
+                proficiencyCode,
+                score,
+                csaCode
 
             from 
                 sis_mclass 
@@ -238,10 +231,14 @@ public class ImportRepo {
 
         String sql = """
            select 
-                testDate as date,
-                stateAssessmentSubject as subject,
-                gradeDuringAssessment as grade,
-                stateAssessmentScore as proficiency
+                testDate,
+                schoolYear,
+                subject,
+                code,
+                grade,
+                proficiency,
+                proficiencyCode,
+                csaCode
             from 
                 sis_staar 
             where 
@@ -380,7 +377,7 @@ public class ImportRepo {
     }
 
 
-    public void sisAcademicGradeAdd (String studentNumber, String schoolYear, String term, String courseNumber, String courseName, int grade) {
+    public void sisGradeAdd (String studentNumber, String schoolYear, String period, String code, String subject, int score, String csaCode) {
         
         String id = districtId + "." + studentNumber;
         
@@ -388,20 +385,21 @@ public class ImportRepo {
             districtId,
             id,
             schoolYear,
-            term,
-            courseNumber,
-            courseName,
-            grade
+            period,
+            code,
+            subject,
+            score,
+            csaCode
         };
 
-        String sql = "call sis_academic_grade_add (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "call sis_grade_add (?, ?, ?, ?, ?, ?, ?, ?)";
 
         int rows = template.update(sql, args);
 
 
     }
 
-    public void sisMapAdd(String studentNumber, String schoolYear, String term, String subject, String level, int score ) {
+    public void sisMapAdd(String studentNumber, String schoolYear, String period, String subject, String proficiency, String proficiencyCode, int score, String csaCode ) {
 
         String id = districtId + "." + studentNumber;
 
@@ -410,14 +408,16 @@ public class ImportRepo {
             districtId,
             id,
             schoolYear,
-            term,
+            period,
             subject,
-            level, 
-            score
+            proficiency, 
+            proficiencyCode,
+            score,
+            csaCode
         };
 
         
-        String sql = "call sis_map_add (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "call sis_map_add (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 
         int rows = template.update(sql, args);
@@ -425,7 +425,7 @@ public class ImportRepo {
     }
 
 
-    public void sisMclassAdd(String studentNumber, String schoolYear, String term, String subject, String level, int score ) {
+    public void sisMclassAdd(String studentNumber, String schoolYear, String period, String subject, String proficiency, String proficiencyCode, int score, String csaCode ) {
 
         String id = districtId + "." + studentNumber;
 
@@ -434,13 +434,15 @@ public class ImportRepo {
             districtId,
             id,
             schoolYear,
-            term,
+            period,
             subject,
-            level, 
-            score
+            proficiency, 
+            proficiencyCode,
+            score,
+            csaCode
         };
 
-           String sql = "call sis_mclass_add (?, ?, ?, ?, ?, ?, ?)";
+           String sql = "call sis_mclass_add (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 
 
@@ -451,7 +453,7 @@ public class ImportRepo {
 
 
 
-     public void sisStaarAdd(String studentNumber, String testDate, String stateAssessmentSubject, String gradeDuringAssessment, String stateAssessmentScore ) {
+     public void sisStaarAdd(String studentNumber, String testDate, String schoolYear, String subject, String code, String grade, String proficiency, String proficiencyCode, String csaCode) {
 
         String id = districtId + "." + studentNumber;
 
@@ -460,12 +462,16 @@ public class ImportRepo {
             districtId,
             id,
             testDate,
-            stateAssessmentSubject,
-            gradeDuringAssessment,
-            stateAssessmentScore
+            schoolYear,
+            subject,
+            code,
+            grade,
+            proficiency,
+            proficiencyCode,
+            csaCode
         };
 
-         String sql = "call sis_staar_add (?, ?, ?, ?, ?, ?)";
+         String sql = "call sis_staar_add (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
 
 
@@ -473,7 +479,7 @@ public class ImportRepo {
 
     }
 
-     public void sisDiscipline(String studentNumber, String issDays, String ossDays, String aepDays, String schoolYear ) {
+     public void sisDiscipline(String studentNumber, String issDays, String ossDays, String aepDays, String grade, String schoolYear ) {
 
         String id = districtId + "." + studentNumber;
 
@@ -484,11 +490,12 @@ public class ImportRepo {
             issDays,
             ossDays,
             aepDays,
+            grade,
             schoolYear
         };
 
         
-        String sql = "call sis_discipline_add (?, ?, ?, ?, ?, ?)";
+        String sql = "call sis_discipline_add (?, ?, ?, ?, ?, ?, ?)";
 
 
    

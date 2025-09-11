@@ -11,7 +11,5 @@ public class SisDiscipline {
     public String grade;  // no data for this!
     //public String grade;  this is kids grade (ie 8th)
 
-     //public String _class = "com.bosco.model.CountableAcademicRecord";
-    
 
 }

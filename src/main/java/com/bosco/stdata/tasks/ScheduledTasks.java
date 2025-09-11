@@ -18,42 +18,42 @@ public class ScheduledTasks {
     @Autowired
     ImportRepo importRepo;
 
-    @Scheduled(fixedRate = 15000) // Runs every 5 seconds
-    public void reportCurrentTime() {
+    // @Scheduled(fixedRate = 15000) // Runs every 5 seconds
+    // public void reportCurrentTime() {
 
 
-        if (ImportHelper.importRunning) {
-            System.out.println("Import Running - bail");
-        }
-        else {
+    //     if (ImportHelper.importRunning) {
+    //         System.out.println("Import Running - bail");
+    //     }
+    //     else {
 
 
-            Date date = new Date(System.currentTimeMillis());
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Example format
-            String formattedDate = sdf.format(date);
+    //         Date date = new Date(System.currentTimeMillis());
+    //         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Example format
+    //         String formattedDate = sdf.format(date);
 
-            System.out.println("Tick: Current time: " + formattedDate);
-        }
-
-
-        // int status = importRepo.getSystemStatus("Import");
-        // if (status > 0) {
-        //     System.out.println("The imports are running so do nonthing in tick");
-
-        // }
-        // else {
+    //         System.out.println("Tick: Current time: " + formattedDate);
+    //     }
 
 
-        //     Date date = new Date(System.currentTimeMillis());
-        //     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Example format
-        //     String formattedDate = sdf.format(date);
+    //     // int status = importRepo.getSystemStatus("Import");
+    //     // if (status > 0) {
+    //     //     System.out.println("The imports are running so do nonthing in tick");
 
-        //     System.out.println("Tick: Current time: " + formattedDate);
-        // }
-    }
+    //     // }
+    //     // else {
 
-    @Scheduled(cron = "0 0 10 * * MON-FRI") // Runs at 10 AM on weekdays
-    public void dailyReport() {
-        System.out.println("Generating daily report...");
-    }
+
+    //     //     Date date = new Date(System.currentTimeMillis());
+    //     //     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Example format
+    //     //     String formattedDate = sdf.format(date);
+
+    //     //     System.out.println("Tick: Current time: " + formattedDate);
+    //     // }
+    // }
+
+    // @Scheduled(cron = "0 0 10 * * MON-FRI") // Runs at 10 AM on weekdays
+    // public void dailyReport() {
+    //     System.out.println("Generating daily report...");
+    // }
 }

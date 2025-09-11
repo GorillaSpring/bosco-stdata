@@ -103,7 +103,7 @@ public class StudentApi {
         SisStudentData sd = new SisStudentData();
 
         
-        sd.grades = importRepo.sisAcademicGradesGet(districId, id);
+        sd.grades = importRepo.sisGradesGet(districId, id);
         // Grades is missing csacode;
 
         sd.map = importRepo.sisMapsGet(districId, id);
@@ -125,6 +125,7 @@ public class StudentApi {
             SisDiscipline dis = new SisDiscipline();
             
             dis.schoolYear = sdh.schoolYear;
+            dis.grade = sdh.grade;
             dis.counts = new SisDisciplineCounts();
             if (!sdh.issDays.trim().equals(""))
                 dis.counts.setISS(Integer.parseInt(sdh.issDays));

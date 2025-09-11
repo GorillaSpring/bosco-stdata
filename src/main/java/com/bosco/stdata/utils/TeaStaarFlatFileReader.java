@@ -15,10 +15,96 @@ import org.springframework.context.annotation.Bean;
 
 import com.bosco.stdata.teaModel.FixedTest;
 import com.bosco.stdata.teaModel.Person;
+import com.bosco.stdata.teaModel.Star2024;
 
 //public class TeaStaarFlatFileReader implements ItemStream{
 
 public class TeaStaarFlatFileReader {
+
+    
+    // Read this file:  SF_0524_3-8_043908_MELISSA ISD_V01
+    // STAAR Grades 3–8 2024 Test Administration
+    // https://tea.texas.gov/student-assessment/student-assessment-results/2024-staar-3-8-data-file.pdf
+
+
+
+    // So we can just define the ones we need, the rest are fine.
+    // we should define a throwaway for the rest of the line.
+
+    @Bean
+    public FlatFileItemReader<Star2024> star2024Reader(String filePath) {
+
+        FixedLengthTokenizer tokenizer = new FixedLengthTokenizer();
+            tokenizer.setNames(new String[]{"adminDate", "gradeLevel", "districtName", "studentLast", "studentFirst", "studentId", "mathPercentile",  "mathQuantile", "throwaway"}); // Names for the fields
+            tokenizer.setStrict(true);  // should be default.
+            tokenizer.setColumns(new Range[]{
+                    new Range(1, 4),    // adminDate
+                    new Range(5, 6),   // gradeLevel
+                    new Range(18, 32),  // distrctName
+                    new Range(48,62),   // studentLast
+                    new Range(63,72),  // studnetFirst
+                    new Range(123, 131), // studentID   ** MAY BE BLANK
+                    new Range(969, 971),  // mathPercentile
+                    new Range(972, 976), // mathQuantile
+                    new Range(3999)   // throway.
+            });
+
+
+            // or
+            //tokenizer.setNames("one", "two", "three", "four");
+            //tokenizer.setColumns(new Range(1,5), new Range (6,10), new Range(11, 15), new Range(16,20));
+
+            BeanWrapperFieldSetMapper<Star2024> mapper = new BeanWrapperFieldSetMapper<Star2024>();
+            mapper.setTargetType(Star2024.class);
+
+
+
+        return new FlatFileItemReaderBuilder<Star2024>()
+            .name("fixedItemReader")
+            .resource(new FileSystemResource(filePath))
+            .lineTokenizer(tokenizer)
+            .fieldSetMapper (mapper)
+            .build();
+
+    }
+
+    
+
+        // This is our model for reading files.
+    @Bean
+    public FlatFileItemReader<FixedTest> ftReader() {
+
+        FixedLengthTokenizer tokenizer = new FixedLengthTokenizer();
+            tokenizer.setNames(new String[]{"one", "two", "three", "four"}); // Names for the fields
+            tokenizer.setStrict(true);  // should be default.
+            tokenizer.setColumns(new Range[]{
+                    new Range(1, 5),    // ID occupies characters 1-5 (inclusive)
+                    new Range(6, 7),   // First Name occupies characters 6-15
+                    new Range(11, 15),  // Last Name occupies characters 16-25
+                    new Range(16)   // Birth Year occupies characters 26-29
+            });
+
+
+            // or
+            //tokenizer.setNames("one", "two", "three", "four");
+            //tokenizer.setColumns(new Range(1,5), new Range (6,10), new Range(11, 15), new Range(16,20));
+
+            BeanWrapperFieldSetMapper<FixedTest> mapper = new BeanWrapperFieldSetMapper<FixedTest>();
+            mapper.setTargetType(FixedTest.class);
+
+
+
+        return new FlatFileItemReaderBuilder<FixedTest>()
+            .name("fixedItemReader")
+            .resource(new FileSystemResource("c:/test/ff/fixed.tst"))
+            .lineTokenizer(tokenizer)
+            .fieldSetMapper (mapper)
+            .build();
+
+    }
+
+
+    // below can be removed.
 
     @Bean
     public FlatFileItemReader<Person> personItemReader() {
@@ -117,37 +203,7 @@ public class TeaStaarFlatFileReader {
     
     }
 
-    @Bean
-    public FlatFileItemReader<FixedTest> ftReader() {
 
-        FixedLengthTokenizer tokenizer = new FixedLengthTokenizer();
-            tokenizer.setNames(new String[]{"one", "two", "three", "four"}); // Names for the fields
-            tokenizer.setStrict(true);  // should be default.
-            tokenizer.setColumns(new Range[]{
-                    new Range(1, 5),    // ID occupies characters 1-5 (inclusive)
-                    new Range(6, 10),   // First Name occupies characters 6-15
-                    new Range(11, 15),  // Last Name occupies characters 16-25
-                    new Range(16)   // Birth Year occupies characters 26-29
-            });
-
-
-            // or
-            //tokenizer.setNames("one", "two", "three", "four");
-            //tokenizer.setColumns(new Range(1,5), new Range (6,10), new Range(11, 15), new Range(16,20));
-
-            BeanWrapperFieldSetMapper<FixedTest> mapper = new BeanWrapperFieldSetMapper<FixedTest>();
-            mapper.setTargetType(FixedTest.class);
-
-
-
-        return new FlatFileItemReaderBuilder<FixedTest>()
-            .name("fixedItemReader")
-            .resource(new FileSystemResource("c:/test/ff/fixed.tst"))
-            .lineTokenizer(tokenizer)
-            .fieldSetMapper (mapper)
-            .build();
-
-    }
 
 
 

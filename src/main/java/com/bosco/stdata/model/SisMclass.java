@@ -13,5 +13,5 @@ public class SisMclass {
     public String proficiencyCode;
     public String csacode;
 
-    //public String _class = "com.bosco.model.ScorableAcademicRecord";
+
 }

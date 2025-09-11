@@ -7,5 +7,6 @@ public class SisDisciplineHelper {
     public String issDays;
     public String ossDays;
     public String aepDays;    
+    public String grade;
     public String schoolYear;
 }
