@@ -14,7 +14,12 @@ public class SisStudentData {
   public List<SisMap> map = new ArrayList<>();
   public List<SisMclass> mclass = new ArrayList<>();
   public List<SisStaar> staar = new ArrayList<>();
+  
+  public List<SisTelpas> telpas = new ArrayList<>();
+  
   public List<SisDiscipline> discipline = new ArrayList<>();
+
+
 
 
 

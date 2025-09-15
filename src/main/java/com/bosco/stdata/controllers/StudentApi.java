@@ -113,6 +113,8 @@ public class StudentApi {
 
         sd.staar = importRepo.sisStaarsGet(districId, id);
         // star is missing code, proficiencyCode and csacode
+
+        sd.telpas = importRepo.sisTelpasGet(districId, id);
         
 
 

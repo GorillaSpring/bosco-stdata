@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.stereotype.Repository;
 
 import com.bosco.stdata.model.*;
+import com.bosco.stdata.teaModel.Star2024;
 
 
 @Repository
@@ -231,7 +232,6 @@ public class ImportRepo {
 
         String sql = """
            select 
-                testDate,
                 schoolYear,
                 subject,
                 code,
@@ -248,6 +248,27 @@ public class ImportRepo {
 
         return template.query(sql, new BeanPropertyRowMapper<>(SisStaar.class), args);
     }
+
+
+    public List<SisTelpas> sisTelpasGet (int forDistrictId, String id) {
+          Object[] args = {
+            //forDistrictId,
+            id
+        };
+
+        String sql = """
+           select 
+               *
+            from 
+                sis_telpas
+            where 
+                id = ?;
+                """; 
+
+
+        return template.query(sql, new BeanPropertyRowMapper<>(SisTelpas.class), args);
+    }
+
 
     public List<SisDisciplineHelper> sisDisciplinesGet (int forDistrictId, String id) {
           Object[] args = {
@@ -267,6 +288,44 @@ public class ImportRepo {
 
 
 
+    public String studentNumberFromSourceId (String studentSourceId) {
+
+
+
+        Object[] args = {
+            districtId,
+            studentSourceId
+
+        };
+
+
+        String sql = """
+                select 
+                    s.studentNumber
+                from 
+                    import_definition id
+                    join student s on s.importId = id.baseImportId
+                where 
+                    id.districtId = ?
+                    and id.isStudentSource=1
+                    and s.sourceId = ?;
+                """;
+
+
+
+        try {
+            String studentNumber = template.queryForObject(
+                    sql, 
+                    String.class, 
+                    args);
+
+            return studentNumber;
+        }
+        catch (Exception ex) {
+            return null;
+        }
+
+    }
     
     public List<String> studentSourceIdsForImport (int forImportId) {
           Object[] args = {
@@ -453,7 +512,7 @@ public class ImportRepo {
 
 
 
-     public void sisStaarAdd(String studentNumber, String testDate, String schoolYear, String subject, String code, String grade, String proficiency, String proficiencyCode, String csaCode) {
+     public void sisStaarAdd(String studentNumber, String schoolYear, String subject, String code, String grade, String proficiency, String proficiencyCode, String csaCode) {
 
         String id = districtId + "." + studentNumber;
 
@@ -461,7 +520,6 @@ public class ImportRepo {
           Object[] args = {
             districtId,
             id,
-            testDate,
             schoolYear,
             subject,
             code,
@@ -471,7 +529,35 @@ public class ImportRepo {
             csaCode
         };
 
-         String sql = "call sis_staar_add (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+         String sql = "call sis_staar_add (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+
+
+        int rows = template.update(sql, args);
+
+    }
+
+
+
+
+     public void sisTelpasAdd(String studentNumber, String schoolYear, String grade, String proficiency, int listeningScore, int speakingScore, int readingScore, int writingScore) {
+
+        String id = districtId + "." + studentNumber;
+
+
+          Object[] args = {
+            districtId,
+            id,
+            schoolYear,
+            grade,
+            proficiency,
+            listeningScore,
+            speakingScore,
+            readingScore,
+            writingScore
+        };
+
+         String sql = "call sis_telpas_add (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
 
 
@@ -678,6 +764,72 @@ public class ImportRepo {
         String sql = "insert into log_info (importId, info) values (?, ?)";
 
         int rows = template.update(sql, args);
+
+    }
+
+    // TEA testing
+
+    public void logTea (String fileName, String log) {
+          Object[] args = {
+            fileName,
+            log
+        };
+        String sql = "insert into temp_log_tea (fileName, log) values (?, ?)";
+        int rows = template.update(sql, args);
+    }
+
+    public void logTeaStar2024 (String testName, Star2024 s) {
+
+        Object[] args = {
+            testName,
+            s.getStudentId(),
+            s.getAdminDate(),
+            s.getPliReadingLanguageArts(),
+            s.getScoreReadingLanguageArts(),
+            s.getPliMath(),
+            s.getScoreMath(),
+            s.getPliSocialStudies(),
+            s.getScoreSocialStudies(),
+            s.getPliScience(),
+            s.getScoreScience(),
+            s.getScoreAlgebra()
+            
+        };
+
+        String sql = """
+                                
+                INSERT INTO temp_star_2024
+                (`testName`,
+                `studentId`,
+                `adminDate`,
+                `pliReadingLanguageArts`,
+                `scoreReadingLanguageArts`,
+                `pliMath`,
+                `scoreMath`,
+                `pliSocialStudies`,
+                `scoreSocialStudies`,
+                `pliScience`,
+                `scoreScience`,
+                `scoreAlgebra`)
+                VALUES 
+                (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?);
+
+
+                """;
+
+                 int rows = template.update(sql, args);
 
     }
 

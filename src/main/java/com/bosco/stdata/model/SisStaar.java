@@ -17,7 +17,7 @@ public class SisStaar {
 
     // not sure if needed
     // REMOVE THIS!
-    public String testDate;
+    // public String testDate;
 
     
     

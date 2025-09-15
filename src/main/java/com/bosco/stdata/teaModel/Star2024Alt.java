@@ -3,8 +3,12 @@ package com.bosco.stdata.teaModel;
 import lombok.Data;
 
 @Data
-public class Star2024 {
-     private String adminDate;
+public class Star2024Alt {
+
+
+    // This needs definition.
+
+  private String adminDate;
      
      private String studentId;
 
@@ -19,15 +23,19 @@ public class Star2024 {
      private String pliMath;
 
 
-     private String scoreSocialStudies;
-     private String pliSocialStudies;
+     private String scoreSocialStudies; 
+     
+     // THIS DOES NOT EXIST
+     private String pliSocialStudies;   
 
 
      private String scoreScience;
+
+
+     // THIS DOES NOT EXIST
      private String pliScience;
 
-     // REMOVE, not used!
-     private String scoreAlgebra;
+     
 
 
 

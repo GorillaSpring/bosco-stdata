@@ -20,6 +20,7 @@ import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.service.UserFileService;
 import com.bosco.stdata.utils.ImportHelper;
+import com.bosco.stdata.utils.TeaStaarFlatFileReader;
 
 import jakarta.annotation.PostConstruct;
 
@@ -209,22 +210,7 @@ public class UpliftFiles {
 
     }
 
-    // this should be generic.  Just need to be sure of the date or pass in the pattern .
-    private static String SchoolYearFromDate (String dateString) {
-        
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-         try {
-            LocalDate date = LocalDate.parse(dateString, formatter);
-            Month month = date.getMonth();
-            if (month == Month.SEPTEMBER || month == Month.OCTOBER || month == Month.NOVEMBER || month == Month.DECEMBER)
-                return date.getYear() + " - " + date.getYear() + 1;
-            else
-                return date.getYear() - 1 + " - " + date.getYear();
-        } catch (DateTimeParseException e) {
-            System.err.println("Error parsing date: " + e.getMessage());
-            return "";
-        }
-    }
+   
 
     private static String Staar_SubjectFromCode (String code) {
 
@@ -677,7 +663,7 @@ public class UpliftFiles {
                 throw new Exception("File : state_assessment.csv does not match column specs" );
 
             // studentId    0
-            // testdate
+            // testdate         *** NOT USING ANYMORE
             // stateassessmentsubject - code        2
             // gradeduringassessment- grade         3
             // stateassessmentscore- proficiency    4
@@ -692,7 +678,7 @@ public class UpliftFiles {
 
 
                     // calculate the year based on the date.
-                    String schoolYear = SchoolYearFromDate(row[1]);
+                    String schoolYear = TeaStaarFlatFileReader.SchoolYearFromDate(row[1]);
 
                     String proficiencyCode = Staar_ProficiencyCodeFromProficiency(row[4]);
                     String csaCode = Staar_CsaCodeFromCode(row[2]);
@@ -717,7 +703,7 @@ public class UpliftFiles {
                     //String studentNumber, String testDate, String schoolYear, String subject, String code, String grade, String proficiency, String proficiencyCode, String csaCode
 
 
-                    i.importRepo.sisStaarAdd(row[0], row[1], schoolYear, subject, row[2], row[3], row[4], proficiencyCode, csaCode);
+                    i.importRepo.sisStaarAdd(row[0], schoolYear, subject, row[2], row[3], row[4], proficiencyCode, csaCode);
                     counter1++;
                 }
             };

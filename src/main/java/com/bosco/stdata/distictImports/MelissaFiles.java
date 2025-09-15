@@ -500,7 +500,7 @@ private static MelissaFiles i;  // instance
             
 
 
-            //i.boscoApi.sendImportToBosco(importId, baseImportId);
+            i.boscoApi.sendImportToBosco(importId, baseImportId);
 
             result.success = true;
 
