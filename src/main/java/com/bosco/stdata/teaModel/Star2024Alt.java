@@ -1,44 +1,46 @@
-package com.bosco.stdata.teaModel;
+// package com.bosco.stdata.teaModel;
 
-import lombok.Data;
+// import lombok.Data;
 
-@Data
-public class Star2024Alt {
+// @Data
+// public class Star2024Alt {
+
+//   // TODO: WE Can probably remove this!
 
 
-    // This needs definition.
+//     // This needs definition.
 
-  private String adminDate;
+//   private String adminDate;
      
-     private String studentId;
+//      private String studentId;
 
-     private String gradeLevel;
+//      private String gradeLevel;
 
-     private String scoreReadingLanguageArts;
-     private String pliReadingLanguageArts;
-
-
-
-     private String scoreMath;
-     private String pliMath;
+//      private String scoreReadingLanguageArts;
+//      private String pliReadingLanguageArts;
 
 
-     private String scoreSocialStudies; 
+
+//      private String scoreMath;
+//      private String pliMath;
+
+
+//      private String scoreSocialStudies; 
      
-     // THIS DOES NOT EXIST
-     private String pliSocialStudies;   
+//      // THIS DOES NOT EXIST
+//      private String pliSocialStudies;   
 
 
-     private String scoreScience;
+//      private String scoreScience;
 
 
-     // THIS DOES NOT EXIST
-     private String pliScience;
+//      // THIS DOES NOT EXIST
+//      private String pliScience;
 
      
 
 
 
 
-     private String throwaway;
-}
+//      private String throwaway;
+// }

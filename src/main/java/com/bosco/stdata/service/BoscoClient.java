@@ -1,5 +1,6 @@
 package com.bosco.stdata.service;
 
+import com.bosco.stdata.model.SisStudentData;
 import com.bosco.stdata.model.Student;
 import com.bosco.stdata.model.Teacher;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -57,6 +58,47 @@ public class BoscoClient {
         return responseBody;
 
 
+    }
+
+
+      public String postSisData (String url, String token, String id, SisStudentData sisStudentData) throws Exception {
+          HttpHeaders headers = new HttpHeaders();
+
+
+          // This will get the same student back.
+        
+        headers.setBearerAuth(token);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+           // 3. Create an HttpEntity combining the request body and headers
+
+        HttpEntity<SisStudentData> requestEntity = new HttpEntity<>(sisStudentData, headers);
+
+        
+        
+
+        // Perform the PUT request using exchange()
+        // The third argument is the request entity, and the fourth is the expected response type
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+            url,
+            HttpMethod.POST,
+            requestEntity,
+            String.class, // The class representing the expected response body
+            id // Example URI variable for the {id} placeholder
+        );
+
+         if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            // System.out.println("Student updated  successfully!");
+            // Student updatedStudent = responseEntity.getBody();
+            // System.out.println("Updated Student: " + updatedStudent.getFirstName());
+            // System.out.println("Response Headers: " + responseEntity.getHeaders());
+        } else {
+            //System.out.println("Failed to update student. Status code: " + responseEntity.getStatusCode());
+            throw new Exception("Failed to Update Student. Status code: " + responseEntity.getStatusCode());
+        }
+
+        return "OK";
+    }
 
 
         // if (responseBody == null || !responseBody.fields().hasNext()) {
@@ -66,7 +108,7 @@ public class BoscoClient {
 
         // Map.Entry<String, JsonNode> entry = responseBody.fields().next();
         // return entry.getValue();
-    }
+    
 
     public String postStudent (String url, String token, Student student) throws Exception {
           HttpHeaders headers = new HttpHeaders();

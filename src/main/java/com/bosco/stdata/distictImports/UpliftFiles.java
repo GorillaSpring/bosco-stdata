@@ -62,20 +62,7 @@ public class UpliftFiles {
 
     }
 
-     private static String MClass_proficiencyCode (String proficiency) {
-        // this is simply Quintile 2  => Q2
-         String proficiencyCode = switch (proficiency) {
-            case "Above Benchmark" -> "A";
-            case "At Benchmark" -> "AB";
-            case "Below Benchmark" -> "BB";
-            case "Well Below Benchmark" -> "WB";
-            default -> "??";
-        };
-
-        return proficiencyCode;
-
-    }
-
+  
      
 
     private static String GeneralCsaCode (String subject) {
@@ -565,7 +552,7 @@ public class UpliftFiles {
                                 break;
                             case "MCLASS":
                                 // TODO : Get proficiencyCode and csaCode
-                                proficiencyCode = MClass_proficiencyCode(row[5]);
+                                proficiencyCode = TeaStaarFlatFileReader.MClass_proficiencyCode(row[5]);
                                 i.importRepo.sisMclassAdd(row[0], row[2], row[3], row[4], row[5], proficiencyCode,  score, csaCode);
 
                                 counter2++;

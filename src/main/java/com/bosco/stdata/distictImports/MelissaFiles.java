@@ -50,6 +50,9 @@ private static MelissaFiles i;  // instance
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
 
             int districtId = importDef.getDistrictId();
+
+            Boolean setNoEmails = importDef.getSetNoEmails();
+
             int importId = i.importRepo.prepImport(districtId, "Import for " + importDefId);
 
             result.importId = importId;
@@ -229,8 +232,16 @@ private static MelissaFiles i;  // instance
            
                     // sourceid, teacherId, firstname, lastname,  email
                     //Teacher t = new Teacher(row[0], row[1],  row[3], row[2], row[4]);
+
+                    String email = row[4];
+                    if (setNoEmails && email.length() >= 4) {
+                        String trimedEmail = email.substring(0, email.length() - 4);
+                        email = trimedEmail + "_no.no";
+                    }
+
+
                     i.importRepo.saveTeacher(
-                        row[0], row[1],  row[3], row[2], row[4]
+                        row[0], row[1],  row[3], row[2], email
                     );
                     counter1++;
                 }
@@ -279,8 +290,15 @@ private static MelissaFiles i;  // instance
                 
                     //  sourceId, guardianId,  studentId,  firstName,  lastName,  email, type
                     //Guardian g = new Guardian(row[0], row[2], row[1],  row[5], row[4], row[6], row[3]);
+
+                    String email = row[6];
+                    if (setNoEmails && email.length() >= 4) {
+                        String trimedEmail = email.substring(0, email.length() - 4);
+                        email = trimedEmail + "_no.no";
+                    }
+
                     i.importRepo.saveGuardian(
-                        row[0], row[2], row[1],  row[5], row[4], row[6], row[3]
+                        row[0], row[2], row[1],  row[5], row[4], email, row[3]
                     );
                     counter1++;
                 }

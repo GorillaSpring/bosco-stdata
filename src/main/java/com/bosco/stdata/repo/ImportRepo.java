@@ -287,6 +287,56 @@ public class ImportRepo {
     }
 
 
+    public String studentNumberFromDemographics (int forDistrictId, String firstName, String lastName, String dob ) {
+
+
+        
+        Object[] args = {
+            forDistrictId,
+            firstName,
+            lastName,
+            dob
+
+        };
+
+        String sql = """
+                
+                    select
+                        s.studentNumber
+                    from
+                        import_definition id
+                        join student s on s.importId = id.baseImportId
+                    where
+                        id.isStudentSource = 1
+                        and id.districtId = ?
+                        and s.firstName = ?
+                        and s.lastName = ?
+                        and s.dob = ?
+                        
+                        ;
+
+                """;
+
+            // this will throw an exception if nothing found.
+
+            String studentNumber = null;
+
+            try {
+                studentNumber = template.queryForObject(
+                            sql,
+                            String.class,
+                            args
+                );
+            }
+            catch (Exception ex) {
+
+                //studentNumber = null;
+
+            }
+
+            return studentNumber;
+
+    }
 
     public String studentNumberFromSourceId (String studentSourceId) {
 
@@ -733,6 +783,18 @@ public class ImportRepo {
     }
 
     
+    public void boscoStudentAdd (String server, int forDistrictId, String id) {
+           Object[] args = {
+            server,
+            forDistrictId,
+            id
+        };
+
+        String sql = "insert ignore into bosco_student (server, districtId, id) values (?, ?, ?);";
+        int rows = template.update(sql, args);
+
+
+    }
 
     
     public void logError (String error) {
@@ -987,6 +1049,8 @@ public class ImportRepo {
         return template.query(sql, new BeanPropertyRowMapper<Teacher>(Teacher.class), args);
     }
     
+    
+
     public List<Student> studentsBoscoForExport(int forImportId, int changedFlag) {
 
         // 1 is changed

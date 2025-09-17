@@ -138,30 +138,39 @@ public class Testing {
 
         try {
 
+
+
+            // 4830120
+
+            // 4830120
+
             // Celina
             // So this one is Student_1234
-            CsvFiles.LoadComboStudentAssessment(4813290, "C:/test/importBase/tea/ComboStudentAssessment_10.csv", true);
+            CsvFiles.LoadDibels8(4830120, "C:/test/importBase/tea/2022_2023_2024_2025 mClass/dibels8_BM_2021-2022_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-56-59.csv", false);
+
+            CsvFiles.LoadDibels8(4830120, "C:/test/importBase/tea/2022_2023_2024_2025 mClass/dibels8_BM_2022-2023_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-57-46.csv", false);
+            CsvFiles.LoadDibels8(4830120, "C:/test/importBase/tea/2022_2023_2024_2025 mClass/dibels8_BM_2023-2024_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-58-45.csv", false);
+            CsvFiles.LoadDibels8(4830120, "C:/test/importBase/tea/2022_2023_2024_2025 mClass/dibels8_BM_2024-2025_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-59-22.csv", false);
+
+            // // Melissa
+            // // these appare to have correct student id's
+            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/24-25 MAP/Fall 2024 district scores.csv", false);
+            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/24-25 MAP/Spring 25 district scores.csv", false);
+            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/24-25 MAP/Winter 25 district scores.csv", false);
+
+            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/23-24 MAP/2024_Winter_Map_ComboStudentAssessment (1).csv", false);
+            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/23-24 MAP/Fall23_24MAPComboStudentAssessment.csv", false);
+            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/23-24 MAP/Spring2024_MAP_ComboStudentAssessment.csv", false);
 
 
-            // Melissa
-            // these appare to have correct student id's
-            CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/24-25 MAP/Fall 2024 district scores.csv", false);
-            CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/24-25 MAP/Spring 25 district scores.csv", false);
-            CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/24-25 MAP/Winter 25 district scores.csv", false);
+            // // this one has an empty level, but we skip.
+            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/22-23 MAP/MAP_Fall_22_23ComboStudentAssessment.csv", false);
+            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/22-23 MAP/MOY_MAP_22_23_ComboStudentAssessment.csv", false);
+            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/22-23 MAP/Spring_22_23_ComboStudentAssessment.csv", false);
 
-            CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/23-24 MAP/2024_Winter_Map_ComboStudentAssessment (1).csv", false);
-            CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/23-24 MAP/Fall23_24MAPComboStudentAssessment.csv", false);
-            CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/23-24 MAP/Spring2024_MAP_ComboStudentAssessment.csv", false);
-
-
-            // this one has an empty level, but we skip.
-            CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/22-23 MAP/MAP_Fall_22_23ComboStudentAssessment.csv", false);
-            CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/22-23 MAP/MOY_MAP_22_23_ComboStudentAssessment.csv", false);
-            CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/22-23 MAP/Spring_22_23_ComboStudentAssessment.csv", false);
-
-            CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/21-22 MAP/Spring_2022_MAP_ComboStudentAssessment.csv", false);
-            CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/21-22 MAP/Winter_21_22_ComboStudentAssessment (1).csv", false);
-            CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/21-22 MAP/Winter_21_22_ComboStudentAssessment.csv", false);
+            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/21-22 MAP/Spring_2022_MAP_ComboStudentAssessment.csv", false);
+            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/21-22 MAP/Winter_21_22_ComboStudentAssessment (1).csv", false);
+            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/21-22 MAP/Winter_21_22_ComboStudentAssessment.csv", false);
 
 
         }

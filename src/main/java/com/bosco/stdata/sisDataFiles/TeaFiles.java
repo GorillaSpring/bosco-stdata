@@ -84,10 +84,10 @@ public class TeaFiles {
         // this should work for ALL TEA files.celinaComboItemReader
         String schoolYear = 
         switch (adminDate) {
-            case "0525", "1525", "1625" -> "2024-2025";
+            case "0525", "1525", "1625", "0425" -> "2024-2025";
             case "0324", "0424", "1524", "0524", "1324", "1624" -> "2023-2024";
             case "0323", "0423", "1523", "0523", "1323", "1623" -> "2022-2023";
-            default -> throw new Exception("Unknown Admin Date in TEA File");
+            default -> throw new Exception("Unknown Admin Date in TEA File: " + adminDate);
 
         };
         return schoolYear;
@@ -454,38 +454,37 @@ public class TeaFiles {
 
                     String proficiency = Telpas_proficiency(compositeScore);
 
-                    Boolean allEmpty = true;
+                    //Boolean allEmpty = true;
 
                     int listeningScore = 0;
                     if (!t.getListeningScore().isEmpty()) {
                         listeningScore = Integer.parseInt(t.getListeningScore());
-                        allEmpty = false;
+                      //  allEmpty = false;
                     }
                     int speakingScore = 0;
                     if (!t.getSpeakingScore().isEmpty()) {
                         speakingScore = Integer.parseInt(t.getSpeakingScore());
-                        allEmpty = false;
+                        // allEmpty = false;
                     }
 
                     int readingScore = 0;
                     if (!t.getReadingScore().isEmpty()) {
                         readingScore = Integer.parseInt(t.getReadingScore());
-                        allEmpty = false;
+                        // allEmpty = false;
                     }
 
                     int writingScore = 0;
                     if (!t.getWritingScore().isEmpty()){
                         writingScore = Integer.parseInt(t.getWritingScore());
-                        allEmpty = false;
+                        // allEmpty = false;
                     }
 
-                    if (!allEmpty) {
+                    // We alre loading reguadless as of Sept 16
                         // save it
-                        count++;
+                    count++;
 
-                        i.importRepo.sisTelpasAdd(studentId, schoolYear, grade, proficiency, listeningScore, speakingScore, readingScore, writingScore);
+                    i.importRepo.sisTelpasAdd(studentId, schoolYear, grade, proficiency, listeningScore, speakingScore, readingScore, writingScore);
 
-                    }
                     // else {
                     //     System.out.println("NONE");
                     // }
@@ -576,37 +575,35 @@ public class TeaFiles {
 
                     String proficiency = Telpas_alt_proficiency(compositeScore);
 
-                    Boolean allEmpty = true;
+                    //Boolean allEmpty = true;
 
                     int listeningScore = 0;
                     if (!t.getListeningScore().isEmpty()) {
                         listeningScore = Integer.parseInt(t.getListeningScore());
-                        allEmpty = false;
+                        //allEmpty = false;
                     }
                     int speakingScore = 0;
                     if (!t.getSpeakingScore().isEmpty()) {
                         speakingScore = Integer.parseInt(t.getSpeakingScore());
-                        allEmpty = false;
+                        //allEmpty = false;
                     }
 
                     int readingScore = 0;
                     if (!t.getReadingScore().isEmpty()) {
                         readingScore = Integer.parseInt(t.getReadingScore());
-                        allEmpty = false;
+                        // allEmpty = false;
                     }
 
                     int writingScore = 0;
                     if (!t.getWritingScore().isEmpty()){
                         writingScore = Integer.parseInt(t.getWritingScore());
-                        allEmpty = false;
+                        // allEmpty = false;
                     }
 
-                    if (!allEmpty) {
-                        // save it
-                        count++;
-                        i.importRepo.sisTelpasAdd(studentId, schoolYear, grade, proficiency, listeningScore, speakingScore, readingScore, writingScore);
+                    // save it
+                    count++;
+                    i.importRepo.sisTelpasAdd(studentId, schoolYear, grade, proficiency, listeningScore, speakingScore, readingScore, writingScore);
 
-                    }
 
 
                     // so here we don't load if they are all 0.

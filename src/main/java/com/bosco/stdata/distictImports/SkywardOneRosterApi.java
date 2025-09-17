@@ -71,6 +71,9 @@ public class SkywardOneRosterApi {
         i = this;
     }
 
+
+    // NOT CURRENTLY USING.  STILL NEED TO SORT.
+
     public static String GetSpecialEducationEnrollmentTX (String importDefId) {
         // this will call the skyward SpecialEducationEnrollmentTX for each student?
         // https://sandbox.skyward.com/BoscoK12SandboxAPI/SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/627224118
@@ -81,6 +84,7 @@ public class SkywardOneRosterApi {
 
             int baseImportId = importDef.getBaseImportId();
 
+            Boolean setNoEmails = importDef.getSetNoEmails();
 
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
 
@@ -182,6 +186,7 @@ public class SkywardOneRosterApi {
 
             int baseImportId = importDef.getBaseImportId();
 
+            Boolean setNoEmails = importDef.getSetNoEmails();
 
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
 
@@ -369,6 +374,12 @@ public class SkywardOneRosterApi {
                                     String guardianType = "U";
                                     if (email != null && !email.isEmpty()) {
 
+                                        if (setNoEmails && email.length() >= 4) {
+                                            String trimedEmail = email.substring(0, email.length() - 4);
+                                            email = trimedEmail + "_no.no";
+                                        }
+
+
                                         JsonNode agentNodes = userNode.get("agents");
 
                                         if (agentNodes.isArray()) {
@@ -392,6 +403,13 @@ public class SkywardOneRosterApi {
                             case "teacher":
 
                                 String teacherEmail = userNode.get("email").asText();
+
+
+                                if (setNoEmails && teacherEmail.length() >= 4) {
+                                    String trimedEmail = teacherEmail.substring(0, teacherEmail.length() - 4);
+                                    teacherEmail = trimedEmail + "_no.no";
+                                }
+
                                 // sourceid, teacherId, firstname, lastname,  email
                                 //Teacher t = new Teacher(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail);
 

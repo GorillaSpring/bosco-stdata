@@ -62,19 +62,23 @@ public class CelinaSisFiles {
             int importId = i.importRepo.prepImport(districtId, "Sis File Loading " + baseFileFolder);
 
 
+
+            TeaFiles.LoadStar(districtId, baseFileFolder + "2024/SF_0425_3_8ALT_043903_CELINA_ISD_V01.txt");
+
+
             // In folder 2024
 
-            TeaFiles.LoadStar(districtId, baseFileFolder + "2024/SF_0525_3_8_043903_CELINA_ISD_V03.txt");
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2024/SF_1525_EOC_043903_CELINA_ISD_V02.txt");
+            // TeaFiles.LoadStar(districtId, baseFileFolder + "2024/SF_0525_3_8_043903_CELINA_ISD_V03.txt");
+            // TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2024/SF_1525_EOC_043903_CELINA_ISD_V02.txt");
 
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2024/SF_1525_EOCALT_043903_CELINA_ISD_V01.txt");
-
-
+            // TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2024/SF_1525_EOCALT_043903_CELINA_ISD_V01.txt");
 
 
-            // TODO  2024/ComboStudentAssessment_10.csv FILE
 
-            CsvFiles.LoadComboStudentAssessment(districtId, "C:/test/importBase/tea/ComboStudentAssessment_10.csv", true);
+
+            // // TODO  2024/ComboStudentAssessment_10.csv FILE
+
+            // CsvFiles.LoadComboStudentAssessment(districtId, "C:/test/importBase/tea/ComboStudentAssessment_10.csv", true);
 
 
             result.success = true;
