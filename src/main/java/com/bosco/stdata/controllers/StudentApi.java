@@ -103,18 +103,18 @@ public class StudentApi {
         SisStudentData sd = new SisStudentData();
 
         
-        sd.grades = importRepo.sisGradesGet(districId, id);
+        sd.grades = importRepo.sisGradesGet( id);
         // Grades is missing csacode;
 
-        sd.map = importRepo.sisMapsGet(districId, id);
+        sd.map = importRepo.sisMapsGet(id);
         // map is missing proficiencyCode and csacode
-        sd.mclass = importRepo.sisMclassGet(districId, id);
+        sd.mclass = importRepo.sisMclassGet( id);
         // mclass is missing proficiencyCode and csacode
 
-        sd.staar = importRepo.sisStaarsGet(districId, id);
+        sd.staar = importRepo.sisStaarsGet( id);
         // star is missing code, proficiencyCode and csacode
 
-        sd.telpas = importRepo.sisTelpasGet(districId, id);
+        sd.telpas = importRepo.sisTelpasGet( id);
         
 
 
@@ -177,14 +177,14 @@ public class StudentApi {
         String [] params = id.split("\\.");
         int districId = Integer.parseInt(params[0]);
 
-        int importId = importRepo.getBaseImportForDistrict(districId);
+        //int importId = importRepo.getBaseImportForDistrict(districId);
 
 
 
-        Student bs = importRepo.studentBoscoForExport(importId, params[1]);
+        Student bs = importRepo.studentBoscoForExport(id);
 
-        bs.setGuardians(importRepo.guardiansBoscoForStudent(importId, bs.getStudentId()));
-        bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(importId, bs.getStudentId()));
+        bs.setGuardians(importRepo.guardiansBoscoForStudent(bs.getId()));
+        bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(bs.getId()));
 
 
 

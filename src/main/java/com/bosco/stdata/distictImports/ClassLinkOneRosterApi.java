@@ -58,7 +58,7 @@ public class ClassLinkOneRosterApi {
         {
             ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            int baseImportId = importDef.getBaseImportId();
+            //int baseImportId = importDef.getBaseImportId();
 
 
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
@@ -84,16 +84,16 @@ public class ClassLinkOneRosterApi {
 
             LocalDateTime startDateTime = LocalDateTime.now();
 
-            int importId = i.importRepo.prepImport(districtId, "Import for " + importDefId);
+            i.importRepo.prepImport(districtId, "Import for " + importDefId);
             
-            result.importId = importId;
+            result.importId = 0;
             result.districtId = districtId;
-            result.baseImportId = baseImportId;
+            result.baseImportId = 0;
 
             i.importRepo.logInfo("OneRoster API import : " + importDefId);
 
 
-            System.out.println("Import Id is : " + importId + " For District " + districtId);
+            System.out.println("Import  For District " + districtId);
             
             JsonNode data;
             JsonNode rootNode;
@@ -138,45 +138,45 @@ public class ClassLinkOneRosterApi {
 
             // there will only be one page of schools.
 
-            String requestUrl = apiBase + "ims/oneroster/v1p1/schools?filter=status%3D'active'&limit=" + PAGE_SIZE + "&offset=" + PAGE_SIZE * pageNumber + "&orderBy=asc";
+            // String requestUrl = apiBase + "ims/oneroster/v1p1/schools?filter=status%3D'active'&limit=" + PAGE_SIZE + "&offset=" + PAGE_SIZE * pageNumber + "&orderBy=asc";
 
-            oneRosterRes = oneRoster.makeRosterRequest(requestUrl);
+            // oneRosterRes = oneRoster.makeRosterRequest(requestUrl);
 
-            statusCode = oneRosterRes.getStatusCode();
+            // statusCode = oneRosterRes.getStatusCode();
 
-            System.out.println("Status is: " + statusCode);
+            // System.out.println("Status is: " + statusCode);
             
 
-            response = oneRosterRes.getResponse();
+            // response = oneRosterRes.getResponse();
 
-            rootNode = objectMapper.readTree(response);
-            data = rootNode.get("orgs");
+            // rootNode = objectMapper.readTree(response);
+            // data = rootNode.get("orgs");
             
 
-            if (data.isArray()) {
-                ArrayNode arrayNode = (ArrayNode) data;
-                for (JsonNode orgsNode: arrayNode) {
+            // if (data.isArray()) {
+            //     ArrayNode arrayNode = (ArrayNode) data;
+            //     for (JsonNode orgsNode: arrayNode) {
 
-                    String sourceId = orgsNode.get("sourcedId").asText();
-                    String name = orgsNode.get("name").asText();
-                    String identifier = orgsNode.get("identifier").asText();
+            //         String sourceId = orgsNode.get("sourcedId").asText();
+            //         String name = orgsNode.get("name").asText();
+            //         String identifier = orgsNode.get("identifier").asText();
 
-                    //System.out.println("School : " + sourceId + " - " + name);
+            //         //System.out.println("School : " + sourceId + " - " + name);
 
-                    i.importRepo.saveSchool(sourceId, name, identifier);
-                    schoolCount++;
+            //         i.importRepo.saveSchool(sourceId, name, identifier);
+            //         schoolCount++;
 
                 
-                }
+            //     }
                     
                 
-            }
-            else {
-                System.out.println("Not Array");
-            }
+            // }
+            // else {
+            //     System.out.println("Not Array");
+            // }
 
-            System.out.println ("Schools Imported: " + schoolCount);
-            i.importRepo.logInfo("Schools Imported: " + schoolCount);
+            // System.out.println ("Schools Imported: " + schoolCount);
+            // i.importRepo.logInfo("Schools Imported: " + schoolCount);
 
 
             
@@ -195,7 +195,7 @@ public class ClassLinkOneRosterApi {
             //String url = "https://springtownisd-tx-v2.rosterserver.com/ims/oneroster/v1p1/users?filter=status%3D'active'&limit=100&offset=0&orderBy=asc";
 
 
-            requestUrl = apiBase + "ims/oneroster/v1p1/users?filter=status%3D'active'&limit=" + PAGE_SIZE + "&offset=" + PAGE_SIZE * pageNumber + "&orderBy=asc";
+            String requestUrl = apiBase + "ims/oneroster/v1p1/users?filter=status%3D'active'&limit=" + PAGE_SIZE + "&offset=" + PAGE_SIZE * pageNumber + "&orderBy=asc";
 
             oneRosterRes = oneRoster.makeRosterRequest(requestUrl);
 
@@ -260,6 +260,11 @@ public class ClassLinkOneRosterApi {
                                 // grades[]  is an array of grades.  This is a bit weired.
                                 // Student s = new Student(userNode.get("sourcedId").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText());
                                 // 	//Student s = new Student(row[0], row[8], row[9]);
+
+                                //String sourceId, String studentId, String firstName, String lastName, String grade, String schoolSourceId
+
+                                // String sourceId, String studentNumber, String firstName, String lastName, String grade, String schoolSourceId
+
                                 i.importRepo.saveStudent(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(),  userNode.get("givenName").asText(),  
                                         userNode.get("familyName").asText(),
                                         grade, schoolSourceId);
@@ -279,11 +284,14 @@ public class ClassLinkOneRosterApi {
                                         for (JsonNode studentNode: agentNodes) {
                                             
 
-                                            String studentId = studentNode.get("sourcedId").asText();
+                                            String studentSourceId = studentNode.get("sourcedId").asText();
                                             //Guardian g = new Guardian(userNode.get("sourcedId").asText(), studentId, userNode.get("identifier").asText(), userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType);
 
                                             // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type
-                                            i.importRepo.saveGuardian(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), studentId, userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType);
+                                            // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type
+
+                                            // String sourceId, String guardianId, String studentSourceId, String firstName, String lastName, String email, String type
+                                            i.importRepo.saveGuardian(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), studentSourceId, userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType);
                                             guardianCount++;
 
 
@@ -298,6 +306,9 @@ public class ClassLinkOneRosterApi {
                                 // sourceid, teacherId, firstname, lastname,  email
                                 //Teacher t = new Teacher(userNode.get("sourcedId").asText(),userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail);
 
+
+                                // String sourceid, String teacherId, String firstname, String lastname, String email
+                                // String sourceId, String teacherId, String firstName, String lastName, String email
                                 i.importRepo.saveTeacher(
                                     userNode.get("sourcedId").asText(),userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail
                                 );
@@ -400,9 +411,10 @@ public class ClassLinkOneRosterApi {
                                 
                             //     );
 
+                            String studentNumber = i.importRepo.studentNumberFromSourceId(sourceId);
 
                             i.importRepo.saveStudentDemographics(
-                                sourceId,
+                                studentNumber,
                                 birthDate,
                                 demographicsNode.get("sex").asText(),
                                 Boolean.parseBoolean(demographicsNode.get("americanIndianOrAlaskaNative").asText()),
@@ -550,15 +562,18 @@ public class ClassLinkOneRosterApi {
             i.importRepo.buildStudentTeacher();
 
             
-            i.importRepo.diffImports(baseImportId);
+            //i.importRepo.diffImports(baseImportId);
 
             // validation on the data.
             // check number of diffs vs the cutoff.
 
 
             // this will mark the importId as the base.
-            i.importRepo.setImportBase(importDefId);
+            //i.importRepo.setImportBase(importDefId);
 
+
+            
+            i.importRepo.postImport();
 
 
             LocalDateTime endDateTime = LocalDateTime.now();
@@ -567,12 +582,12 @@ public class ClassLinkOneRosterApi {
             
             System.out.println ("Import Complete in : " + duration.toSeconds() + " Seconds" );
 
-            i.importRepo.logInfo("Import " + importDefId + " (" + importId + ") Complete in : " + duration.toSeconds() + " Seconds" );
+            i.importRepo.logInfo("Import " + importDefId + "  Complete in : " + duration.toSeconds() + " Seconds" );
 
 
-            System.out.println ("Import ID is: " + importId);
+            //System.out.println ("Import ID is: " + importId);
 
-            i.boscoApi.sendImportToBosco(importId, baseImportId);
+            i.boscoApi.sendImportToBosco(districtId);
 
             result.success = true;
 

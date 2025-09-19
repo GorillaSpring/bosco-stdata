@@ -82,7 +82,7 @@ public class SkywardOneRosterApi {
         try {
             ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            int baseImportId = importDef.getBaseImportId();
+            //int baseImportId = importDef.getBaseImportId();
 
             Boolean setNoEmails = importDef.getSetNoEmails();
 
@@ -116,7 +116,7 @@ public class SkywardOneRosterApi {
             // apiBase is:  https://sandbox.skyward.com/BoscoK12SandboxAPI/
 
             JsonNode data;
-            List<String> studentSourceIds =i.importRepo.studentSourceIdsForImport(baseImportId);
+            List<String> studentSourceIds =i.importRepo.studentSourceIdsForDistrict(districtId);
 
             //studentNumbers.add("218879766");
 
@@ -184,7 +184,7 @@ public class SkywardOneRosterApi {
         try {
             ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            int baseImportId = importDef.getBaseImportId();
+            //int baseImportId = importDef.getBaseImportId();
 
             Boolean setNoEmails = importDef.getSetNoEmails();
 
@@ -204,16 +204,16 @@ public class SkywardOneRosterApi {
             LocalDateTime startDateTime = LocalDateTime.now();
 
             
-            int importId = i.importRepo.prepImport(districtId, "Import for " + importDefId);
+            i.importRepo.prepImport(districtId, "Import for " + importDefId);
             
-            result.importId = importId;
+            result.importId = 0;
             result.districtId = districtId;
-            result.baseImportId = baseImportId;
+            result.baseImportId = 0;
 
             i.importRepo.logInfo("OneRoster API import : " + importDefId);
 
 
-            System.out.println("Import Id is : " + importId + " For District " + districtId);
+            System.out.println("Import For District " + districtId);
 
             
 
@@ -249,45 +249,45 @@ public class SkywardOneRosterApi {
             int schoolCount = 0;
 
             //filter = "status='active'/orgs?type='school'";
-            filter = "status='active'";
-            data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
+            // filter = "status='active'";
+            // data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
 
-            while ( data.size() > 0) {
+            // while ( data.size() > 0) {
                     
                 
 
-                if (data.isArray()) {
-                    ArrayNode arrayNode = (ArrayNode) data;
-                    for (JsonNode orgsNode: arrayNode) {
+            //     if (data.isArray()) {
+            //         ArrayNode arrayNode = (ArrayNode) data;
+            //         for (JsonNode orgsNode: arrayNode) {
 
-                        String sourceId = orgsNode.get("sourcedId").asText();
-                        String name = orgsNode.get("name").asText();
+            //             String sourceId = orgsNode.get("sourcedId").asText();
+            //             String name = orgsNode.get("name").asText();
 
-                        String identifier = orgsNode.get("identifier").asText();
-                        // 
+            //             String identifier = orgsNode.get("identifier").asText();
+            //             // 
 
-                        i.importRepo.saveSchool(sourceId, name, identifier);
-                        schoolCount++;
+            //             i.importRepo.saveSchool(sourceId, name, identifier);
+            //             schoolCount++;
 
                     
-                    }
+            //         }
                         
                     
-                }
-                else {
-                    System.out.println("Not Array");
-                }
+            //     }
+            //     else {
+            //         System.out.println("Not Array");
+            //     }
 
-                // next page
-                pageNumber++;
+            //     // next page
+            //     pageNumber++;
 
-                System.out.println("Getting Orgs page : " + pageNumber);
-                data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
+            //     System.out.println("Getting Orgs page : " + pageNumber);
+            //     data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
 
 
-            }
-            System.out.println ("Schools Imported: " + schoolCount);
-            i.importRepo.logInfo("Schools Imported: " + schoolCount);
+            // }
+            // System.out.println ("Schools Imported: " + schoolCount);
+            // i.importRepo.logInfo("Schools Imported: " + schoolCount);
 
 
             System.out.println("Getting USERS");
@@ -356,6 +356,7 @@ public class SkywardOneRosterApi {
                                 // for Ciint we are getting USRstudent231311 or Student_XXXXX
 
 
+                                // String sourceId, String studentNumber, String firstName, String lastName, String grade, String schoolSourceId
                                 i.importRepo.saveStudent(
                                     userNode.get("sourcedId").asText(), userNode.get("identifier").asText(),  userNode.get("givenName").asText(),  
                                         userNode.get("familyName").asText(),
@@ -388,6 +389,9 @@ public class SkywardOneRosterApi {
 
                                                 String studentId = studentNode.get("sourcedId").asText();
                                                 //Guardian g = new Guardian(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), studentId, userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType);
+
+                                                // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type
+                                                // String sourceId, String guardianId, String studentSourceId, String firstName, String lastName, String email, String type
                                                 i.importRepo.saveGuardian(
                                                     userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), studentId, userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType
                                                 );
@@ -413,6 +417,8 @@ public class SkywardOneRosterApi {
                                 // sourceid, teacherId, firstname, lastname,  email
                                 //Teacher t = new Teacher(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail);
 
+                                // String sourceid, String teacherId, String firstname, String lastname, String email
+                                // String sourceId, String teacherId, String firstName, String lastName, String email
                                 i.importRepo.saveTeacher(
                                     userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail
                                 );
@@ -579,8 +585,10 @@ public class SkywardOneRosterApi {
                                 //     );
 
 
+                                String studentNumber = i.importRepo.studentNumberFromSourceId(sourceId);
+
                                 i.importRepo.saveStudentDemographics(
-                                    sourceId,
+                                    studentNumber,
                                     birthDate,
                                     demographicsNode.get("sex").asText(),
                                     Boolean.parseBoolean(demographicsNode.get("americanIndianOrAlaskaNative").asText()),
@@ -633,7 +641,7 @@ public class SkywardOneRosterApi {
 
 
                 //JsonNode data;
-                List<String> studentSourceIds =i.importRepo.studentSourceIdsForImport(importId);
+                List<String> studentSourceIds =i.importRepo.studentSourceIdsForDistrict(districtId);
 
                 //studentNumbers.add("218879766");
 
@@ -791,28 +799,31 @@ public class SkywardOneRosterApi {
 
 
               
-            i.importRepo.diffImports(baseImportId);
+            //i.importRepo.diffImports(baseImportId);
 
             // validation on the data.
             // check number of diffs vs the cutoff.
 
 
             // this will mark the importId as the base.
-            i.importRepo.setImportBase(importDefId);
+            //i.importRepo.setImportBase(importDefId);
 
 
+
+            i.importRepo.postImport();
             LocalDateTime endDateTime = LocalDateTime.now();
     
             Duration duration = Duration.between(startDateTime, endDateTime);
             
             System.out.println ("Import Complete in : " + duration.toSeconds() + " Seconds" );
 
-            i.importRepo.logInfo("Import " + importDefId + " (" + importId + ") Complete in : " + duration.toSeconds() + " Seconds" );
+
+            i.importRepo.logInfo("Import " + importDefId + " () Complete in : " + duration.toSeconds() + " Seconds" );
 
 
-            System.out.println ("Import ID is: " + importId);
+
             
-            i.boscoApi.sendImportToBosco(importId, baseImportId);
+            i.boscoApi.sendImportToBosco(districtId);
 
             result.success = true;
 

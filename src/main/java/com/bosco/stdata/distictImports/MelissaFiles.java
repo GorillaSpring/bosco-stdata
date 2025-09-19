@@ -45,7 +45,7 @@ private static MelissaFiles i;  // instance
 
             ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            int baseImportId = importDef.getBaseImportId();
+            //int baseImportId = importDef.getBaseImportId();
 
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
 
@@ -53,11 +53,11 @@ private static MelissaFiles i;  // instance
 
             Boolean setNoEmails = importDef.getSetNoEmails();
 
-            int importId = i.importRepo.prepImport(districtId, "Import for " + importDefId);
+            i.importRepo.prepImport(districtId, "Import for " + importDefId);
 
-            result.importId = importId;
+            result.importId = 0;
             result.districtId = districtId;
-            result.baseImportId = baseImportId;
+            result.baseImportId = 0;
             
 		    //String baseFileFolder = "C:/test/uplift/" + subFolder + "/";
             String baseFileFolder = ImportHelper.ValueForSetting(importSettings, "baseFolder");
@@ -97,44 +97,44 @@ private static MelissaFiles i;  // instance
 
             LocalDateTime startDateTime = LocalDateTime.now();
             
-            System.out.println("Import Id is : " + importId + " For District " + districtId);
+            System.out.println("Import  For District " + districtId);
 
 		    UserFileService msp = new UserFileService();
 
 
 
             
-            System.out.println("Importing schools File");
+            // System.out.println("Importing schools File");
 
-            List<String[]> data = msp.readCsvFile( baseFileFolder + "schools.csv");
+            // List<String[]> data = msp.readCsvFile( baseFileFolder + "schools.csv");
 
-            int counter1 = 0;
+            // int counter1 = 0;
 
-            String [] colNames = {"SchoolCode", "SchoolName"};
+            // String [] colNames = {"SchoolCode", "SchoolName"};
 
 
-            // there are 2 for these files!
-            data.removeFirst();
-            String[] fr = data.removeFirst();
-            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
-                throw new Exception("File : schools.csv does not match column specs" );
+            // // there are 2 for these files!
+            // data.removeFirst();
+            // String[] fr = data.removeFirst();
+            // if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+            //     throw new Exception("File : schools.csv does not match column specs" );
 
           
-            for (String [] row : data) {
-                if (!row[0].isBlank()) 
-                {
-                    i.importRepo.saveSchool(row[0], row[1], row[0]);
-                    counter1++;
-                }
+            // for (String [] row : data) {
+            //     if (!row[0].isBlank()) 
+            //     {
+            //         i.importRepo.saveSchool(row[0], row[1], row[0]);
+            //         counter1++;
+            //     }
 
-            }
+            // }
 
 
-            i.importRepo.logInfo("Imported Schools : " + counter1);
+            // i.importRepo.logInfo("Imported Schools : " + counter1);
 
             System.out.println("Importing Students File");
 
-            data = msp.readCsvFile( baseFileFolder + "students.csv");
+            List<String[]> data = msp.readCsvFile( baseFileFolder + "students.csv");
 
 
 
@@ -144,16 +144,16 @@ private static MelissaFiles i;  // instance
 
             //data.removeFirst();
 
-            fr = data.removeFirst();
+            String [] fr = data.removeFirst();
 
-            colNames = new String[]{"StudentSourceID", "StudentNumber", "LastName", "FirstName", "DOB", "Gender", "SchoolCode", "GradeCode" , 
+            String [] colNames = new String[]{"StudentSourceID", "StudentNumber", "LastName", "FirstName", "DOB", "Gender", "SchoolCode", "GradeCode" , 
                             "IsBilingual", "IsHispanicLatino", "AmericanIndianOrAlaskaNative", "Asian", "BlackOrAfricanAmerican", "NativeHawaiianOtherPacificIslander", "White"};
             
             if (!ImportHelper.CheckColumnHeaders(fr, colNames))
                 throw new Exception("File : students.csv does not match column specs" );
 
 
-            counter1 = 0;
+            int counter1 = 0;
 
             //data.forEach(row -> {
             for (String [] row : data) {
@@ -178,11 +178,18 @@ private static MelissaFiles i;  // instance
                     //Demographics d = new Demographics(row[0], row[4], row[5], false, false, false, false, false, false);
                    //Guardian g = new Guardian("Guardian_" + row[0], row[0],  row[10], row[11], row[12], row[9]);
 
+
+                   //String sourceId, String studentId, String firstName, String lastName, String grade, String schoolSourceId
+
+                    // String sourceId, String studentNumber, String firstName, String lastName, String grade, String schoolSourceId
+
                     i.importRepo.saveStudent(
                         row[0], row[1], row[3], row[2], row[7], row[6]
                     );
+
+                    // student number now.
                     i.importRepo.saveStudentDemographics(
-                        row[0], row[4], row[5], americanIndianOrAlaskaNative, asian, blackOrAfricanAmerican,nativeHawaiianOrOtherPacificIslander, white, hispanicOrLatinoEthnicity,
+                        row[1], row[4], row[5], americanIndianOrAlaskaNative, asian, blackOrAfricanAmerican,nativeHawaiianOrOtherPacificIslander, white, hispanicOrLatinoEthnicity,
                         false, false, isBilingual
                     );
 
@@ -240,6 +247,8 @@ private static MelissaFiles i;  // instance
                     }
 
 
+                    // String sourceid, String teacherId, String firstname, String lastname, String email
+                    // String sourceId, String teacherId, String firstName, String lastName, String email
                     i.importRepo.saveTeacher(
                         row[0], row[1],  row[3], row[2], email
                     );
@@ -297,6 +306,8 @@ private static MelissaFiles i;  // instance
                         email = trimedEmail + "_no.no";
                     }
 
+                    // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type
+                    // String sourceId, String guardianId, String studentSourceId, String firstName, String lastName, String email, String type
                     i.importRepo.saveGuardian(
                         row[0], row[2], row[1],  row[5], row[4], email, row[3]
                     );
@@ -426,23 +437,23 @@ private static MelissaFiles i;  // instance
 
                     // 504
                     if (row[8] == "Yes")
-                        i.importRepo.saveStudentProperty(row[0], "is504", "1");
+                        i.importRepo.saveStudentProperty(row[1], "is504", "1");
 
                     // isEsl
                     if (row[2] == "Yes")
-                        i.importRepo.saveStudentProperty(row[0], "isEsl", "1");
+                        i.importRepo.saveStudentProperty(row[1], "isEsl", "1");
 
                     // IsBilingual
                     if (row[3] == "Yes")
-                        i.importRepo.saveStudentProperty(row[0], "isBilingual", "1");
+                        i.importRepo.saveStudentProperty(row[1], "isBilingual", "1");
 
                     // IsSpecialEd
                     if (row[4] == "Yes")
-                        i.importRepo.saveStudentProperty(row[0], "isSpecialEd", "1");
+                        i.importRepo.saveStudentProperty(row[1], "isSpecialEd", "1");
 
                     // EntryIEP_Date
                     if (!row[5].isEmpty())
-                        i.importRepo.saveStudentPropertyString(row[0], "entryIepDate", row[5]);
+                        i.importRepo.saveStudentPropertyString(row[1], "entryIepDate", row[5]);
 
                     counter1++;
 
@@ -470,55 +481,30 @@ private static MelissaFiles i;  // instance
             i.importRepo.logInfo("Moved Files to archive");
 
 
-            // do the diff
-
-            if (baseImportId == 0) {
-                i.importRepo.logInfo("This is the BASE Import");
-                i.importRepo.setAllNewImports();
-            }
-            else {
-                i.importRepo.logInfo("Doing Diff with " + baseImportId);
-
-                i.importRepo.diffImports(baseImportId);
-
-                if (importDef.getForceLoad()) {
-                    i.importRepo.logInfo("Force Load Set, so not checking for too many changes");
-                }
-                else {
-                   i.importRepo.logInfo("Checking Changes");
-                    ImportChanges ic = i.importRepo.importChangesFromBase(importId, baseImportId);
-                    i.importRepo.logInfo("Base Count: " + ic.baseStudentCount + " St Count: " + ic.importStudentCount + " Changed: " + ic.importStudentChanged);
-
-                    if (ImportHelper.CheckTooManyChanges(ic, 0.5)) {
-                        throw new Exception("Too Many Changes in import.  See logs for counts" );
-                    }
-                }
-
-            }
+     
 
 
 
 
+            // // this will mark the importId as the base.
+            // i.importRepo.setImportBase(importDefId);
 
-            // this will mark the importId as the base.
-            i.importRepo.setImportBase(importDefId);
-
+            i.importRepo.postImport();
         
             LocalDateTime endDateTime = LocalDateTime.now();
     
             Duration duration = Duration.between(startDateTime, endDateTime);
 
             
-            i.importRepo.logInfo("Import " + importDefId + " (" + importId + ") Complete in : " + duration.toSeconds() + " Seconds" );
+            i.importRepo.logInfo("Import " + importDefId + "  Complete in : " + duration.toSeconds() + " Seconds" );
 
-            System.out.println ("Import ID is: " + importId);
-
+            
 
 
             
 
 
-            i.boscoApi.sendImportToBosco(importId, baseImportId);
+            i.boscoApi.sendImportToBosco(districtId);
 
             result.success = true;
 

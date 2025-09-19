@@ -162,18 +162,17 @@ public class TeaFiles {
                             System.out.println ("GOT NULL");
                         }
 
-                        String csaCode = "R,W";
-                        String subject = "Reading, Written Expression";
-                        String code = "R,W";
+                        String csaCode = "R";
+                        String subject = "Reading";
+                        String code = "R";
                         
 
                         i.importRepo.sisStaarAdd(studentId, schoolYear, subject, code, grade, bp.proficiency, bp.proficiencyCode, csaCode);
                         // So now we can crate the record.
 
-                        //System.out.println("Reading and Written Expression: " + bp.proficiency + " - " + bp.proficiencyCode + " - " + csaCode);
-
-                        //i.importRepo.logTea(testName, "StudentID: " + studentId + " - SchoolYear: 2024-2025 - Subject: Reading, Written Expression -   Code:R,W  - Grade: " + grade + " - Proficiency: " + bp.proficiency + "  (" + bp.proficiencyCode + ")  - CsaCode: " + csaCode);
                     }
+
+                        
                 }
 
                 if (t.getScoreMath().equals("S")) {
@@ -256,7 +255,7 @@ public class TeaFiles {
 
         System.out.println(" -- Read " + count + "  Students");
 
-        System.out.println(("-----------------------"));
+        System.out.println("-----------------------");
     }
 
 
@@ -342,16 +341,16 @@ public class TeaFiles {
                                     code = "A1";
                                 break;
                             case "E1":
-                                    csaCode = "R,W";
+                                    csaCode = "R";
                                     //subject = "English I";
-                                    subject = "Reading, Written Expression";
+                                    subject = "Reading";
                                     code = "E1";
                                     
                                 break;
                             case "E2":
-                                    csaCode = "R,W";
+                                    csaCode = "R";
                                     //subject = "English II";                                        
-                                    subject = "Reading, Written Expression";
+                                    subject = "Reading";
                                     code = "E2";
                                 break;
                             case "BI":
@@ -383,7 +382,6 @@ public class TeaFiles {
 
                         // So now we can crate the record.
 
-                        //System.out.println("Reading and Written Expression: " + bp.proficiency + " - " + bp.proficiencyCode + " - " + csaCode);
 
                         //i.importRepo.logTea(testName, log);
                     }

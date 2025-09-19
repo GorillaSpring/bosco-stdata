@@ -198,12 +198,10 @@ public class CsvFiles {
                 String studentNumber = "";
 
                 if (useStudentSourceId) {
-                    System.out.println("Checking Student : " + studentId);
+                    // System.out.println("Checking Student : " + studentId);
                     studentNumber = i.importRepo.studentNumberFromSourceId(studentId);
-                    if (studentNumber != null)
-                        System.out.println("   -- " + studentNumber);
-                    else   
-                        System.out.println("  ---------------------------------  NULLL ");
+                    if (studentNumber == null)
+                        System.out.println("  ---------------------------------  NULLL: " + studentId);
                 }
                 else
                     studentNumber = studentId;
@@ -243,7 +241,7 @@ public class CsvFiles {
                         // String studentNumber, String schoolYear, String period, String subject, String proficiency, String proficiencyCode, int score, String csaCode
                         i.importRepo.sisMapAdd(studentNumber, schoolYear, period, subject, proficiency, proficiencyCode, score, csaCode);
 
-                        System.out.println("(" + studentNumber + ":" +studentId +  ", " + schoolYear + ", " + period + ", " + subject + ", " + proficiency + ", " + proficiencyCode + ", " + score + ", " + csaCode + ")");
+                        //System.out.println("(" + studentNumber + ":" +studentId +  ", " + schoolYear + ", " + period + ", " + subject + ", " + proficiency + ", " + proficiencyCode + ", " + score + ", " + csaCode + ")");
 
                         //System.out.println("Student: " + studentId + "  - Term: " + termName + "  - Subject : " + subject + "  - Level: " + level + "  - Score: " + score);
 

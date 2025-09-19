@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+import com.bosco.stdata.config.AppConfig;
 import com.bosco.stdata.model.*;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
@@ -26,6 +26,8 @@ import jakarta.annotation.PostConstruct;
 
 @Component
 public class UpliftFiles {
+
+    private final AppConfig appConfig;
     @Autowired
     ImportRepo importRepo;
 
@@ -34,7 +36,11 @@ public class UpliftFiles {
     BoscoApi boscoApi;
     
 
-    private static UpliftFiles i;  // instance
+    private static UpliftFiles i;
+
+    UpliftFiles(AppConfig appConfig) {
+        this.appConfig = appConfig;
+    }  // instance
 
     @PostConstruct
     public void init() {
@@ -74,7 +80,7 @@ public class UpliftFiles {
         if (lowerSubject.startsWith("written"))
             return "W";
         if (lowerSubject.startsWith("eng"))
-            return "R,W";
+            return "R";
         if (lowerSubject.startsWith("lang"))
             return "L";
         if (lowerSubject.startsWith("math"))
@@ -98,58 +104,58 @@ public class UpliftFiles {
         // It will return "NOT_FOUND"  if not found!
 
          String csaCode = switch (courseName) {
-            case "English II MYP" -> "R,W";
+            case "English II MYP" -> "R";
             case "Algebra II MYP" -> "M";
             case "Algebra II" -> "M";
             case "Algebra I" -> "M";
             case "Chemistry MYP" -> "C";
             case "US Government" -> "S";
             case "US Hist Since Recon MYP (YL)" -> "S";
-            case "IB Lang A: Lang & Lit SL2" -> "R,W";
+            case "IB Lang A: Lang & Lit SL2" -> "R";
             case "IB Math: AI SL2" -> "M";
             case "IB Theory of Knowledge 12 (Sem)" -> "";   // This is a known DO NOT LOAD.
             case "IB Theory of Knowledge 11 (Sem)" -> "";   // This is a known DO NOT LOAD.
             case "IB Global Politics HL2" -> "S";
             case "IB History of Americas HL2" -> "S";
             case "IB History of Americas HL1" -> "S";
-            case "IB Lang A: Lang & Lit HL2" -> "R,W";
-            case "IB Lang A: Lang & Lit SL1" -> "R,W";
-            case "IB Environ Sys & Soc SL1" -> "C,S";
+            case "IB Lang A: Lang & Lit HL2" -> "R";
+            case "IB Lang A: Lang & Lit SL1" -> "R";
+            case "IB Environ Sys & Soc SL1" -> "S";
             case "IB Global Politics Higher Level 1" -> "S";
             case "IB Math: AI SL1" -> "M";
             case "IB Biology Standard Level 1" -> "C";
             case "IB Psychology HL1" -> "S";
             case "Geometry MYP" -> "M";
-            case "IB Lang A: Lang & Lit HL1" -> "R,W";
+            case "IB Lang A: Lang & Lit HL1" -> "R";
             case "Precalculus" -> "M";
-            case "English I MYP" -> "R,W";
+            case "English I MYP" -> "R";
             case "Biology MYP" -> "C";
             case "Biology" -> "C";
             case "World History Studies MYP" -> "S";
             case "Ind Study in Math I (YL)" -> "M";
-            case "English Lang Arts & Read, Grade 8 MYP" -> "R,W";
+            case "English Lang Arts & Read, Grade 8 MYP" -> "R";
             case "Algebra I MYP MS" -> "M";
             case "Science, Grade 8 MYP" -> "C";
             case "US History, Grade 8 MYP" -> "S";
-            case "English Lang Arts & Read, Grade 6 MYP" -> "R,W";
+            case "English Lang Arts & Read, Grade 6 MYP" -> "R";
             case "Math, Grade 6 MYP" -> "M";
             case "Science, Grade 6 MYP" -> "C";
             case "Algebra I MYP" -> "M";
-            case "Reading I" -> "R,W";
-            case "English Lang Arts & Read, Grade 7 MYP" -> "R,W";
-            case "English II" -> "R,W";
+            case "Reading I" -> "R";
+            case "English Lang Arts & Read, Grade 7 MYP" -> "R";
+            case "English II" -> "R";
             case "Math, Grade 8 MYP" -> "M";
             case "Science, Grade 7 MYP" -> "C";
             case "Math, Grade 7 MYP" -> "M";
             case "Texas History, Grade 7 MYP" -> "S";
-            case "English Language Arts & Reading, Grade 3" -> "R,W";
+            case "English Language Arts & Reading, Grade 3" -> "R";
             case "Social Studies, Grade 3" -> "S";
             case "Math, Grade 7" -> "M";
-            case "English Language Arts & Reading, Grade 5" -> "R,W";
+            case "English Language Arts & Reading, Grade 5" -> "R";
             case "Science, Grade 5" -> "C";
             case "Social Studies, Grade 5" -> "S";
             case "World History, Grade 6 MYP" -> "S";
-            case "English Language Arts & Reading, Grade 4" -> "R,W";
+            case "English Language Arts & Reading, Grade 4" -> "R";
             case "Science, Grade 4" -> "C";
             case "Social Studies, Grade 4" -> "S";
             case "Math, Grade 4" -> "M";
@@ -158,21 +164,21 @@ public class UpliftFiles {
 
             case "Geometry" -> "M";
 
-            case "English III" -> "R,W";
+            case "English III" -> "R";
             case "Environmental Systems" -> "C";
             case "World Geo Studies" -> "S";
-            case "English IV" -> "R,W";
+            case "English IV" -> "R";
             case "Anatomy and Physiology" -> "C";
             case "World Geo Studies MYP" -> "S";
-            case "English Language Arts & Reading, Grade 2" -> "R,W";
+            case "English Language Arts & Reading, Grade 2" -> "R";
             case "Math, Grade 2" -> "M";
             case "Science, Grade 2" -> "C";
             case "Social Studies, Grade 2" -> "S";
-            case "English Language Arts & Reading, KG" -> "R,W";
+            case "English Language Arts & Reading, KG" -> "R";
             case "Math, Kindergarten" -> "M";
             case "Science, Kindergarten" -> "C";
             case "Social Studies, Kindergarten" -> "S";
-            case "English Language Arts & Reading, Grade 1" -> "R,W";
+            case "English Language Arts & Reading, Grade 1" -> "R";
             case "Math, Grade 1" -> "M";
             case "Science, Grade 1" -> "C";
             case "Social Studies, Grade 1" -> "S";
@@ -257,7 +263,7 @@ public class UpliftFiles {
 
              ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            int baseImportId = importDef.getBaseImportId();
+            //int baseImportId = importDef.getBaseImportId();
 
 
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
@@ -265,13 +271,13 @@ public class UpliftFiles {
             int districtId = importDef.getDistrictId();
             Boolean setNoEmails = importDef.getSetNoEmails();
 
-            int importId = i.importRepo.prepImport(districtId, "Import for " + importDefId);
+            i.importRepo.prepImport(districtId, "Import for " + importDefId);
 
             
 
-            result.importId = importId;
+            result.importId = 0;
             result.districtId = districtId;
-            result.baseImportId = baseImportId;
+            result.baseImportId = 0;
 
             
 		    //String baseFileFolder = "C:/test/uplift/" + subFolder + "/";
@@ -295,42 +301,42 @@ public class UpliftFiles {
 
             LocalDateTime startDateTime = LocalDateTime.now();
             
-            System.out.println("Import Id is : " + importId + " For District " + districtId);
+            System.out.println("Import  For District " + districtId);
 
 		    UserFileService msp = new UserFileService();
 
-            System.out.println("Importing campuses File");
+            // System.out.println("Importing campuses File");
 
-            List<String[]> data = msp.readCsvFile( baseFileFolder + "campuses.csv");
+            // List<String[]> data = msp.readCsvFile( baseFileFolder + "campuses.csv");
 
-            int counter1 = 0;
-            int counter2 = 0;
+            // int counter1 = 0;
+            // int counter2 = 0;
 
-            String[] fr = data.removeFirst();
+            // String[] fr = data.removeFirst();
 
 
-            String [] colNames = {"schoolcode", "schoolname"};
+            // String [] colNames = {"schoolcode", "schoolname"};
 
-            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
-                throw new Exception("File : campuses.csv does not match column specs" );
+            // if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+            //     throw new Exception("File : campuses.csv does not match column specs" );
 
           
           
-            for (String [] row : data) {
-                if (!row[0].isBlank()) 
-                {
-                    i.importRepo.saveSchool(row[0], row[1], row[0]);
-                    counter1++;
-                }
+            // for (String [] row : data) {
+            //     if (!row[0].isBlank()) 
+            //     {
+            //         i.importRepo.saveSchool(row[0], row[1], row[0]);
+            //         counter1++;
+            //     }
 
-            }
+            // }
 
 
-            i.importRepo.logInfo("Imported Schools : " + counter1);
+            //i.importRepo.logInfo("Imported Schools : " + counter1);
 
             System.out.println("Importing Students File");
 
-            data = msp.readCsvFile( baseFileFolder + "students.csv");
+            List<String[]> data = msp.readCsvFile( baseFileFolder + "students.csv");
 
 
             // studentId                        0
@@ -349,13 +355,13 @@ public class UpliftFiles {
 
 
 
-            fr = data.removeFirst();
-            colNames = new String[]{"studentid", "lastname", "firstname", "dob", "gender", "schoolcode", "gradecode", "is504", "englishlanguagelearner", "guardiantype", "guardianfirstname", "guardianlastname", "guardianemail"};
+            String[] fr = data.removeFirst();
+            String[] colNames = new String[]{"studentid", "lastname", "firstname", "dob", "gender", "schoolcode", "gradecode", "is504", "englishlanguagelearner", "guardiantype", "guardianfirstname", "guardianlastname", "guardianemail"};
 
             if (!ImportHelper.CheckColumnHeaders(fr, colNames))
                 throw new Exception("File : students.csv does not match column specs" );
 
-            counter1 = 0;
+            int counter1 = 0;
 
             //data.forEach(row -> {
             for (String [] row : data) {
@@ -377,9 +383,12 @@ public class UpliftFiles {
 
                     //String sourceId, String studentId, String firstName, String lastName, String grade, String schoolCode
 
+                    // String sourceId, String studentNumber, String firstName, String lastName, String grade, String schoolSourceId
+
                     i.importRepo.saveStudent(row[0], row[0], row[2], row[1], row[6], row[5]);
 
                     //i.importRepo.saveStudent(s);
+                    // studentNumber for row [0]
                     i.importRepo.saveStudentDemographics(row[0], row[3], row[4], false, false, false, false, false, false,
                     isEsl, is504, false
                     
@@ -395,6 +404,8 @@ public class UpliftFiles {
 
                     
                     // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type
+
+                    // String sourceId, String guardianId, String studentSourceId, String firstName, String lastName, String email, String type
                     i.importRepo.saveGuardian("Guardian_" + row[0], "G_" + row[0],  row[0],  row[10], row[11], email, row[9]);
 
                     
@@ -446,6 +457,9 @@ public class UpliftFiles {
                     
                     // sourceid, teacherId, firstname, lastname,  email
                     //Teacher t = new Teacher(row[0], row[0], row[2], row[1], row[3]);
+
+                    // String sourceid, String teacherId, String firstname, String lastname, String email
+                    // String sourceId, String teacherId, String firstName, String lastName, String email
                     i.importRepo.saveTeacher(
                         row[0], row[0], row[2], row[1], email
                     );
@@ -476,8 +490,15 @@ public class UpliftFiles {
             for (String [] row : data) {
                 if (!row[0].isBlank()) 
                 {
+                    // we can not do this directly anymore
+                    // need to add studentClass 
+                    // then add teacherClass
 
-                    i.importRepo.saveStudentTeacher(row[0], row[1]);
+                    // so, here the teacherId is actaully the class for them.
+                    i.importRepo.saveTeacherClass(row[1], row[1]);
+                    i.importRepo.saveStudentClass(row[0], row[1]);
+
+                    //i.importRepo.saveStudentTeacher(row[0], row[1]);
                     counter1++;
 
                 }
@@ -488,7 +509,10 @@ public class UpliftFiles {
 
             i.importRepo.logInfo("Imported Student Teachers : " + counter1);
 
+            i.importRepo.buildStudentTeacher();
 
+
+            i.importRepo.postImport();
 
             System.out.println("Importing SIS data");
 
@@ -520,7 +544,7 @@ public class UpliftFiles {
 
 
             counter1 = 0;
-            counter2 = 0;
+            int counter2 = 0;
             
             //data.forEach(row -> {
             for (String [] row : data) {
@@ -698,6 +722,88 @@ public class UpliftFiles {
             i.importRepo.logInfo("Imported state_assessments : " + counter1);
 
 
+
+              System.out.println("Importing TELPAS File");
+
+            data = msp.readCsvFile( baseFileFolder + "TELPAS.csv");
+
+
+            fr = data.removeFirst();
+            colNames = new String[]{"year_id", "local_id", "grade_level", "AdministrationDate", "level", "listening_scale_score", "reading_scale_score", "speaking_scale_score", "writing_scale_score"};
+
+            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+                throw new Exception("File : TELPAS.csv does not match column specs" );
+
+
+            // 0 year_id
+            // 1 local_id   (studentNumber)
+            // 2 grade_level
+            // 3 AdminDate  (use to get schoolYear)
+            // 4 level  
+            // 5 list_score       MAY BE NULL
+            // 6 read_score       MAY BE NULL
+            // 7 speacking score  MAY BE NULL
+            // 8 writing score   May be BLANK"
+
+
+            counter1 = 0;
+            //data.forEach(row -> {
+            for (String [] row : data) {
+                if (!row[0].isBlank()) {
+
+
+                    // calculate the year based on the date.
+                    String schoolYear = TeaStaarFlatFileReader.SchoolYearFromDate(row[3]);
+
+
+                    String grade = row[2];
+                    String studentId = row[1];
+
+                    String proficiency = row[4];
+                    
+
+                        //Boolean allEmpty = true;
+
+                    int listeningScore = 0;
+                    if (!row[5].isEmpty() && !row[5].equals("NULL")) {
+                        listeningScore = Integer.parseInt(row[5]);
+                        //  allEmpty = false;
+                    }
+                    int speakingScore = 0;
+                    if (!row[7].isEmpty() && !row[7].equals("NULL")) {
+                        speakingScore = Integer.parseInt(row[7]);
+                        // allEmpty = false;
+                    }
+
+                    int readingScore = 0;
+                    if (!row[6].isEmpty() && !row[6].equals("NULL")) {
+                        readingScore = Integer.parseInt(row[6]);
+                        // allEmpty = false;
+                    }
+
+                    int writingScore = 0;
+                    if (!row[8].isEmpty() && !row[8].equals("NULL")){
+                        writingScore = Integer.parseInt(row[8]);
+                        // allEmpty = false;
+                    }
+
+                    // We alre loading reguadless as of Sept 16
+                        // save it
+                    
+
+                    i.importRepo.sisTelpasAdd(studentId, schoolYear, grade, proficiency, listeningScore, speakingScore, readingScore, writingScore);
+
+
+
+                    counter1++;
+                
+                }
+            };
+
+            i.importRepo.logInfo("Imported TELPAS : " + counter1);
+
+
+
             System.out.println("Importing discipline File");
 
             data = msp.readCsvFile( baseFileFolder + "discipline.csv");
@@ -751,22 +857,22 @@ public class UpliftFiles {
 
                // do the diff
 
-			if (baseImportId == 0) {
-				i.importRepo.logInfo("This is the BASE Import");
-                i.importRepo.setAllNewImports();
-            }
-            else {
-                i.importRepo.logInfo("Doing Diff with " + baseImportId);
+			// if (baseImportId == 0) {
+			// 	i.importRepo.logInfo("This is the BASE Import");
+            //     i.importRepo.setAllNewImports();
+            // }
+            // else {
+            //     i.importRepo.logInfo("Doing Diff with " + baseImportId);
 
-                i.importRepo.diffImports(baseImportId);
-            }
+            //     i.importRepo.diffImports(baseImportId);
+            // }
 
-            // validation on the data.
-            // check number of diffs vs the cutoff.
+            // // validation on the data.
+            // // check number of diffs vs the cutoff.
 
 
-            // this will mark the importId as the base.
-            i.importRepo.setImportBase(importDefId);
+            // // this will mark the importId as the base.
+            // i.importRepo.setImportBase(importDefId);
 
 
 
@@ -776,11 +882,13 @@ public class UpliftFiles {
     
             Duration duration = Duration.between(startDateTime, endDateTime);
 
-            
-            i.importRepo.logInfo("Import " + importDefId + " (" + importId + ") Complete in : " + duration.toSeconds() + " Seconds" );
-            System.out.println ("Import ID is: " + importId);
+            i.importRepo.logInfo("Import " + importDefId + " () Complete in : " + duration.toSeconds() + " Seconds" );
 
-            i.boscoApi.sendImportToBosco(importId, baseImportId);
+            
+
+             i.boscoApi.sendImportToBosco(districtId);
+
+            
 
             result.success = true;
 

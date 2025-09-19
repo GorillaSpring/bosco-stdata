@@ -47,16 +47,16 @@ public class TestFiles {
 
             ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            int baseImportId = importDef.getBaseImportId();
+            ///int baseImportId = importDef.getBaseImportId();
 
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
 
             int districtId = importDef.getDistrictId();
-            int importId = i.importRepo.prepImport(districtId, "Import for " + importDefId);
+            i.importRepo.prepImport(districtId, "Import for " + importDefId);
 
-            result.importId = importId;
+            //result.importId = importId;
             result.districtId = districtId;
-            result.baseImportId = baseImportId;
+            //result.baseImportId = baseImportId;
             
 		    //String baseFileFolder = "C:/test/uplift/" + subFolder + "/";
             String baseFileFolder = ImportHelper.ValueForSetting(importSettings, "baseFolder");
@@ -82,37 +82,42 @@ public class TestFiles {
 
             LocalDateTime startDateTime = LocalDateTime.now();
             
-            System.out.println("Import Id is : " + importId + " For District " + districtId);
+            System.out.println("Import Id is :  For District " + districtId);
 
 		    UserFileService msp = new UserFileService();
 
-            System.out.println("Importing schools File");
-
-            List<String[]> data = msp.readCsvFile( baseFileFolder + "schools.csv");
-
+            List<String[]> data;
+            String [] colNames;
+            String[] fr;
             int counter1 = 0;
 
-            String [] colNames = {"code", "name"};
+            // System.out.println("Importing schools File");
+
+            // List<String[]> data = msp.readCsvFile( baseFileFolder + "schools.csv");
+
+            // int counter1 = 0;
+
+            // String [] colNames = {"code", "name"};
 
 
-            String[] fr = data.removeFirst();
-            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
-                throw new Exception("File : schools.csv does not match column specs" );
+            // String[] fr = data.removeFirst();
+            // if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+            //     throw new Exception("File : schools.csv does not match column specs" );
 
           
-            for (String [] row : data) {
-                if (!row[0].isBlank()) 
-                {
-                    i.importRepo.saveSchool(row[0], row[1], row[0]);
-                    counter1++;
-                }
+            // for (String [] row : data) {
+            //     if (!row[0].isBlank()) 
+            //     {
+            //         i.importRepo.saveSchool(row[0], row[1], row[0]);
+            //         counter1++;
+            //     }
 
-            }
+            // }
 
 
-            i.importRepo.logInfo("Imported Schools : " + counter1);
+            // i.importRepo.logInfo("Imported Schools : " + counter1);
 
-            System.out.println("Importing Students File");
+            // System.out.println("Importing Students File");
 
             data = msp.readCsvFile( baseFileFolder + "students.csv");
 
@@ -150,11 +155,16 @@ public class TestFiles {
                     //Demographics d = new Demographics(row[0], row[4], row[5], false, false, false, false, false, false);
                    //Guardian g = new Guardian("Guardian_" + row[0], row[0],  row[10], row[11], row[12], row[9]);
 
+                   // String sourceId, String studentNumber, String firstName, String lastName, String grade, String schoolSourceId
+
                     i.importRepo.saveStudent(
                         row[0], row[1], row[3], row[2], row[7], row[6]
                     );
+
+                    // ** THIS IS studentNumber now, NOT SOURCE ID.
+                    // ** THIS DOES NOT UPDATE the import Status.
                     i.importRepo.saveStudentDemographics(
-                        row[0], row[4], row[5], false, false, false, false, false, false,
+                        row[1], row[4], row[5], false, false, false, false, false, false,
                         false, false, false
                     );
 
@@ -206,6 +216,8 @@ public class TestFiles {
            
                     // sourceid, teacherId, firstname, lastname,  email
                     //Teacher t = new Teacher(row[0], row[1],  row[3], row[2], row[4]);
+
+                    // String sourceId, String teacherId, String firstName, String lastName, String email
                     i.importRepo.saveTeacher(
                         row[0], row[1],  row[3], row[2], row[4]
                     );
@@ -249,6 +261,8 @@ public class TestFiles {
             for (String [] row : data) {
                 if (!row[0].isBlank()) 
                 {
+
+                    // so now we need the actual studentID   ie DDDD.NNNNNN
 
                     // So for guardians, we may not have a unique source id in the spreadsheet.
                     // We don't actually need it.
@@ -342,62 +356,38 @@ public class TestFiles {
             
 
 
-            // Now we move the files to the archive Folder
+            // // Now we move the files to the archive Folder
 
-            //ImportHelper.MoveFiles(baseFileFolder, archiveFolder);
+            // //ImportHelper.MoveFiles(baseFileFolder, archiveFolder);
 
-            i.importRepo.logInfo("Moved Files to archive");
+            // i.importRepo.logInfo("Moved Files to archive");
 
 
-            // do the diff
-
-            if (baseImportId == 0) {
-                i.importRepo.logInfo("This is the BASE Import");
-                i.importRepo.setAllNewImports();
-            }
-            else {
-                i.importRepo.logInfo("Doing Diff with " + baseImportId);
-
-                i.importRepo.diffImports(baseImportId);
-
-                if (importDef.getForceLoad()) {
-                    i.importRepo.logInfo("Force Load Set, so not checking for too many changes");
-                }
-                else {
-                   i.importRepo.logInfo("Checking Changes");
-                    ImportChanges ic = i.importRepo.importChangesFromBase(importId, baseImportId);
-                    i.importRepo.logInfo("Base Count: " + ic.baseStudentCount + " St Count: " + ic.importStudentCount + " Changed: " + ic.importStudentChanged);
-
-                    if (ImportHelper.CheckTooManyChanges(ic, 0.5)) {
-                        throw new Exception("Too Many Changes in import.  See logs for counts" );
-                    }
-                }
-
-            }
+   
 
 
 
 
+            // // this will mark the importId as the base.
+            // i.importRepo.setImportBase(importDefId);
 
-            // this will mark the importId as the base.
-            i.importRepo.setImportBase(importDefId);
-
+            i.importRepo.postImport();
         
             LocalDateTime endDateTime = LocalDateTime.now();
     
             Duration duration = Duration.between(startDateTime, endDateTime);
 
             
-            i.importRepo.logInfo("Import " + importDefId + " (" + importId + ") Complete in : " + duration.toSeconds() + " Seconds" );
+            i.importRepo.logInfo("Import " + importDefId + " () Complete in : " + duration.toSeconds() + " Seconds" );
 
-            System.out.println ("Import ID is: " + importId);
+            // System.out.println ("Import ID is: " + importId);
 
 
 
             
 
 
-            i.boscoApi.sendImportToBosco(importId, baseImportId);
+             i.boscoApi.sendImportToBosco(districtId);
 
             result.success = true;
 

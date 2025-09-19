@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.bosco.stdata.distictImports.CelinaFiles;
+//import com.bosco.stdata.distictImports.CelinaFiles;
 import com.bosco.stdata.distictImports.CelinaSisFiles;
 import com.bosco.stdata.distictImports.ClassLinkOneRosterApi;
 import com.bosco.stdata.distictImports.MelissaFiles;
@@ -40,9 +40,9 @@ public class ImportTask {
     public ImportTask() {}
 
 
-    public String sendImportToBosco(int importId, int baseImportId ) {
+    public String sendImportToBoscoNow(int districtId) {
         try {
-            boscoApi.sendImportToBosco(importId, baseImportId);
+            boscoApi.sendImportToBosco(districtId);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -162,10 +162,11 @@ public class ImportTask {
                                     importResults.add(importResult);
                                     
                                     break;
-                                case "CelinaFiles":
-                                    importResult = CelinaFiles.Import(importDefId);
-                                    importResults.add(importResult);
-                                    break;
+                                // case "CelinaFiles":
+                                //     // THis is API now.
+                                //     importResult = CelinaFiles.Import(importDefId);
+                                //     importResults.add(importResult);
+                                //     break;
                                 default:
                                     importRepo.logError("Unknown Import Definition : " + importDefId);
                                     break;

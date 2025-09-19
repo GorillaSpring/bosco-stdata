@@ -14,7 +14,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.bosco.stdata.model.ImportChanges;
 import com.bosco.stdata.model.ImportSetting;
 
 
@@ -56,32 +55,35 @@ public  class ImportHelper {
     }
 
 
-    public static Boolean CheckTooManyChanges (ImportChanges impChanges, double maxAllowedChangesPercent) {
+    public static Boolean CheckTooManyChanges (double maxAllowedChangesPercent) {
         // return true if too many changes.
+
+        // TODO: We are going to have to redo this.
+        // We need to check "CHANGED", "DELETE"
 
         // maxAllowedChangesPercent is   0.1 for 10%,   0.2 for 20% etc.
 
-         double percentDiff = Math.abs(impChanges.baseStudentCount - impChanges.importStudentCount) / 
-                (
-                    (impChanges.baseStudentCount + impChanges.importStudentCount) / 2.0
-                )
+        //  double percentDiff = Math.abs(impChanges.baseStudentCount - impChanges.importStudentCount) / 
+        //         (
+        //             (impChanges.baseStudentCount + impChanges.importStudentCount) / 2.0
+        //         )
 
-                ;
+        //         ;
 
-            if (percentDiff > maxAllowedChangesPercent)
-                return true;
+        //     if (percentDiff > maxAllowedChangesPercent)
+        //         return true;
 
             
 
-            // so 23 * 0.1 = 2.3   => 2 > 0
-            // should this be less?
+        //     // so 23 * 0.1 = 2.3   => 2 > 0
+        //     // should this be less?
 
 
-            if ((int)(impChanges.importStudentCount * maxAllowedChangesPercent) < impChanges.importStudentChanged) {
-                // the sutdents changed is greater then 10% so bail.
+        //     if ((int)(impChanges.importStudentCount * maxAllowedChangesPercent) < impChanges.importStudentChanged) {
+        //         // the sutdents changed is greater then 10% so bail.
 
-                return true;
-            }
+        //         return true;
+        //     }
 
             return false;
     }

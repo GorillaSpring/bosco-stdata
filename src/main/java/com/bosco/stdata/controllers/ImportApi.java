@@ -1,6 +1,8 @@
 package com.bosco.stdata.controllers;
 
 import java.io.FileNotFoundException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import com.bosco.stdata.config.AppConfig;
-import com.bosco.stdata.model.ImportChanges;
+
 import com.bosco.stdata.model.ImportDefinition;
 import com.bosco.stdata.model.ImportLog;
 import com.bosco.stdata.model.SisDiscipline;
@@ -128,14 +130,9 @@ public class ImportApi {
         
         return studentName;
     }
-    
-    @Operation(
-            summary = "Testing Bosco web get Students *** CHECK boscoInstance *** " ,
-            description = "This will be removed soon.",
-            tags = {"Testing"}
-            )
-    @GetMapping("/import/boscoStudents/{id}")
-    public String boscoStudents(@PathVariable int id) {
+
+
+    private void getBoscoStudents (int districtId) {
 
         System.out.println("in testTbWeb");
 
@@ -148,7 +145,7 @@ public class ImportApi {
 
 
         while (!done) {
-            JsonNode resNode = boscoApi.getStudents(id, pageNumber);
+            JsonNode resNode = boscoApi.getStudents(districtId, pageNumber);
 
             if (resNode.size() > 0) {
 
@@ -163,7 +160,9 @@ public class ImportApi {
                         // So here we can actually save it to the importRepo
                         // we know the boscoInstance
 
-                        importRepo.boscoStudentAdd(boscoInstance, id, studentNode.get("id").asText());
+                        // we want studentId 
+
+                        importRepo.boscoStudentAdd(boscoInstance, districtId, studentNode.get("id").asText(), studentNode.get("studentId").asText());
 
                         //results += studentNode.get("id").asText() + "  - " + studentNode.get("firstName").asText() + " " + studentNode.get("lastName").asText() + "\n";
                     }
@@ -186,7 +185,33 @@ public class ImportApi {
         }
 
         System.out.println("DONE");
-        return results;
+        //return results;
+
+    }
+    
+    @Operation(
+            summary = "Testing Bosco web get Students *** CHECK boscoInstance *** " ,
+            description = "This will be removed soon.",
+            tags = {"Testing"}
+            )
+    @GetMapping("/import/boscoStudents/{id}")
+    public String boscoStudents(@PathVariable int id) {
+
+
+         Thread taskThread = new Thread(() -> {
+               
+                getBoscoStudents(id);
+            });
+
+
+            ImportHelper.importRunning = true;
+            //importRepo.setSystemStatus("Import", 1);
+            taskThread.start();
+
+            return "Getting Students";
+
+
+        
 
 
         
@@ -234,15 +259,55 @@ public class ImportApi {
         description = "This will jsut do the send to bosco (AGAIN)",
         tags = {"Import Testing"}
         )
-    @GetMapping("/import/sendToBosco/{importId}/{baseImportId}")
-    public String sendToBosco(@PathVariable int importId, @PathVariable int baseImportId) {
-        //ImportTask importTask = new ImportTask();
+    @GetMapping("/import/sendToBosco/{districtId}")
+    public String sendToBosco(@PathVariable int districtId) {
 
-        String result = importTask.sendImportToBosco(importId, baseImportId);
+        Thread taskThread = new Thread(() -> {
+            
+            importTask.sendImportToBoscoNow(districtId);
+        });
 
-        return result;
+
+        ImportHelper.importRunning = true;
+        //importRepo.setSystemStatus("Import", 1);
+        taskThread.start();
+
+        return "Sending Students";
+
+
+        
+
+
 
     }
+
+
+    private void doSendAllSisDataForDistrict (int districId) {
+
+        LocalDateTime startDateTime = LocalDateTime.now();
+         List<String> studentIds = importRepo.studentIdsForDistrict (districId);
+
+        int count = 0;
+        // nwo we can call
+        for (String studentId : studentIds) {
+
+            System.out.println(studentId);
+
+            boscoApi.postSisDataToBosco(studentId);
+            count++;
+        }
+
+
+
+            LocalDateTime endDateTime = LocalDateTime.now();
+    
+            Duration duration = Duration.between(startDateTime, endDateTime);
+
+
+        System.out.println("DONE : Sent " + count + "  Took " + duration.toMinutes() + " Minutes");
+
+    }
+
 
     @Operation(
         summary = "This will send the Sis Data to bosco-web",
@@ -252,25 +317,25 @@ public class ImportApi {
     @GetMapping("/import/sendAllSisDataForDistrict/{id}")
     public String sendAllSisDataForDistrict(@PathVariable int id) {
 
+
         
-        int baseImportId = importRepo.getBaseImportForDistrict(id);
+         Thread taskThread = new Thread(() -> {
+               
+                doSendAllSisDataForDistrict(id);
+            });
 
-        List<String> studentNumbers = importRepo.studentNumbersForImport (baseImportId);
 
-        int count = 0;
-        // nwo we can call
-        for (String studentNumber : studentNumbers) {
-            String studentId = id + "." + studentNumber;
+            ImportHelper.importRunning = true;
+            //importRepo.setSystemStatus("Import", 1);
+            taskThread.start();
 
-            System.out.println(studentId);
+            return "Sending Sis data to bosco";
 
-            boscoApi.postSisDataToBosco(studentId);
-            count++;
-        }
+        
 
-        System.out.println("DONE : Sent " + count);
+       
 
-        return "OK";
+        
     }
 
 
@@ -346,21 +411,7 @@ public class ImportApi {
         return "Ok";
     }
     
-    @Operation(
-        summary = "Check Import difs testing",
-        description = "This will be the check for % changes",
-        tags = {"Import Testing"}
-        )
-    @GetMapping("/import/testChanges/{importId}/{baseImportId}")
-    public String runImportNow(@PathVariable int importId, @PathVariable int baseImportId) {
-        
-        ImportChanges ic = importRepo.importChangesFromBase(importId, baseImportId);
-
-        
-
-        return "Base Count: " + ic.baseStudentCount + " St Count: " + ic.importStudentCount + " Changed: " + ic.importStudentChanged;
-
-    }
+   
 
 
     @Operation(
@@ -466,42 +517,42 @@ public class ImportApi {
 
     
     
-     @Operation(
-            summary = "Just testing running a thread",
-            description = "This will be removed soon.",
-            tags = {"Testing"}
-            )
+    //  @Operation(
+    //         summary = "Just testing running a thread",
+    //         description = "This will be removed soon.",
+    //         tags = {"Testing"}
+    //         )
 
-    @GetMapping("/import/runTaskTEST")
-    public String runTask() {
-         Thread taskThread = new Thread(() -> {
-            System.out.println("Starting manual task...");
-            try {
-                Thread.sleep(14000);
-                System.out.println("Manual task finished.");
-                ImportHelper.importRunning = false;
-                //importRepo.setSystemStatus("Import", 0);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.out.println("Manual task was interrupted.");
-                ImportHelper.importRunning = false;
+    // @GetMapping("/import/runTaskTEST")
+    // public String runTask() {
+    //      Thread taskThread = new Thread(() -> {
+    //         System.out.println("Starting manual task...");
+    //         try {
+    //             Thread.sleep(14000);
+    //             System.out.println("Manual task finished.");
+    //             ImportHelper.importRunning = false;
+    //             //importRepo.setSystemStatus("Import", 0);
+    //         } catch (InterruptedException e) {
+    //             Thread.currentThread().interrupt();
+    //             System.out.println("Manual task was interrupted.");
+    //             ImportHelper.importRunning = false;
 
-                //importRepo.setSystemStatus("Import", 0);
+    //             //importRepo.setSystemStatus("Import", 0);
 
-            }
-        });
+    //         }
+    //     });
 
-        if (ImportHelper.importRunning) {
-            return "Imports are running -- bail";
+    //     if (ImportHelper.importRunning) {
+    //         return "Imports are running -- bail";
 
-        }
-        else {
-            ImportHelper.importRunning = true;
-            taskThread.start();
-            return "Started Task";
+    //     }
+    //     else {
+    //         ImportHelper.importRunning = true;
+    //         taskThread.start();
+    //         return "Started Task";
 
 
-        }
+    //     }
 
         // int status = importRepo.getSystemStatus("Import");
         // if (status > 0) {
@@ -515,20 +566,20 @@ public class ImportApi {
         //     taskThread.start();
         //     return "Task started";
         // }
-    }
+    // }
 
 
-      @Operation(
-            summary = "Just testing sending an email",
-            description = "This will be removed soon.",
-            tags = {"Testing"}
-            )
+    //   @Operation(
+    //         summary = "Just testing sending an email",
+    //         description = "This will be removed soon.",
+    //         tags = {"Testing"}
+    //         )
 
-      @GetMapping("/import/testEmail")
-    public String getMethodName() {
-        emailService.sendSimpleMessage("benlevy3@gmail.com", "Tesing the email in bosco-stdata with props", "This is the email we are sending with props");
-        return "Sent";
-    }
+    //   @GetMapping("/import/testEmail")
+    // public String getMethodName() {
+    //     emailService.sendSimpleMessage("benlevy3@gmail.com", "Tesing the email in bosco-stdata with props", "This is the email we are sending with props");
+    //     return "Sent";
+    // }
     
 
     
