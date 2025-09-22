@@ -125,19 +125,7 @@ public class ImportRepo {
     }
 
 
-    public void importSystemStartup () {
-        // Object[] args = {
-        //     importId,
-        //     baseImportId
-        // };
-
-
-        String sql = "call import_system_startup ()";
-
-        int rows = template.update(sql);
-
-
-    }
+    
 
     //#endregion
 
@@ -468,34 +456,10 @@ public class ImportRepo {
     //#region TESTS
 
 
-    public void sisPrepData () {
-        
-        
-        Object[] args = {
-            districtId
-        };
-
-        String sql = "call prep_sis_data (?)";
-
-        int rows = template.update(sql, args);
+    // This shoudl be replaced by the new prep_import
+   
 
 
-    }
-
-
-     public void sisPostData () {
-        
-        
-        Object[] args = {
-            districtId
-        };
-
-        String sql = "call post_sis_data (?)";
-
-        int rows = template.update(sql, args);
-
-
-    }
 
 
     public void sisGradeAdd (String studentNumber, String schoolYear, String period, String code, String subject, int score, String csaCode) {
@@ -657,60 +621,36 @@ public class ImportRepo {
     //#region Import
 
     
-     public void prepImport(int districtId, String log) {
-
-         Object[] args = {
-            districtId,
-            log
-
-        };
-
-        String sql = "call prep_import(?, ?)";
-
-        this.districtId = districtId;
-
-        int rows = template.update(sql, args);
-    }
+    
 
 
-    public void prepSisImport(int districtId, String log) {
-        // 
 
-         Object[] args = {
-            districtId,
-            log
+    public int prepImport (int districtId, String importDefinitionId, Boolean isRoster, Boolean isSisData, String log) {
 
-        };
-
-        String sql = """
-
-            insert into 
-		        log_import (districtId, log)
-	            values (?, ?);
-                """;
-        
-
-        this.districtId = districtId;
-
-        int rows = template.update(sql, args);
-
-    }
-
-    public int REMOVE_prepImport(int districtId, String log) {
         List<SqlParameter> params = Arrays.asList(
             new SqlParameter("p_districtId", Types.INTEGER),
+            new SqlParameter("p_importDefinitionId", Types.VARCHAR),
+            new SqlParameter("p_isRoster", Types.BOOLEAN),
+            new SqlParameter("p_isSisData", Types.BOOLEAN),
             new SqlParameter("p_log", Types.VARCHAR),
-            new SqlOutParameter("p_importId", Types.INTEGER) // Example for an OUT parameter
+            new SqlOutParameter("p_importId", Types.INTEGER) 
         );
 
         Map<String, Object> res = template.call(
             new CallableStatementCreator() {
                 @Override
                 public CallableStatement createCallableStatement(Connection con) throws SQLException {
-                    CallableStatement cs = con.prepareCall("{call bu_prep_import(?, ?, ?)}");
+                    CallableStatement cs = con.prepareCall("{call prep_import(?, ?, ?, ?, ?, ?)}");
                     cs.setInt(1, districtId);
-                    cs.setString(2, log);
-                    cs.registerOutParameter(3, Types.INTEGER); // Register OUT parameter
+                    cs.setString(2, importDefinitionId);
+                    // cs.setInt(3, iIsRoster);
+                    // cs.setInt(4, iIsSis);
+
+                    cs.setBoolean(3, isRoster);
+                    cs.setBoolean(4, isSisData);
+
+                    cs.setString(5, log);
+                    cs.registerOutParameter(6, Types.INTEGER); // Register OUT parameter
                     return cs;
                 }
             },
@@ -724,20 +664,41 @@ public class ImportRepo {
         this.districtId = districtId;
 
         return this.importId;
+
     }
 
-    public void setAllNewImports() {
-
-         Object[] args = {
-            importId
-
+    public void prepSendBosco (int districtId, String importDefinitionId, Boolean isRoster, Boolean isSisData) {
+        Object[] args = {
+            districtId,
+            importDefinitionId,
+            isRoster,
+            isSisData
         };
 
-        String sql = "call set_all_new_imports(?)";
+        String sql = "call prep_send_bosco (?, ?, ?, ?)";
 
         int rows = template.update(sql, args);
     }
 
+    public void postSendBosco (int districtId, String importDefinitionId, Boolean isRoster, Boolean isSisData) {
+           Object[] args = {
+            districtId,
+            importDefinitionId,
+            isRoster,
+            isSisData
+        };
+
+        String sql = "call post_sent_bosco (?, ?, ?, ?)";
+
+        int rows = template.update(sql, args);
+
+    }
+
+
+
+
+
+  
 
 
     
@@ -934,18 +895,7 @@ public class ImportRepo {
         return impDef;
     }
 
-    public int getBaseImportForDistrict(int districtId) {
-        String sql = "select baseImportId from import_definition where districtId = ? and isStudentSource=1;";
-
-
-        int baseImportId = template.queryForObject(
-                sql, 
-                Integer.class, 
-                districtId);
-
-        return baseImportId;
-
-    }
+   
 
     public List<ImportSetting> getImportSettings(String importDefId) {
          String sql = "select * from import_setting where importDefId = '" + importDefId + "';";
@@ -1080,34 +1030,7 @@ public class ImportRepo {
     }
     
 
-    public List<Teacher> REMOVE_teacherBoscoGetForExport(int forImportId, int changedFlag) {
-          Object[] args = {
-            forImportId,
-            changedFlag
-        };
-
-        String sql = """
-             select
-                concat (concat (i.districtId, '.') , t.teacherId) as id,
-                t.firstName,
-                t.lastName,
-                LOWER(t.email) as email,
-                'TEACHER' as role,
-                i.districtId as organizationId,
-                t.teacherId as userId
-            from
-                teacher t
-                join import i on i.id = t.importId
-            where
-                t.importId = ?
-                and t.changed = ?;
-                """; 
-
-
-        return template.query(sql, new BeanPropertyRowMapper<Teacher>(Teacher.class), args);
-    }
-    
-
+ 
     
     public List<Student> studentsBoscoForExport(int districtId, String importStatus) {
 
@@ -1171,63 +1094,6 @@ public class ImportRepo {
 
     
 
-    public List<Student> REMOVE_studentsBoscoForExport(int forImportId, int changedFlag) {
-
-        // 1 is changed
-        // 2 is new.
-
-
-
-        Object[] args = {
-            forImportId,
-            changedFlag
-        };
-
-        String sql = """
-                select 	                    
-                    concat (concat (i.districtId, '.') , s.studentNumber) as id,
-                    s.firstName,
-                    s.lastName,
-                    s.dob,
-                    s.gender,
-                    s.studentNumber as studentId,
-                    school.name as school,                    
-                    ms.ncesSchoolId as schoolId,
-                    i.districtId,
-                    s.grade,
-                    s.americanIndianOrAlaskaNative,
-                    s.asian,
-                    s.blackOrAfricanAmerican,
-                    s.nativeHawaiianOrOtherPacificIslander,
-                    s.white,
-                    s.hispanicOrLatinoEthnicity,
-                    s.isEsl,
-                    s.is504,
-                    s.isBilingual,
-                    s.isSpecialEd,
-                    s.entryIepDate
-
-                from 
-                    student s 
-                    join import i on i.id = s.importId
-                    join school school on school.importId = s.importId and school.sourceId = s.schoolSourceId
-                    join map_school_code_nces_school_id ms on ms.districtId = i.districtId and ms.schoolCode = school.schoolCode
-                where 
-                    s.importId = ? 
-                    and s.changed = ?;
-                """; //.formatted(districtId, districtId, importId, changedFlag);
-
-
-        return template.query(sql, new BeanPropertyRowMapper<Student>(Student.class), args);
-
-        // System.out.println(sql);
-            
-        //     List<BoscoStudent> students = template.query(
-        //         sql,
-        //         new BeanPropertyRowMapper(BoscoStudent.class));
-
-        // return students;
-    }
 
 
 
@@ -1252,7 +1118,7 @@ public Student studentBoscoForExport (String id) {
                     s.studentNumber as studentId,
                     school.name as school,
                     ms.ncesSchoolId as schoolId,
-                    i.districtId,
+                    s.districtId,
                     s.grade,
                     s.americanIndianOrAlaskaNative,
                     s.asian,
@@ -1268,7 +1134,7 @@ public Student studentBoscoForExport (String id) {
                 from 
                     student s 
                     join school school on school.districtId = s.districtId and school.sourceId = s.schoolSourceId
-                    join map_school_code_nces_school_id ms on ms.districtId = i.districtId and ms.schoolCode = school.schoolCode
+                    join map_school_code_nces_school_id ms on ms.districtId = s.districtId and ms.schoolCode = school.schoolCode
                 where 
                     s.id = ? 
                 """; //.formatted(districtId, districtId, importId, changedFlag);
@@ -1295,72 +1161,7 @@ public Student studentBoscoForExport (String id) {
     }
 
     // single student
-    public Student REMOVE_studentBoscoForExport (int forImportId, String studentNumber) {
-
-        // 1 is changed
-        // 2 is new.
-
-
-
-        Object[] args = {
-            forImportId,
-            studentNumber
-        };
-
-        String sql = """
-                select 	                    
-                    concat (concat (i.districtId, '.') , s.studentNumber) as id,
-                    s.firstName,
-                    s.lastName,
-                    s.dob,
-                    s.gender,
-                    s.studentNumber as studentId,
-                    school.name as school,
-                    ms.ncesSchoolId as schoolId,
-                    i.districtId,
-                    s.grade,
-                    s.americanIndianOrAlaskaNative,
-                    s.asian,
-                    s.blackOrAfricanAmerican,
-                    s.nativeHawaiianOrOtherPacificIslander,
-                    s.white,
-                    s.hispanicOrLatinoEthnicity,
-                    s.isEsl,
-                    s.is504,
-                    s.isBilingual,
-                    s.isSpecialEd,
-                    s.entryIepDate
-                from 
-                    student s 
-                    join import i on i.id = s.importId
-                    join school school on school.importId = s.importId and school.sourceId = s.schoolSourceId
-                    join map_school_code_nces_school_id ms on ms.districtId = i.districtId and ms.schoolCode = school.schoolCode
-                where 
-                    s.importId = ? 
-                    and s.studentNumber = ?;
-                """; //.formatted(districtId, districtId, importId, changedFlag);
-
-
-
-            Student bst = template.queryForObject(
-                sql,
-                new BeanPropertyRowMapper<>(Student.class),
-                args
-                );
-
-        return bst;
-
-        //return template.query(sql, new BeanPropertyRowMapper<BoscoStudent>(BoscoStudent.class), args);
-
-        // System.out.println(sql);
-            
-        //     List<BoscoStudent> students = template.query(
-        //         sql,
-        //         new BeanPropertyRowMapper(BoscoStudent.class));
-
-        // return students;
-    }
-
+   
   
 
 
@@ -1402,39 +1203,7 @@ public Student studentBoscoForExport (String id) {
     }
 
     
-    public List<Guardian> REMOVE_guardiansBoscoForStudent(int forImportId, String studentNumber) {
-
-        Object[] args = {
-            
-            forImportId,
-            studentNumber
-        };
-
-        String sql = """
-                select
-                    g.firstName,
-                    g.lastName,
-                    g.type,
-                    LOWER(g.email) as email
-                from
-                    student s
-                    join guardian g on g.importId = s.importId and g.studentSourceId = s.sourceId
-                where
-                    s.importId = ?
-                    and s.studentNumber = ?;
-                """;
-
-
-        //return template.queryForList(sql, BoscoGuardian.class, args);
-
-        return template.query(sql, new BeanPropertyRowMapper<Guardian>(Guardian.class), args);
-
-        // List<BoscoGuardian> guardians = template.query(
-        //     sql,
-        //     new BeanPropertyRowMapper(BoscoGuardian.class));
-        // return guardians;
-
-    }
+    
 
     public List<String> teacherIdsBoscoForStudent(String id) {
 
@@ -1442,7 +1211,6 @@ public Student studentBoscoForExport (String id) {
 
         Object[] args = {
             
-            districtId,
             id
         };
 
@@ -1453,8 +1221,7 @@ public Student studentBoscoForExport (String id) {
             from
                 student_teacher
             where
-                districtId = ?
-                and studentId = ?
+                studentId = ?
             """; 
 
 
@@ -1473,115 +1240,10 @@ public Student studentBoscoForExport (String id) {
     }
 
 
-    public List<String> studentIdsDeletedFromImport(int forImportId, int baseImportId) {
-
-      
-
-        Object[] args = {
-            baseImportId,
-            forImportId
-
-        };
-
-
-        String sql = """
-
-           select
-                concat (concat (i.districtId, '.') , bs.studentNumber) as id
-            from
-                student bs
-                join import i on i.id = bs.importId
-            where
-                bs.importId = ?
-                and bs.sourceId not in (
-                    select
-                        s.sourceId
-                    from
-                        student s
-                    where
-                        s.importId = ?
-                
-                );
-            """; 
-
-
-        return template.queryForList(sql, String.class, args);
-
-
-
-        
-
-    }
+   
 
     
-    public List<String> teacherIdsDeletedFromImport(int forImportId, int baseImportId) {
-
-      
-
-        Object[] args = {
-            baseImportId,
-            forImportId
-
-        };
-
-
-        String sql = """
-
-            select
-                concat (concat (i.districtId, '.') , bt.teacherId) as id
-            from
-                teacher bt
-                join import i on i.id = bt.importId
-            where
-                bt.importId = ?
-                and bt.sourceId not in (
-                    select
-                        t.sourceId
-                    from
-                        teacher t
-                    where
-                        t.importId = ?
-                
-                );
-            """; 
-
-
-        return template.queryForList(sql, String.class, args);
-
-
-
-        
-
-    }
-
-
-
-
-    public List<String> schoolIdsDeletedFromImport(int forImportId, int baseImportId) {
-
-       // this needs to be sorted out!
-
-        Object[] args = {
-            baseImportId,
-            forImportId
-
-        };
-
-
-        String sql = """
-
-          
-            """; 
-
-
-        return template.queryForList(sql, String.class, args);
-
-
-
-        
-
-    }
-
+    
 
    
     
@@ -1607,17 +1269,7 @@ public Student studentBoscoForExport (String id) {
 
     }        
 
-    public void postImport() {
-        Object[] args = {
-            districtId
-        };
-
-
-        String sql = "call post_import (?)";
-
-        int rows = template.update(sql, args);
-
-    }
+    
 
 
     // this is used if the imports have the direct relationship.
@@ -1716,45 +1368,7 @@ public Student studentBoscoForExport (String id) {
 
 
 
-      public void REMOVE_saveStudent(String sourceId, String studentId, String firstName, String lastName, String grade, String schoolSourceId) {
-    // String sourceId, String studentId, String firstName, String lastName, String grade, String schoolCode    
-
-        Object[] args = {
-            importId,
-            sourceId,
-            studentId,
-            firstName,
-            lastName,
-            grade,
-            schoolSourceId,
-
-            studentId,
-            firstName,
-            lastName,
-            grade,
-            schoolSourceId
-        };
-
-
-        String sql = """
-                
-                insert into
-                    student (importId, sourceId, studentNumber, firstName, lastName, grade, schoolSourceId)
-                values (?, ?, ?, ?, ?, ?, ?)
-                on duplicate key update
-                    studentNumber = ?,
-                    firstName = ?,
-                    lastName = ?,
-                    grade = ?,
-                    schoolSourceId = ?;
-
-                """;
-
-        int rows = template.update(sql, args);
-
-        //System.out.println(rows + " rows affected");
-        
-    }
+      
 
 
     public void saveStudentProperty (String studentNumber, String dbFieldName, String value) {
@@ -1836,67 +1450,10 @@ public Student studentBoscoForExport (String id) {
 
 
 
-    public void REMOVE_saveStudentDemographics ( 
-            String sourceId, 
-            String dob, 
-            String gender, 
-            Boolean americanIndianOrAlaskaNative, 
-            Boolean asian,
-            Boolean blackOrAfricanAmerican, 
-            Boolean nativeHawaiianOrOtherPacificIslander, 
-            Boolean white,
-            Boolean hispanicOrLatinoEthnicity,
-            Boolean isEsl,
-            Boolean is504,
-            Boolean isBilingual) {
+    
+
 
        
-
-
-         Object[] args = {
-
-            dob,
-            gender,
-            americanIndianOrAlaskaNative,
-            asian,
-            blackOrAfricanAmerican,
-            nativeHawaiianOrOtherPacificIslander,
-            white,
-            hispanicOrLatinoEthnicity,
-            isEsl,
-            is504,
-            isBilingual,
-            importId,
-            sourceId
-
-        };
-
-
-        //String sql = "call student_demographics_update (?,?,?,?,?,?,?,?,?,?)";
-
-        String sql = """
-                update
-                    student
-                set
-                    dob = ?,
-                    gender =  ?,
-                    americanIndianOrAlaskaNative = ?,
-                    asian = ?,
-                    blackOrAfricanAmerican = ?,
-                    nativeHawaiianOrOtherPacificIslander = ?,
-                    white = ?,
-                    hispanicOrLatinoEthnicity = ?,
-                    isEsl = ?,
-                    is504 = ?,
-                    isBilingual = ?
-                where
-                    importId = ?
-                    and sourceId = ?;
-                """;
-
-        int rows = template.update(sql, args);
-    }
-
 
      
 
@@ -1991,48 +1548,7 @@ public Student studentBoscoForExport (String id) {
     }
 
 
-    public void REMOVE_saveGuardian(String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type) {
-        // System.out.println("Added");
-
- 
-        Object[] args = {
-            importId,
-            sourceId,
-            studentId,
-            guardianId,
-            firstName,
-            lastName,
-            email,
-            type,
-
-            guardianId,
-            firstName,
-            lastName,
-            studentId,
-            email,
-            type
-            };
-        
-
-        String sql = """
-                insert into
-                    guardian (importId, sourceId, studentSourceId, guardianId, firstName, lastName, email, type)
-                values (?, ?, ?, ?, ?, ?, ?, ?)
-                on duplicate key update
-                    guardianId = ?,
-                    firstName = ?,
-                    lastName = ?,
-                    studentSourceId = ?,
-                    email = ?,
-                    type = ?;
-                """;
-
-        int rows = template.update(sql, args);
-
-
-        //System.out.println(rows + " rows affected");
-        
-    }
+    
 
 
     
@@ -2076,41 +1592,7 @@ public Student studentBoscoForExport (String id) {
 
 
     
-    public void REMOVE_saveTeacher(String sourceid, String teacherId, String firstname, String lastname, String email) {
-        // System.out.println("Added");
-
-       Object[] args = {
-            importId,
-            sourceid,
-            teacherId,
-            firstname,
-            lastname,
-            email,
-
-            teacherId,
-            firstname,
-            lastname,
-            email
-
-
-        };
-        
-
-        String sql = """
-            insert into
-                teacher (importId, sourceId, teacherId, firstName, lastName, email)
-            values (?, ?, ?, ?, ?, ?)
-            on duplicate key update
-                teacherId = ?,
-                firstName = ?,
-                lastName = ?,
-                email = ?;
-                """;
-
-        int rows = template.update(sql, args);
-
-        
-    }
+    
 
   
 

@@ -82,7 +82,6 @@ public class SkywardOneRosterApi {
         try {
             ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            //int baseImportId = importDef.getBaseImportId();
 
             Boolean setNoEmails = importDef.getSetNoEmails();
 
@@ -179,12 +178,15 @@ public class SkywardOneRosterApi {
 
     public static ImportResult Import(String importDefId) {
 
+        Boolean isRoster = true;
+        Boolean isSisData = false;
+
+
         ImportResult result = new ImportResult();
 
         try {
             ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            //int baseImportId = importDef.getBaseImportId();
 
             Boolean setNoEmails = importDef.getSetNoEmails();
 
@@ -204,11 +206,10 @@ public class SkywardOneRosterApi {
             LocalDateTime startDateTime = LocalDateTime.now();
 
             
-            i.importRepo.prepImport(districtId, "Import for " + importDefId);
+            int importId = i.importRepo.prepImport(districtId, importDefId, isRoster, isSisData,  "SkywardOneRosterApi ");
             
-            result.importId = 0;
+            result.importId = importId;
             result.districtId = districtId;
-            result.baseImportId = 0;
 
             i.importRepo.logInfo("OneRoster API import : " + importDefId);
 
@@ -809,8 +810,9 @@ public class SkywardOneRosterApi {
             //i.importRepo.setImportBase(importDefId);
 
 
+            i.importRepo.prepSendBosco(districtId, importDefId, isRoster, isSisData);
 
-            i.importRepo.postImport();
+            
             LocalDateTime endDateTime = LocalDateTime.now();
     
             Duration duration = Duration.between(startDateTime, endDateTime);
@@ -824,6 +826,8 @@ public class SkywardOneRosterApi {
 
             
             i.boscoApi.sendImportToBosco(districtId);
+
+            i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
 
             result.success = true;
 

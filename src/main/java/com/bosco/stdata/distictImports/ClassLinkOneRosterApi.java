@@ -52,13 +52,18 @@ public class ClassLinkOneRosterApi {
     }
 
     public static ImportResult Import(String importDefId) {
+
+
+        Boolean isRoster = true;
+        Boolean isSisData = false;
+ 
+
         ImportResult result = new ImportResult();
 
         try 
         {
             ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            //int baseImportId = importDef.getBaseImportId();
 
 
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
@@ -76,6 +81,9 @@ public class ClassLinkOneRosterApi {
              apiBase =  ImportHelper.ValueForSetting(importSettings, "apiBase");
 
 
+             int importId = i.importRepo.prepImport(districtId, importDefId, isRoster, isSisData,  "ClassLinkOneRosterApi");
+
+
         //    clientId = "2b6652400a043b8a3eae0c08";
          //   clientSecret = "ab6fae43e09784fc3549df25";
 
@@ -84,11 +92,10 @@ public class ClassLinkOneRosterApi {
 
             LocalDateTime startDateTime = LocalDateTime.now();
 
-            i.importRepo.prepImport(districtId, "Import for " + importDefId);
             
-            result.importId = 0;
+            
+            result.importId = importId;
             result.districtId = districtId;
-            result.baseImportId = 0;
 
             i.importRepo.logInfo("OneRoster API import : " + importDefId);
 
@@ -561,8 +568,7 @@ public class ClassLinkOneRosterApi {
 
             i.importRepo.buildStudentTeacher();
 
-            
-            //i.importRepo.diffImports(baseImportId);
+         
 
             // validation on the data.
             // check number of diffs vs the cutoff.
@@ -573,7 +579,7 @@ public class ClassLinkOneRosterApi {
 
 
             
-            i.importRepo.postImport();
+            i.importRepo.prepSendBosco(districtId, importDefId, isRoster, isSisData);
 
 
             LocalDateTime endDateTime = LocalDateTime.now();
@@ -588,6 +594,8 @@ public class ClassLinkOneRosterApi {
             //System.out.println ("Import ID is: " + importId);
 
             i.boscoApi.sendImportToBosco(districtId);
+
+            i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
 
             result.success = true;
 

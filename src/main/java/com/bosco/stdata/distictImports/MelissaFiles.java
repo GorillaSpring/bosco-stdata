@@ -38,6 +38,9 @@ private static MelissaFiles i;  // instance
 
     public static ImportResult Import(String importDefId) {
 
+        Boolean isRoster = true;
+        Boolean isSisData = false;
+
         ImportResult result = new ImportResult();
         
 
@@ -45,7 +48,6 @@ private static MelissaFiles i;  // instance
 
             ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            //int baseImportId = importDef.getBaseImportId();
 
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
 
@@ -53,19 +55,16 @@ private static MelissaFiles i;  // instance
 
             Boolean setNoEmails = importDef.getSetNoEmails();
 
-            i.importRepo.prepImport(districtId, "Import for " + importDefId);
-
-            result.importId = 0;
-            result.districtId = districtId;
-            result.baseImportId = 0;
             
 		    //String baseFileFolder = "C:/test/uplift/" + subFolder + "/";
             String baseFileFolder = ImportHelper.ValueForSetting(importSettings, "baseFolder");
 
             String archiveFolder =  ImportHelper.ValueForSetting(importSettings, "archiveFolder");
 
-
-
+            int importId = i.importRepo.prepImport(districtId, importDefId, isRoster, isSisData,  "Melissa Roster Files " + baseFileFolder);
+            result.importId = importId;
+            result.districtId = districtId;
+            
 
             
             // NO DATA"
@@ -489,7 +488,7 @@ private static MelissaFiles i;  // instance
             // // this will mark the importId as the base.
             // i.importRepo.setImportBase(importDefId);
 
-            i.importRepo.postImport();
+            i.importRepo.prepSendBosco(districtId, importDefId, isRoster, isSisData);
         
             LocalDateTime endDateTime = LocalDateTime.now();
     
@@ -505,6 +504,8 @@ private static MelissaFiles i;  // instance
 
 
             i.boscoApi.sendImportToBosco(districtId);
+
+            i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
 
             result.success = true;
 

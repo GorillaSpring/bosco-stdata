@@ -40,38 +40,59 @@ public class MelissaSisFiles {
 
 
     public static ImportResult Import(String importDefId) {
+
+        Boolean isRoster = false;
+        Boolean isSisData = true;
+
         ImportResult result = new ImportResult();
 
 
         try {
             ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            int baseImportId = importDef.getBaseImportId();
 
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
 
             int districtId = importDef.getDistrictId();
 
-            result.importId = 0;
-            result.districtId = districtId;
-            result.baseImportId = baseImportId;
+
             
             //String baseFileFolder = "C:/test/uplift/" + subFolder + "/";
             String baseFileFolder = ImportHelper.ValueForSetting(importSettings, "baseFolder");
 
             String archiveFolder =  ImportHelper.ValueForSetting(importSettings, "archiveFolder");
 
+            int importId = i.importRepo.prepImport(districtId, importDefId, isRoster,isSisData,  "Melissa Sis files " + baseFileFolder);
 
-            i.importRepo.prepSisImport(districtId, "Sis File Loading " + baseFileFolder);
+
+            result.importId = importId;
+            result.districtId = districtId;
+
+
+            // so just to test a reload.  There should be NO new data... everthing should be OK still.
+            // these should all be 
+             // 2023
+            TeaFiles.LoadStar(districtId, baseFileFolder + "2022/SF_0523_3-8_043908_MELISSA ISD_V01.txt");
+            TeaFiles.LoadStar(districtId, baseFileFolder + "2022/SF_0423_3-8ALT_043908_MELISSA ISD_V01.txt");
+
+            
+            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2022/SF_1323_EOC_043908_MELISSA ISD_V01.txt");
+
+            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2022/SF_1523_EOC_043908_MELISSA ISD_V01_August5 file.txt");
+            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2022/SF_1523_EOCALT_043908_MELISSA ISD_V01.txt");
+
+            // //  ** Loaded 0 students!
+            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2022/SP_1623_EOC_043908_MELISSA ISD_V01.txt");
+
 
 
             // Checking mclass
               //This mClass files.
             //2022_2023_2024_2025 mClass
-            CsvFiles.LoadDibels8(districtId, baseFileFolder + "2022_2023_2024_2025 mClass/dibels8_BM_2021-2022_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-56-59.csv", false);
-            CsvFiles.LoadDibels8(districtId, baseFileFolder + "2022_2023_2024_2025 mClass/dibels8_BM_2022-2023_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-57-46.csv", false);
-            CsvFiles.LoadDibels8(districtId, baseFileFolder + "2022_2023_2024_2025 mClass/dibels8_BM_2023-2024_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-58-45.csv", false);
-            CsvFiles.LoadDibels8(districtId, baseFileFolder + "2022_2023_2024_2025 mClass/dibels8_BM_2024-2025_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-59-22.csv", false);
+            // CsvFiles.LoadDibels8(districtId, baseFileFolder + "2022_2023_2024_2025 mClass/dibels8_BM_2021-2022_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-56-59.csv", false);
+            // CsvFiles.LoadDibels8(districtId, baseFileFolder + "2022_2023_2024_2025 mClass/dibels8_BM_2022-2023_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-57-46.csv", false);
+            // CsvFiles.LoadDibels8(districtId, baseFileFolder + "2022_2023_2024_2025 mClass/dibels8_BM_2023-2024_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-58-45.csv", false);
+            // CsvFiles.LoadDibels8(districtId, baseFileFolder + "2022_2023_2024_2025 mClass/dibels8_BM_2024-2025_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-59-22.csv", false);
 
 
 /*
@@ -160,6 +181,16 @@ public class MelissaSisFiles {
 */
 
             
+            // so we don't send anyting to bosco for sis
+            // however, we do need to cal it.
+
+
+              // this is NOT necessary for SIS only.
+            i.importRepo.prepSendBosco(districtId, importDefId, isRoster, isSisData);
+
+            // This will mark students that need to have sis data sent.
+            i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
+
 
             result.success = true;
             System.out.println("DONE MelissaSisFiles.Import");

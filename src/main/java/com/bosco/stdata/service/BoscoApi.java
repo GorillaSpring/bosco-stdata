@@ -181,7 +181,6 @@ public class BoscoApi {
         String [] params = id.split("\\.");
         int districId = Integer.parseInt(params[0]);
 
-        int importId = importRepo.getBaseImportForDistrict(districId);
 
 
 
@@ -206,35 +205,41 @@ public class BoscoApi {
     public String putStudentToBosco (String id) {
 
 
-        return "TO FIX";
 
-        // String token = authBosco();
+//   boscoClient.putStudent(baseUrl + "students/upsert/{id}", token, bs);
+
+        //return "TO FIX";
+
+        String token = authBosco();
         
-        // String postUrl = baseUrl + "students/{id}";
+        //String postUrl = baseUrl + "students/{id}";
 
-        //     System.out.println("Param: " + id);
-        // // id will be 66.838101615
-        // String [] params = id.split("\\.");
-        // int districId = Integer.parseInt(params[0]);
+        String postUrl = baseUrl + "students/upsert/{id}";
 
-        // int importId = importRepo.getBaseImportForDistrict(districId);
+            System.out.println("Param: " + id);
+        // id will be 66.838101615
+        String [] params = id.split("\\.");
+        int districId = Integer.parseInt(params[0]);
+
+        //int importId = importRepo.getBaseImportForDistrict(districId);
 
 
 
-        // Student bs = importRepo.studentBoscoForExport(importId, params[1]);
 
-        // bs.setGuardians(importRepo.REMOVE_guardiansBoscoForStudent(importId, bs.getStudentId()));
-        // bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(importId, bs.getStudentId()));
+        Student bs = importRepo.studentBoscoForExport(id);
 
-        // String res;
-        // try {
-        //     res = boscoClient.putStudent(postUrl, token, bs);
-        // } catch (Exception e) {
-        //     // TODO Auto-generated catch block
-        //     res = e.getMessage();
-        // }
+        bs.setGuardians(importRepo.guardiansBoscoForStudent(id));
+        bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(id));
 
-        // return res;
+        String res;
+        try {
+            res = boscoClient.putStudent(postUrl, token, bs);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            res = e.getMessage();
+        }
+
+        return res;
     }
 
     public String deleteStudentToBosco (String id) {
@@ -301,175 +306,7 @@ public class BoscoApi {
     }
 
 
-    public Boolean REMOVE_sendImportToBosco (int importId, int baseImportId) throws Exception {
-
-
-        // for logging if run from api
-
-        importRepo.setImportId(importId);
-        
-        
-
-        String token = authBosco();
-
-        // for now we just write to a file
-        String dateFolder = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss"));
-
-        String outFileName = "c:/test/importLog/bosco_sync" + dateFolder + ".txt";
-
-        System.out.println("Generating log file : " + outFileName);
-
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-
-
-        // if there are any new or changed schools, we will simply send an email.
-
-        String newSchools = "<ul>";
-        Boolean areNewSchools = false;
-
-        int newStudents = 0;
-        int changedStudents = 0;
-        int deletedStudents = 0;
-        int newTeachers = 0;
-        int changedTeachers = 0;
-        int deletedTeachers = 0;
-
-
-
-
-
-                   // this will send all the imported stuff to bosco
-
-            List<School> schools = importRepo.schoolsBoscoForExport(importId, 2);
-            for (School bs : schools) {
-                areNewSchools = true;
-                newSchools += "<li> NEW: " + bs.getSchoolCode() + " - " + bs.getName() + "</li>\n";
-
-                importRepo.logInfo("There is a new shool: " + bs.getSchoolCode() + " - " + bs.getName());
-            }
-
-            schools = importRepo.schoolsBoscoForExport(importId, 1);
-            for (School bs : schools) {
-                areNewSchools = true;
-                newSchools += "<li> CHANGED: " + bs.getSchoolCode() + " - " + bs.getName() + "</li>\n";
-
-
-                importRepo.logInfo("There is a changed shool: " + bs.getSchoolCode() + " - " + bs.getName());
-            }
-
-
-            System.out.println("------------ NEW TEACHERS ----------------\n");
-
-            List<Teacher> teachers = importRepo.REMOVE_teacherBoscoGetForExport(importId, 2);
-            for (Teacher bu : teachers) {
-
-                newTeachers++;
-                boscoClient.postTeacher(baseUrl + "users", token, bu);
-            }
-
-            System.out.println("------------ CHANGED TEACHERS ----------------\n");
-            teachers = importRepo.REMOVE_teacherBoscoGetForExport(importId, 1);
-            for (Teacher bu : teachers) {
-
-                changedTeachers++;
-                //boscoClient.putTeacher(baseUrl + "users/{id}", token, bu);
-                boscoClient.putTeacher(baseUrl + "users/updateInfo/{id}", token, bu);
-            }
-            
-
-            System.out.println("------------ NEW STUDENTS ----------------\n");
-            List<Student> bss = importRepo.REMOVE_studentsBoscoForExport(importId, 2);
-
-            for (Student bs : bss) {
-
-                
-                bs.setGuardians(importRepo.REMOVE_guardiansBoscoForStudent(importId, bs.getStudentId()));
-                //bs.setTeacherIds(importRepo.REMOVE_teacherIdsBoscoForStudent(importId, bs.getStudentId()));
-
-                // make this pretty json and log.
-
-                newStudents++;
-                boscoClient.postStudent(baseUrl + "students", token, bs);
-
-
-            }
-
-
-            System.out.println("------------ CHANGED STUDENTS ----------------\n");
-            bss = importRepo.REMOVE_studentsBoscoForExport(importId, 1);
-
-            for (Student bs : bss) {
-
-                
-                bs.setGuardians(importRepo.REMOVE_guardiansBoscoForStudent(importId, bs.getStudentId()));
-                //bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(importId, bs.getStudentId()));
-
-                // make this pretty json and log.
-
-                changedStudents++;
-                boscoClient.putStudent(baseUrl + "students/{id}", token, bs);
-
-
-            }
-
-            
-
-            // if baseImportId = 0 then we have no deleted.
-
-            if (baseImportId != 0) {
-
-
-                List<String> dss;
-
-                System.out.println("------------ DELETED SCHOOLS ----------------\n");
-                System.out.println("    *** NOT YET IMPLEMENTS \n");
-                
-                //  ** WE NEED TO SORT THIS OUT!! ***
-                System.out.println("------------ DELETED TEACHERS ----------------\n");
-
-                dss = importRepo.teacherIdsDeletedFromImport(importId, baseImportId);
-                for (String ds : dss) {
-                    // TO CHECK
-                    boscoClient.deleteTeacher(baseUrl + "users/{id}", token, ds);
-                    deletedTeachers++;
-                }
-
-                System.out.println("------------ DELETED STUDENTS ----------------\n");
-
-                dss = importRepo.studentIdsDeletedFromImport(importId, baseImportId);
-                for (String ds : dss) {
-                    //THIS IS FAILING
-                    boscoClient.deleteStudent(baseUrl + "students/{id}", token, ds);
-                    deletedStudents++;
-                }
-
-            }
-
-            System.out.println("---------------------------------\n");
-            
-        
-
-            newSchools += "</ul>";
-
-            // log coungs.
-            importRepo.logInfo("New Students: " + newStudents);
-            importRepo.logInfo("Changed Students: " + changedStudents);
-            importRepo.logInfo("Deleted Students: " + deletedStudents);
-            importRepo.logInfo("New Teachers: " + newTeachers);
-            importRepo.logInfo("Changed Teachers: " + changedTeachers);
-            importRepo.logInfo("Deleted Teachers: " + deletedTeachers);
-
-
-            if (areNewSchools) {
-                System.out.println("Sending new or changed schools email");
-                emailService.sendSimpleMessage("BenLevy3@gmail.com",  "New or Changed Schools", newSchools);
-            }
-
-
-        return true;
-
-    }
-
+    
 
 
 
@@ -597,60 +434,39 @@ public class BoscoApi {
             }
             System.out.println("    - " + changedStudents);
 
-            /*
-
-            // if baseImportId = 0 then we have no deleted.
-
-            if (baseImportId != 0) {
-
-
-                List<String> dss;
-
-                System.out.println("------------ DELETED SCHOOLS ----------------\n");
-                System.out.println("    *** NOT YET IMPLEMENTS \n");
-                
-                //  ** WE NEED TO SORT THIS OUT!! ***
-                System.out.println("------------ DELETED TEACHERS ----------------\n");
-
-                dss = importRepo.teacherIdsDeletedFromImport(importId, baseImportId);
-                for (String ds : dss) {
-                    // TO CHECK
-                    boscoClient.deleteTeacher(baseUrl + "users/{id}", token, ds);
-                    deletedTeachers++;
-                }
-
-                System.out.println("------------ DELETED STUDENTS ----------------\n");
-
-                dss = importRepo.studentIdsDeletedFromImport(importId, baseImportId);
-                for (String ds : dss) {
-                    //THIS IS FAILING
-                    boscoClient.deleteStudent(baseUrl + "students/{id}", token, ds);
-                    deletedStudents++;
-                }
-
-            }
-
-            System.out.println("---------------------------------\n");
             
-        
-
-            newSchools += "</ul>";
-
-            // log coungs.
-            importRepo.logInfo("New Students: " + newStudents);
-            importRepo.logInfo("Changed Students: " + changedStudents);
-            importRepo.logInfo("Deleted Students: " + deletedStudents);
-            importRepo.logInfo("New Teachers: " + newTeachers);
-            importRepo.logInfo("Changed Teachers: " + changedTeachers);
-            importRepo.logInfo("Deleted Teachers: " + deletedTeachers);
 
 
-            if (areNewSchools) {
-                System.out.println("Sending new or changed schools email");
-                emailService.sendSimpleMessage("BenLevy3@gmail.com",  "New or Changed Schools", newSchools);
+
+// DELETES
+
+
+            System.out.println("------------ DELETED STUDENTS ----------------\n");
+            bss = importRepo.studentsBoscoForExport(districId, "DELETE");
+             for (Student bs : bss) {
+
+                deletedStudents++;
+                //boscoClient.putTeacher(baseUrl + "users/{id}", token, bu);
+                boscoClient.deleteStudent(baseUrl + "students/{id}", token, bs.getId());
+
+                
             }
 
-            */
+            System.out.println("    - " + deletedStudents);
+
+            System.out.println("------------ DELETED TEACHERS ----------------\n");
+            teachers = importRepo.teacherBoscoGetForExport(districId, "DELETE");
+            for (Teacher bu : teachers) {
+
+                deletedTeachers++;
+                //boscoClient.putTeacher(baseUrl + "users/{id}", token, bu);
+                boscoClient.deleteTeacher(baseUrl + "users/{id}", token, bu.getId());
+
+                
+            }
+
+            System.out.println("    - " + deletedTeachers);
+
 
             
         return true;

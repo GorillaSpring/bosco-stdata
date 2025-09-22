@@ -26,7 +26,7 @@ public class StdataApplication {
 	@EventListener(ApplicationReadyEvent.class)
 	public void doSomethingAfterStartup() {
 		System.out.println("hello world, I have just started up");
-		importRepo.importSystemStartup();
+		//importRepo.importSystemStartup();
 	}
 
 

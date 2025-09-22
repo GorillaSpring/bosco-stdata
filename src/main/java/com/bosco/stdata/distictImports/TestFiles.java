@@ -40,6 +40,9 @@ public class TestFiles {
 
     public static ImportResult Import(String importDefId) {
 
+        Boolean isRoster = true;
+        Boolean isSisData = false;
+        
         ImportResult result = new ImportResult();
         
 
@@ -47,16 +50,13 @@ public class TestFiles {
 
             ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            ///int baseImportId = importDef.getBaseImportId();
 
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
 
             int districtId = importDef.getDistrictId();
-            i.importRepo.prepImport(districtId, "Import for " + importDefId);
+            
 
-            //result.importId = importId;
-            result.districtId = districtId;
-            //result.baseImportId = baseImportId;
+
             
 		    //String baseFileFolder = "C:/test/uplift/" + subFolder + "/";
             String baseFileFolder = ImportHelper.ValueForSetting(importSettings, "baseFolder");
@@ -64,8 +64,11 @@ public class TestFiles {
             String archiveFolder =  ImportHelper.ValueForSetting(importSettings, "archiveFolder");
 
 
+            int importId = i.importRepo.prepImport(districtId, importDefId, isRoster, isSisData,  "TestFiles " + baseFileFolder);
 
 
+            result.importId = importId;
+            result.districtId = districtId;
             
 
 
@@ -371,7 +374,7 @@ public class TestFiles {
             // // this will mark the importId as the base.
             // i.importRepo.setImportBase(importDefId);
 
-            i.importRepo.postImport();
+            i.importRepo.prepSendBosco(districtId, importDefId, isRoster, isSisData);
         
             LocalDateTime endDateTime = LocalDateTime.now();
     
@@ -388,6 +391,8 @@ public class TestFiles {
 
 
              i.boscoApi.sendImportToBosco(districtId);
+
+             i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
 
             result.success = true;
 

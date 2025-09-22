@@ -1,5 +1,6 @@
 package com.bosco.stdata.distictImports;
 
+import java.text.NumberFormat.Style;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
@@ -135,49 +136,72 @@ public class Testing {
 
         // try to create a file reader
 
-
-        try {
-
+         ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
 
-            // 4830120
+          int districtId = importDef.getDistrictId();
 
-            // 4830120
-
-            // Celina
-            // So this one is Student_1234
-            CsvFiles.LoadDibels8(4830120, "C:/test/importBase/tea/2022_2023_2024_2025 mClass/dibels8_BM_2021-2022_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-56-59.csv", false);
-
-            CsvFiles.LoadDibels8(4830120, "C:/test/importBase/tea/2022_2023_2024_2025 mClass/dibels8_BM_2022-2023_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-57-46.csv", false);
-            CsvFiles.LoadDibels8(4830120, "C:/test/importBase/tea/2022_2023_2024_2025 mClass/dibels8_BM_2023-2024_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-58-45.csv", false);
-            CsvFiles.LoadDibels8(4830120, "C:/test/importBase/tea/2022_2023_2024_2025 mClass/dibels8_BM_2024-2025_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-59-22.csv", false);
-
-            // // Melissa
-            // // these appare to have correct student id's
-            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/24-25 MAP/Fall 2024 district scores.csv", false);
-            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/24-25 MAP/Spring 25 district scores.csv", false);
-            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/24-25 MAP/Winter 25 district scores.csv", false);
-
-            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/23-24 MAP/2024_Winter_Map_ComboStudentAssessment (1).csv", false);
-            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/23-24 MAP/Fall23_24MAPComboStudentAssessment.csv", false);
-            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/23-24 MAP/Spring2024_MAP_ComboStudentAssessment.csv", false);
+        List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
 
 
-            // // this one has an empty level, but we skip.
-            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/22-23 MAP/MAP_Fall_22_23ComboStudentAssessment.csv", false);
-            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/22-23 MAP/MOY_MAP_22_23_ComboStudentAssessment.csv", false);
-            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/22-23 MAP/Spring_22_23_ComboStudentAssessment.csv", false);
+        System.out.println("  CALLLING ");
 
-            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/21-22 MAP/Spring_2022_MAP_ComboStudentAssessment.csv", false);
-            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/21-22 MAP/Winter_21_22_ComboStudentAssessment (1).csv", false);
-            // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/21-22 MAP/Winter_21_22_ComboStudentAssessment.csv", false);
+        int newImportId = i.importRepo.prepImport(districtId, importDefId, true, false, "Roster  - Not sis");
+
+        System.out.println("We got id: " + newImportId);
 
 
-        }
-         catch (Exception ex) {
-            System.out.println("EXCEPTION : " + ex.getMessage());
-            System.out.println(ex.getStackTrace());
-        };
+        newImportId = i.importRepo.prepImport(districtId, importDefId, true, true, "Roster  - Sis");
+
+        System.out.println("We got id: " + newImportId);
+
+
+        newImportId = i.importRepo.prepImport(districtId, importDefId, false, true, "NOT Roster  - SIS");
+
+        System.out.println("We got id: " + newImportId);
+
+        // try {
+
+
+
+        //     // 4830120
+
+        //     // 4830120
+
+        //     // Celina
+        //     // So this one is Student_1234
+        //     CsvFiles.LoadDibels8(4830120, "C:/test/importBase/tea/2022_2023_2024_2025 mClass/dibels8_BM_2021-2022_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-56-59.csv", false);
+
+        //     CsvFiles.LoadDibels8(4830120, "C:/test/importBase/tea/2022_2023_2024_2025 mClass/dibels8_BM_2022-2023_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-57-46.csv", false);
+        //     CsvFiles.LoadDibels8(4830120, "C:/test/importBase/tea/2022_2023_2024_2025 mClass/dibels8_BM_2023-2024_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-58-45.csv", false);
+        //     CsvFiles.LoadDibels8(4830120, "C:/test/importBase/tea/2022_2023_2024_2025 mClass/dibels8_BM_2024-2025_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-59-22.csv", false);
+
+        //     // // Melissa
+        //     // // these appare to have correct student id's
+        //     // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/24-25 MAP/Fall 2024 district scores.csv", false);
+        //     // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/24-25 MAP/Spring 25 district scores.csv", false);
+        //     // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/24-25 MAP/Winter 25 district scores.csv", false);
+
+        //     // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/23-24 MAP/2024_Winter_Map_ComboStudentAssessment (1).csv", false);
+        //     // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/23-24 MAP/Fall23_24MAPComboStudentAssessment.csv", false);
+        //     // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/23-24 MAP/Spring2024_MAP_ComboStudentAssessment.csv", false);
+
+
+        //     // // this one has an empty level, but we skip.
+        //     // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/22-23 MAP/MAP_Fall_22_23ComboStudentAssessment.csv", false);
+        //     // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/22-23 MAP/MOY_MAP_22_23_ComboStudentAssessment.csv", false);
+        //     // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/22-23 MAP/Spring_22_23_ComboStudentAssessment.csv", false);
+
+        //     // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/21-22 MAP/Spring_2022_MAP_ComboStudentAssessment.csv", false);
+        //     // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/21-22 MAP/Winter_21_22_ComboStudentAssessment (1).csv", false);
+        //     // CsvFiles.LoadComboStudentAssessment(99, "C:/test/importBase/tea/21-22 MAP/Winter_21_22_ComboStudentAssessment.csv", false);
+
+
+        // }
+        //  catch (Exception ex) {
+        //     System.out.println("EXCEPTION : " + ex.getMessage());
+        //     System.out.println(ex.getStackTrace());
+        // };
 
         
         System.out.println(("-----------------------"));

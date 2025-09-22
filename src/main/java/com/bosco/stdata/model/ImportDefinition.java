@@ -11,7 +11,6 @@ public class ImportDefinition {
     private int districtId;
     private Boolean active;
     private Boolean forceLoad;
-    private int baseImportId;
     private LocalDateTime lastRunDate;
 
 

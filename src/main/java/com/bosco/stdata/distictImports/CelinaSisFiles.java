@@ -34,32 +34,37 @@ public class CelinaSisFiles {
 
 
     public static ImportResult Import(String importDefId) {
+
+        Boolean isRoster = false;
+        Boolean isSisData = true;
+ 
         ImportResult result = new ImportResult();
 
 
         try {
             ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            int baseImportId = importDef.getBaseImportId();
+            
 
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
 
             int districtId = importDef.getDistrictId();
-            
-            // WE don't prep an import!
-            //int importId = i.importRepo.prepImport(districtId, "Import for " + importDefId);
-
-            result.importId = 0;
-            result.districtId = districtId;
-            result.baseImportId = baseImportId;
-            
-            //String baseFileFolder = "C:/test/uplift/" + subFolder + "/";
             String baseFileFolder = ImportHelper.ValueForSetting(importSettings, "baseFolder");
 
             String archiveFolder =  ImportHelper.ValueForSetting(importSettings, "archiveFolder");
 
 
-            i.importRepo.prepSisImport(districtId, "Sis File Loading " + baseFileFolder);
+            int importId = i.importRepo.prepImport(districtId, importDefId, isRoster, isSisData,  "Celina Sis files " + baseFileFolder);
+            
+            // WE don't prep an import!
+            //int importId = i.importRepo.prepImport(districtId, "Import for " + importDefId);
+
+            result.importId = importId;
+            result.districtId = districtId;
+            
+            //String baseFileFolder = "C:/test/uplift/" + subFolder + "/";
+
+
 
 
 
@@ -83,6 +88,13 @@ public class CelinaSisFiles {
 
             result.success = true;
             System.out.println("DONE CelinaSisFiles.Import");
+
+
+            // this is NOT necessary for SIS only.
+            i.importRepo.prepSendBosco(districtId, importDefId, isRoster, isSisData);
+
+            // This will mark students that need to have sis data sent.
+            i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
 
             
 

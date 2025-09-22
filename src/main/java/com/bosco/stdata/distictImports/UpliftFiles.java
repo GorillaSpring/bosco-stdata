@@ -257,13 +257,15 @@ public class UpliftFiles {
 
     public static ImportResult Import(String importDefId) {
 
+        Boolean isRoster = true;
+        Boolean isSisData = true;
+
         ImportResult result = new ImportResult();
 
         try {
 
              ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
-            //int baseImportId = importDef.getBaseImportId();
 
 
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
@@ -271,21 +273,19 @@ public class UpliftFiles {
             int districtId = importDef.getDistrictId();
             Boolean setNoEmails = importDef.getSetNoEmails();
 
-            i.importRepo.prepImport(districtId, "Import for " + importDefId);
 
-            
-
-            result.importId = 0;
-            result.districtId = districtId;
-            result.baseImportId = 0;
-
-            
 		    //String baseFileFolder = "C:/test/uplift/" + subFolder + "/";
             String baseFileFolder = ImportHelper.ValueForSetting(importSettings, "baseFolder");
 
             String archiveFolder =  ImportHelper.ValueForSetting(importSettings, "archiveFolder");
 
+            
+            int importId = i.importRepo.prepImport(districtId, importDefId, isRoster, isSisData,  "Uplift Files (Roster and Sis) " + baseFileFolder);
 
+            result.importId = importId;
+            result.districtId = districtId;
+
+            
 
               // Before we start, lets make sure there are files in the baseFolder
               // additional users NO
@@ -512,12 +512,15 @@ public class UpliftFiles {
             i.importRepo.buildStudentTeacher();
 
 
-            i.importRepo.postImport();
+
+
+
+            
 
             System.out.println("Importing SIS data");
 
 
-            i.importRepo.sisPrepData();
+            
 
             // WE NEED TO RE DO THESE ONES.
             // mClass and map
@@ -845,9 +848,9 @@ public class UpliftFiles {
             i.importRepo.logInfo("Imported discipline : " + counter1);
 
 
-            System.out.println("Sys Post Data");
-            i.importRepo.sisPostData();
 
+
+            // We have done both imports and sisData
 
             // Now we move the files to the archive Folder
 
@@ -857,24 +860,18 @@ public class UpliftFiles {
 
                // do the diff
 
-			// if (baseImportId == 0) {
-			// 	i.importRepo.logInfo("This is the BASE Import");
-            //     i.importRepo.setAllNewImports();
-            // }
-            // else {
-            //     i.importRepo.logInfo("Doing Diff with " + baseImportId);
-
-            //     i.importRepo.diffImports(baseImportId);
-            // }
-
-            // // validation on the data.
-            // // check number of diffs vs the cutoff.
 
 
-            // // this will mark the importId as the base.
-            // i.importRepo.setImportBase(importDefId);
+
+               
+            System.out.println("Sys Post Data");
 
 
+            i.importRepo.prepSendBosco(districtId, importDefId, isRoster, isSisData);
+            // NOW WE CAN CHECK CHANGES and BAIL IF NEED BE.
+
+
+            
 
 
         
@@ -887,6 +884,8 @@ public class UpliftFiles {
             
 
              i.boscoApi.sendImportToBosco(districtId);
+
+             i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
 
             
 

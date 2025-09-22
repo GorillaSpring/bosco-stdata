@@ -111,7 +111,7 @@ public class ImportTask {
 
                 String importType = importDef.getImportType();
                 
-                importRepo.logInfo("Importing: " + importDefId);
+                //importRepo.logInfo("Importing: " + importDefId);
 
                 System.out.println("Importing: " + importDefId);
 
