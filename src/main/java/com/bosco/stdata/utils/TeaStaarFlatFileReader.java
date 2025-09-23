@@ -26,7 +26,7 @@ import com.bosco.stdata.teaModel.Telpas2024;
 
 //public class TeaStaarFlatFileReader implements ItemStream{
 
-@Configuration
+
 public class TeaStaarFlatFileReader {
 
     
