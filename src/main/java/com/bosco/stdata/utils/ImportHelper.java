@@ -9,17 +9,76 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
 import com.bosco.stdata.model.ImportSetting;
 
+import java.text.ParseException;
+
 
 public  class ImportHelper {
 
     public static Boolean importRunning = false;
+
+
+    public static String DateToStdFormat (String dateString) throws Exception {
+        // this will convert a date string to yyyy-MM-dd if it is in one of the provide formats
+        // it will thoww an exception if the data is invalid.
+
+        String[] possibleFormats = {
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd",
+            "MM/dd/yyyy HH:mm:ss",
+            "MM/dd/yyyy"
+        };
+
+
+        Date parsedDate = null;
+
+        for (String format : possibleFormats) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat(format);
+                sdf.setLenient(false); // Important for strict parsing
+                parsedDate = sdf.parse(dateString);
+                //System.out.println("Parsed '" + dateString + "' with format '" + format + "': " + parsedDate);
+                break; // Exit loop if parsing is successful
+            } catch (ParseException e) {
+                // Try next format
+            }
+        }
+
+        if (parsedDate == null) {
+            throw new Exception("Could not parse date : "+ dateString);
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(parsedDate);
+
+
+
+
+        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern(
+            
+        //     "[yyyy-MM-dd]" +
+            
+        //     "[MM/dd/yyyy]"
+        // );
+
+        // LocalDate parsedDate = LocalDate.parse(date, formatter);
+
+        //  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        // return sdf.format(parsedDate);
+
+
+
+    }
 
     public static String ValueForSetting(List<ImportSetting> inputSettings, String setting)  throws Exception{
 
@@ -55,38 +114,7 @@ public  class ImportHelper {
     }
 
 
-    public static Boolean CheckTooManyChanges (double maxAllowedChangesPercent) {
-        // return true if too many changes.
-
-        // TODO: We are going to have to redo this.
-        // We need to check "CHANGED", "DELETE"
-
-        // maxAllowedChangesPercent is   0.1 for 10%,   0.2 for 20% etc.
-
-        //  double percentDiff = Math.abs(impChanges.baseStudentCount - impChanges.importStudentCount) / 
-        //         (
-        //             (impChanges.baseStudentCount + impChanges.importStudentCount) / 2.0
-        //         )
-
-        //         ;
-
-        //     if (percentDiff > maxAllowedChangesPercent)
-        //         return true;
-
-            
-
-        //     // so 23 * 0.1 = 2.3   => 2 > 0
-        //     // should this be less?
-
-
-        //     if ((int)(impChanges.importStudentCount * maxAllowedChangesPercent) < impChanges.importStudentChanged) {
-        //         // the sutdents changed is greater then 10% so bail.
-
-        //         return true;
-        //     }
-
-            return false;
-    }
+    
 
 
     public static void MoveFiles (String sourcePath, String targetPath) throws Exception {

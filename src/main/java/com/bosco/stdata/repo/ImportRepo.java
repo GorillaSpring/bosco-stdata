@@ -277,7 +277,7 @@ public class ImportRepo {
 
     public String studentNumberFromDemographics (int forDistrictId, String firstName, String lastName, String dob ) {
 
-
+// DOB HERE
         
         Object[] args = {
             forDistrictId,
@@ -407,50 +407,7 @@ public class ImportRepo {
         return template.queryForList(sql, String.class, args);
     }
 
-     public List<Student> boscoStudentsGet(int forImportId) {
-
-        // 1 is changed
-        // 2 is new.
-
-
-        Object[] args = {
-            forImportId
-        };
-
-        String sql = """
-                select 	                    
-                    concat (concat (i.districtId, '.') , s.studentNumber) as id,
-                    s.firstName,
-                    s.lastName,
-                    s.dob,
-                    s.gender,
-                    s.studentNumber as studentId,
-                    school.name as school,
-                    ms.ncesSchoolId as schoolId,
-                    i.districtId,
-                    s.grade
-                from 
-                    student s 
-                    join import i on i.id = s.importId
-                    join school school on school.importId = s.importId and school.sourceId = s.schoolSourceId
-                    join map_school_code_nces_school_id ms on ms.districtId = i.districtId and ms.schoolCode = school.schoolCode
-                where 
-                    s.importId = ? 
-                    
-                """; //.formatted(districtId, districtId, importId, changedFlag);
-
-
-        return template.query(sql, new BeanPropertyRowMapper<Student>(Student.class), args);
-
-        // System.out.println(sql);
-            
-        //     List<BoscoStudent> students = template.query(
-        //         sql,
-        //         new BeanPropertyRowMapper(BoscoStudent.class));
-
-        // return students;
-    }
-
+    
 
     
     //#region TESTS
@@ -621,7 +578,36 @@ public class ImportRepo {
     //#region Import
 
     
-    
+    public String checkImportDeltas (int districtId, String importDefinitionId) {
+
+
+
+        Object[] args = {
+            districtId,
+            importDefinitionId
+
+        };
+
+
+        String sql = """
+                 call check_import_deltas (?,?);
+                """;
+
+
+
+        try {
+            String studentNumber = template.queryForObject(
+                    sql, 
+                    String.class, 
+                    args);
+
+            return studentNumber;
+        }
+        catch (Exception ex) {
+            return null;
+        }
+
+    }
 
 
 
@@ -1403,6 +1389,7 @@ public Student studentBoscoForExport (String id) {
         String id = districtId + "." + studentNumber;
 
 
+
          Object[] args = {
 
             dob,
@@ -1419,7 +1406,6 @@ public Student studentBoscoForExport (String id) {
             id
 
         };
-
 
         // This WILL NOT update the importStatus.   
 

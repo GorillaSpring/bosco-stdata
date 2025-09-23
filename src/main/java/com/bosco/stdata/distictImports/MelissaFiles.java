@@ -112,8 +112,7 @@ private static MelissaFiles i;  // instance
             // String [] colNames = {"SchoolCode", "SchoolName"};
 
 
-            // // there are 2 for these files!
-            // data.removeFirst();
+            
             // String[] fr = data.removeFirst();
             // if (!ImportHelper.CheckColumnHeaders(fr, colNames))
             //     throw new Exception("File : schools.csv does not match column specs" );
@@ -141,7 +140,6 @@ private static MelissaFiles i;  // instance
 
             // this does not have the extra row
 
-            //data.removeFirst();
 
             String [] fr = data.removeFirst();
 
@@ -186,9 +184,11 @@ private static MelissaFiles i;  // instance
                         row[0], row[1], row[3], row[2], row[7], row[6]
                     );
 
+                    String dob = ImportHelper.DateToStdFormat(row[4]);
+
                     // student number now.
                     i.importRepo.saveStudentDemographics(
-                        row[1], row[4], row[5], americanIndianOrAlaskaNative, asian, blackOrAfricanAmerican,nativeHawaiianOrOtherPacificIslander, white, hispanicOrLatinoEthnicity,
+                        row[1], dob, row[5], americanIndianOrAlaskaNative, asian, blackOrAfricanAmerican,nativeHawaiianOrOtherPacificIslander, white, hispanicOrLatinoEthnicity,
                         false, false, isBilingual
                     );
 
@@ -216,7 +216,6 @@ private static MelissaFiles i;  // instance
             data = msp.readCsvFile( baseFileFolder + "users.csv");
 
 
-            data.removeFirst();
             fr = data.removeFirst();
 
             // teacherSourceId	teacherId	lastName	firstName	email
@@ -266,7 +265,6 @@ private static MelissaFiles i;  // instance
             data = msp.readCsvFile( baseFileFolder + "guardians.csv");
 
 
-            data.removeFirst();
             fr = data.removeFirst();
 
             // id	studentId	guardianId	type	lastName	firstName	email
@@ -325,7 +323,6 @@ private static MelissaFiles i;  // instance
             // teacherId
             // classId
 
-            data.removeFirst();
             fr = data.removeFirst();
 
             // teacherId	classId
@@ -365,7 +362,6 @@ private static MelissaFiles i;  // instance
             // studentId
             // classId
 
-            data.removeFirst();
             fr = data.removeFirst();
 
             colNames = new String[]{"StudentSourceID", "StudentNumber", "CourseName", "CourseID"};
@@ -403,7 +399,6 @@ private static MelissaFiles i;  // instance
             // studentId
             // classId
 
-            data.removeFirst();
             fr = data.removeFirst();
 
             colNames = new String[]{"StudentSourceID", "StudentNumber", "IsEsl", "IsBilingual", "IsSpecialEd", "EntryIEP_Date", "LastFIIE_Date", "ReEvaluationDueDate", "Is504", "AnnualARDDate", "Annual504_Date"};
@@ -489,13 +484,18 @@ private static MelissaFiles i;  // instance
             // i.importRepo.setImportBase(importDefId);
 
             i.importRepo.prepSendBosco(districtId, importDefId, isRoster, isSisData);
-        
-            LocalDateTime endDateTime = LocalDateTime.now();
-    
-            Duration duration = Duration.between(startDateTime, endDateTime);
+
 
             
-            i.importRepo.logInfo("Import " + importDefId + "  Complete in : " + duration.toSeconds() + " Seconds" );
+            if (!importDef.getForceLoad() && isRoster) {
+                String checkDeltas = i.importRepo.checkImportDeltas(districtId, importDefId);
+                if (!checkDeltas.equals("OK")) {
+                    throw new Exception("Check Import Delta failed: " + checkDeltas);
+                }
+
+            }
+
+        
 
             
 
@@ -506,6 +506,14 @@ private static MelissaFiles i;  // instance
             i.boscoApi.sendImportToBosco(districtId);
 
             i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
+
+            LocalDateTime endDateTime = LocalDateTime.now();
+    
+            Duration duration = Duration.between(startDateTime, endDateTime);
+
+            
+            i.importRepo.logInfo("Import " + importDefId + "  Complete in : " + duration.toSeconds() + " Seconds" );
+
 
             result.success = true;
 

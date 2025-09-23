@@ -11,6 +11,7 @@ public class ImportDefinition {
     private int districtId;
     private Boolean active;
     private Boolean forceLoad;
+    private int maxDeltaPercent;   // this is used interally, but we can get it here.
     private LocalDateTime lastRunDate;
 
 

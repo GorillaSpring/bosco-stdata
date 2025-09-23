@@ -10,6 +10,7 @@ import com.bosco.stdata.teaModel.BoscoProficiency;
 import com.bosco.stdata.teaModel.Star2024;
 import com.bosco.stdata.teaModel.Star2024EOC;
 import com.bosco.stdata.teaModel.Telpas2024;
+import com.bosco.stdata.utils.MappingHelper;
 import com.bosco.stdata.utils.TeaStaarFlatFileReader;
 
 import jakarta.annotation.PostConstruct;
@@ -33,67 +34,21 @@ public class TeaFiles {
         i = this;
     }
 
-    private static BoscoProficiency StaarProficiency (String teaPL) throws Exception {
+  
+    // private static String SchoolYearFromAdminDate (String adminDate) throws Exception {
+    //     // this should work for ALL TEA files.celinaComboItemReader
+    //     String schoolYear = 
+    //     switch (adminDate) {
+    //         case "0525", "1525", "1625", "0425" -> "2024-2025";
+    //         case "0324", "0424", "1524", "0524", "1324", "1624" -> "2023-2024";
+    //         case "0323", "0423", "1523", "0523", "1323", "1623" -> "2022-2023";
+    //         default -> throw new Exception("Unknown Admin Date in TEA File: " + adminDate);
 
-        BoscoProficiency boscoProficiency = 
-        switch (teaPL) {
-            case "0L", "0H" -> new BoscoProficiency("Did Not Meet Grade Level", "DN");
-            case "1L", "1H" -> new BoscoProficiency("Approaches Grade Level", "AP");
-            case "2M" -> new BoscoProficiency("Meets Grade Level", "M");
-            case "3M" -> new BoscoProficiency("Masters Grade Level", "MA");
-            default -> throw new Exception("Unknown boscoProficiency");
-                
-        };
-
-        return boscoProficiency;
-
-    }
-
-    private static String Telpas_proficiency (String compositeScore) throws Exception {
-        String pro = 
-        switch(compositeScore) {
-            case "1" -> "Beginning";
-            case "2" -> "Intermediate";
-            case "3" -> "Advanced";
-            case "4" -> "Advanced High";
-            default -> throw new Exception("Unknown Telpas_proficiency");
-
-        };
-
-        return pro;
-        
-    }
-
-    private static String Telpas_alt_proficiency (String compositeScore) throws Exception {
-        String pro = 
-        switch(compositeScore) {
-            case "1" -> "Awareness";
-            case "2" -> "Imitation";
-            case "3" -> "Early Independence";
-            case "4" -> "Developing Independence";
-            case "5" -> "Basic Fluency";
-            default -> throw new Exception("Unknown Telpas_alt_proficiency");
-
-        };
-
-        return pro;
-        
-    }
-
-    private static String SchoolYearFromAdminDate (String adminDate) throws Exception {
-        // this should work for ALL TEA files.celinaComboItemReader
-        String schoolYear = 
-        switch (adminDate) {
-            case "0525", "1525", "1625", "0425" -> "2024-2025";
-            case "0324", "0424", "1524", "0524", "1324", "1624" -> "2023-2024";
-            case "0323", "0423", "1523", "0523", "1323", "1623" -> "2022-2023";
-            default -> throw new Exception("Unknown Admin Date in TEA File: " + adminDate);
-
-        };
-        return schoolYear;
+    //     };
+    //     return schoolYear;
 
 
-    }
+    // }
 
 
 
@@ -133,7 +88,7 @@ public class TeaFiles {
             
 
 
-        String schoolYear = SchoolYearFromAdminDate(t.getAdminDate());
+        String schoolYear = MappingHelper.SchoolYearFromAdminDate(t.getAdminDate());
 
 
         while (t != null) {
@@ -157,7 +112,7 @@ public class TeaFiles {
                     // now we do for each that we find
                     if (!t.getPliReadingLanguageArts().isEmpty() && !t.getPliReadingLanguageArts().equals("00")) {
                         // we load it
-                        BoscoProficiency bp = StaarProficiency(t.getPliReadingLanguageArts());
+                        BoscoProficiency bp = MappingHelper.StaarProficiency(t.getPliReadingLanguageArts());
                         if (bp == null) {
                             System.out.println ("GOT NULL");
                         }
@@ -179,7 +134,7 @@ public class TeaFiles {
                     // now we do for each that we find
                     if (!t.getPliMath().isEmpty() && !t.getPliMath().equals("00")) {
                         // we load it
-                        BoscoProficiency bp = StaarProficiency(t.getPliMath());
+                        BoscoProficiency bp = MappingHelper.StaarProficiency(t.getPliMath());
                         if (bp == null) {
                             System.out.println ("GOT NULL");
                         }
@@ -201,7 +156,7 @@ public class TeaFiles {
                     // now we do for each that we find
                     if (!t.getPliSocialStudies().isEmpty() && !t.getPliSocialStudies().equals("00")) {
                         // we load it
-                        BoscoProficiency bp = StaarProficiency(t.getPliSocialStudies());
+                        BoscoProficiency bp = MappingHelper.StaarProficiency(t.getPliSocialStudies());
                         if (bp == null) {
                             System.out.println ("GOT NULL");
                         }
@@ -221,7 +176,7 @@ public class TeaFiles {
                     // now we do for each that we find
                     if (!t.getPliScience().isEmpty() && !t.getPliScience().equals("00")) {
                         // we load it
-                        BoscoProficiency bp = StaarProficiency(t.getPliScience());
+                        BoscoProficiency bp = MappingHelper.StaarProficiency(t.getPliScience());
                         if (bp == null) {
                             System.out.println ("GOT NULL");
                         }
@@ -289,7 +244,7 @@ public class TeaFiles {
         //String schoolYear = "2024-2025";
 
 
-        String schoolYear = SchoolYearFromAdminDate(t.getAdminDate());
+        String schoolYear = MappingHelper.SchoolYearFromAdminDate(t.getAdminDate());
 
         
 
@@ -322,7 +277,7 @@ public class TeaFiles {
 
                         String log = "";
 
-                        BoscoProficiency bp = StaarProficiency(t.getPli());
+                        BoscoProficiency bp = MappingHelper.StaarProficiency(t.getPli());
                         if (bp == null) {
                             System.out.println ("GOT NULL");
                         }
@@ -424,7 +379,7 @@ public class TeaFiles {
         
         Telpas2024 t = s24.read();
 
-        String schoolYear = SchoolYearFromAdminDate(t.getAdminDate());
+        String schoolYear = MappingHelper.SchoolYearFromAdminDate(t.getAdminDate());
 
         
 
@@ -450,7 +405,7 @@ public class TeaFiles {
                 if (!compositeScore.isEmpty() && !compositeScore.equals("0"))
                 {
 
-                    String proficiency = Telpas_proficiency(compositeScore);
+                    String proficiency = MappingHelper.Telpas_proficiency(compositeScore);
 
                     //Boolean allEmpty = true;
 
@@ -546,7 +501,7 @@ public class TeaFiles {
         
         Telpas2024 t = s24.read();
 
-        String schoolYear = SchoolYearFromAdminDate(t.getAdminDate());
+        String schoolYear = MappingHelper.SchoolYearFromAdminDate(t.getAdminDate());
 
 
 
@@ -571,7 +526,7 @@ public class TeaFiles {
                 if (!compositeScore.isEmpty() && !compositeScore.equals("0"))
                 {
 
-                    String proficiency = Telpas_alt_proficiency(compositeScore);
+                    String proficiency = MappingHelper.Telpas_alt_proficiency(compositeScore);
 
                     //Boolean allEmpty = true;
 

@@ -573,6 +573,10 @@ public class SkywardOneRosterApi {
                                 String birthDate = demographicsNode.get("birthDate") == null ? "" : demographicsNode.get("birthDate").asText();
 
 
+                            if (!birthDate.isEmpty()) {
+                                birthDate =  ImportHelper.DateToStdFormat(birthDate);
+                            }
+
                                 // Demographics d = new Demographics(sourceId,
                                 //     birthDate,
                                 //     demographicsNode.get("sex").asText(),
@@ -812,15 +816,17 @@ public class SkywardOneRosterApi {
 
             i.importRepo.prepSendBosco(districtId, importDefId, isRoster, isSisData);
 
-            
-            LocalDateTime endDateTime = LocalDateTime.now();
-    
-            Duration duration = Duration.between(startDateTime, endDateTime);
-            
-            System.out.println ("Import Complete in : " + duration.toSeconds() + " Seconds" );
 
+            if (!importDef.getForceLoad() && isRoster) {
+                String checkDeltas = i.importRepo.checkImportDeltas(districtId, importDefId);
+                if (!checkDeltas.equals("OK")) {
+                    throw new Exception("Check Import Delta failed: " + checkDeltas);
+                }
 
-            i.importRepo.logInfo("Import " + importDefId + " () Complete in : " + duration.toSeconds() + " Seconds" );
+            }
+
+            
+          
 
 
 
@@ -829,6 +835,15 @@ public class SkywardOneRosterApi {
 
             i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
 
+
+            LocalDateTime endDateTime = LocalDateTime.now();
+    
+            Duration duration = Duration.between(startDateTime, endDateTime);
+            
+            System.out.println ("Import Complete in : " + duration.toSeconds() + " Seconds" );
+
+
+            i.importRepo.logInfo("Import " + importDefId + " () Complete in : " + duration.toSeconds() + " Seconds" );
             result.success = true;
 
 

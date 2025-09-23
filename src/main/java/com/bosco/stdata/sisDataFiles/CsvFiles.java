@@ -11,6 +11,7 @@ import com.bosco.stdata.config.AppConfig;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.DibelsMClass;
+import com.bosco.stdata.utils.MappingHelper;
 import com.bosco.stdata.utils.TeaStaarFlatFileReader;
 
 import jakarta.annotation.PostConstruct;
@@ -40,105 +41,7 @@ public class CsvFiles {
         i = this;
     }
 
-    private static String MapProficiency (String achievementQuintile) throws Exception {
-        String pro = 
-        switch(achievementQuintile) {
-            case "Low" -> "Quintile 1";
-            case "LoAvg" -> "Quintile 2";
-            case "Avg" -> "Quintile 3";
-            case "HiAvg" -> "Quintile 4";            
-            case "High" -> "Quintile 5";
-            default -> throw new Exception("Unknown MapProficiency");
-
-        };
-
-        return pro;
-        
-    }
-
-    private static String MapSubject (String course) throws Exception {
-         String subject = 
-        switch(course) {
-            case "Math K-12" -> "Math";
-            case "Integrated Mathematics" -> "Math";
-            case "Integrated Mathematics 1" -> "Math";
-            case "Integrated Mathematics 2" -> "Math";
-            case "Integrated Mathematics 3" -> "Math";
-            case "Algebra 1" -> "Math";
-            case "Algebra 2" -> "Math";
-            case "Geometry" -> "Math";
-
-            case "Science K-12" -> "Science";
-            case "Life Sciences" -> "Science";
-            case "Biology/Life Sciences" -> "Science";
-
-            case "Reading" -> "Reading";
-            case "Reading (Spanish)" -> "Reading";
-
-            case "Language Usage" -> "Language";
-
-            
-            //case "" -> null;
-            default -> throw new Exception("Unknown MapSubject :" + course);
-
-        };
-
-        return subject;
-    }
-
-     private static String MapProficiencyCode (String achievementQuintile) throws Exception {
-        String pro = 
-        switch(achievementQuintile) {
-            case "Low" -> "Q1";
-            case "LoAvg" -> "Q2";
-            case "Avg" -> "Q3";
-            case "HiAvg" -> "Q4";            
-            case "High" -> "Q5";
-            default -> throw new Exception("Unknown MapProficiencyCode");
-
-        };
-
-        return pro;
-        
-    }
-
-     private static String MapCsaCode (String course) throws Exception {
-        String pro = 
-        switch(course) {
-
-            case "Math K-12" -> "M";
-            case "Integrated Mathematics" -> "M";
-            case "Integrated Mathematics 1" -> "M";
-            case "Integrated Mathematics 2" -> "M";
-            case "Integrated Mathematics 3" -> "M";
-            case "Algebra 1" -> "M";
-            case "Algebra 2" -> "M";
-            case "Geometry" -> "M";
-
-            case "Science K-12" -> "C";
-            case "Life Sciences" -> "C";
-            case "Biology/Life Sciences" -> "C";
-
-            case "Reading" -> "R";
-            case "Reading (Spanish)" -> "R";
-
-            case "Language Usage" -> "L";
-
-
-            default -> throw new Exception("Unknown MapCsaCode :" + course);    
-
-        
-        };
-
-        return pro;
-        
-    }
-
-    private static String MapPeriod (String termName) {
-        // Spring 2024-2025  => Spring.
-
-        return termName.split(" ")[0];
-    }
+    
     
 
     public static void LoadComboStudentAssessment (int districtId, String filePath, Boolean useStudentSourceId) throws Exception  {
@@ -217,7 +120,7 @@ public class CsvFiles {
                     //String termName = cc.getTermName();
                     String course = cc.getCourse();
                     
-                    String subject = MapSubject(course);
+                    String subject = MappingHelper.MapSubject(course);
 
                     if (subject != null) {
                         
@@ -225,13 +128,13 @@ public class CsvFiles {
 
                         //String testStartDate = cc.getTestStartDate();
 
-                        String period = MapPeriod(cc.getTermName());
-                        String proficiency = MapProficiency(cc.getAchievementQuintile());
-                        String proficiencyCode = MapProficiencyCode(cc.getAchievementQuintile());
+                        String period = MappingHelper.MapPeriod(cc.getTermName());
+                        String proficiency = MappingHelper.MapProficiency(cc.getAchievementQuintile());
+                        String proficiencyCode = MappingHelper.MapProficiencyCode(cc.getAchievementQuintile());
 
-                        String schoolYear = TeaStaarFlatFileReader.SchoolYearFromDate(cc.getTestStartDate());
+                        String schoolYear = MappingHelper.SchoolYearFromDate(cc.getTestStartDate());
 
-                        String csaCode = MapCsaCode(course);
+                        String csaCode = MappingHelper.MapCsaCode(course);
 
                         
 
@@ -326,13 +229,12 @@ public class CsvFiles {
 
                 if (!dob.isEmpty()) {
 
-                    LocalDate ld = LocalDate.parse(dob);
-
-                    String newDob = ld.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+                    // the patter must be yyyy-MM-dd
+                    // that is it already.
 
                     // System.out.println ("Student: " + lastName + ", " + firstName + ", [" + dob + "] " + newDob + " - " + ld.toString() );
 
-                    String studentNumber = i.importRepo.studentNumberFromDemographics(districtId, firstName, lastName, newDob);
+                    String studentNumber = i.importRepo.studentNumberFromDemographics(districtId, firstName, lastName, dob);
 
                     
 
@@ -345,7 +247,7 @@ public class CsvFiles {
 
                         String benchmarkPeriod = cc.getBenchmarkPeriod();   // Map this " BOY or Fall" -> Fall
 
-                        String period = TeaStaarFlatFileReader.Dibels8_period(benchmarkPeriod);
+                        String period = MappingHelper.Dibels8_period(benchmarkPeriod);
 
 
                         String subject = "Reading";  // constant
@@ -354,7 +256,7 @@ public class CsvFiles {
                     
                         String proficiency = cc.getCompositeLevel();
 
-                        String proficiencyCode = TeaStaarFlatFileReader.MClass_proficiencyCode (proficiency);
+                        String proficiencyCode = MappingHelper.MClass_proficiencyCode (proficiency);
 
 
                         String testScore = cc.getCompositeScore();

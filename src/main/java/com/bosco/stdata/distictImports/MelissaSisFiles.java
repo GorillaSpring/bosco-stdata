@@ -1,5 +1,7 @@
 package com.bosco.stdata.distictImports;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,27 +66,13 @@ public class MelissaSisFiles {
 
             int importId = i.importRepo.prepImport(districtId, importDefId, isRoster,isSisData,  "Melissa Sis files " + baseFileFolder);
 
+             LocalDateTime startDateTime = LocalDateTime.now();
 
             result.importId = importId;
             result.districtId = districtId;
 
 
-            // so just to test a reload.  There should be NO new data... everthing should be OK still.
-            // these should all be 
-             // 2023
-            TeaFiles.LoadStar(districtId, baseFileFolder + "2022/SF_0523_3-8_043908_MELISSA ISD_V01.txt");
-            TeaFiles.LoadStar(districtId, baseFileFolder + "2022/SF_0423_3-8ALT_043908_MELISSA ISD_V01.txt");
-
-            
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2022/SF_1323_EOC_043908_MELISSA ISD_V01.txt");
-
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2022/SF_1523_EOC_043908_MELISSA ISD_V01_August5 file.txt");
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2022/SF_1523_EOCALT_043908_MELISSA ISD_V01.txt");
-
-            // //  ** Loaded 0 students!
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2022/SP_1623_EOC_043908_MELISSA ISD_V01.txt");
-
-
+          
 
             // Checking mclass
               //This mClass files.
@@ -95,7 +83,7 @@ public class MelissaSisFiles {
             // CsvFiles.LoadDibels8(districtId, baseFileFolder + "2022_2023_2024_2025 mClass/dibels8_BM_2024-2025_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-59-22.csv", false);
 
 
-/*
+
 
             // 2022
 
@@ -178,7 +166,7 @@ public class MelissaSisFiles {
 
 
 
-*/
+
 
             
             // so we don't send anyting to bosco for sis
@@ -190,6 +178,17 @@ public class MelissaSisFiles {
 
             // This will mark students that need to have sis data sent.
             i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
+
+
+              LocalDateTime endDateTime = LocalDateTime.now();
+    
+            Duration duration = Duration.between(startDateTime, endDateTime);
+            
+            System.out.println ("Import Complete in : " + duration.toSeconds() + " Seconds" );
+
+            i.importRepo.logInfo("Import " + importDefId + "  Complete in : " + duration.toSeconds() + " Seconds" );
+
+
 
 
             result.success = true;

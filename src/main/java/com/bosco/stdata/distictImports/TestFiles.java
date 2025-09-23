@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
+import com.bosco.stdata.config.AppConfig;
 import com.bosco.stdata.model.*;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
@@ -22,6 +22,8 @@ import jakarta.annotation.PostConstruct;
 @Component
 public class TestFiles {
 
+    private final AppConfig appConfig;
+
     @Autowired
     ImportRepo importRepo;
 
@@ -29,7 +31,11 @@ public class TestFiles {
     BoscoApi boscoApi;
     
 
-    private static TestFiles i;  // instance
+    private static TestFiles i;
+
+    TestFiles(AppConfig appConfig) {
+        this.appConfig = appConfig;
+    }  // instance
 
     @PostConstruct
     public void init() {
@@ -160,14 +166,19 @@ public class TestFiles {
 
                    // String sourceId, String studentNumber, String firstName, String lastName, String grade, String schoolSourceId
 
+                   
+
                     i.importRepo.saveStudent(
                         row[0], row[1], row[3], row[2], row[7], row[6]
                     );
 
+
+                    String dob = ImportHelper.DateToStdFormat(row[4]);
+
                     // ** THIS IS studentNumber now, NOT SOURCE ID.
                     // ** THIS DOES NOT UPDATE the import Status.
                     i.importRepo.saveStudentDemographics(
-                        row[1], row[4], row[5], false, false, false, false, false, false,
+                        row[1], dob, row[5], false, false, false, false, false, false,
                         false, false, false
                     );
 
@@ -367,21 +378,24 @@ public class TestFiles {
 
 
    
+            i.importRepo.prepSendBosco(districtId, importDefId, isRoster, isSisData);
 
+
+            // Check the Deltas here
+
+            if (!importDef.getForceLoad() && isRoster) {
+                String checkDeltas = i.importRepo.checkImportDeltas(districtId, importDefId);
+                if (!checkDeltas.equals("OK")) {
+                    throw new Exception("Check Import Delta failed: " + checkDeltas);
+                }
+
+            }
 
 
 
             // // this will mark the importId as the base.
             // i.importRepo.setImportBase(importDefId);
 
-            i.importRepo.prepSendBosco(districtId, importDefId, isRoster, isSisData);
-        
-            LocalDateTime endDateTime = LocalDateTime.now();
-    
-            Duration duration = Duration.between(startDateTime, endDateTime);
-
-            
-            i.importRepo.logInfo("Import " + importDefId + " () Complete in : " + duration.toSeconds() + " Seconds" );
 
             // System.out.println ("Import ID is: " + importId);
 
@@ -393,6 +407,16 @@ public class TestFiles {
              i.boscoApi.sendImportToBosco(districtId);
 
              i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
+
+
+        
+            LocalDateTime endDateTime = LocalDateTime.now();
+    
+            Duration duration = Duration.between(startDateTime, endDateTime);
+
+            
+            i.importRepo.logInfo("Import " + importDefId + " () Complete in : " + duration.toSeconds() + " Seconds" );
+
 
             result.success = true;
 

@@ -405,6 +405,10 @@ public class ClassLinkOneRosterApi {
 
                             String birthDate = demographicsNode.get("birthDate") == null ? "" : demographicsNode.get("birthDate").asText();
 
+                            if (!birthDate.isEmpty()) {
+                                birthDate =  ImportHelper.DateToStdFormat(birthDate);
+                            }
+
 
                             // Demographics d = new Demographics(sourceId,
                             //     birthDate,
@@ -582,6 +586,22 @@ public class ClassLinkOneRosterApi {
             i.importRepo.prepSendBosco(districtId, importDefId, isRoster, isSisData);
 
 
+
+            if (!importDef.getForceLoad() && isRoster) {
+                String checkDeltas = i.importRepo.checkImportDeltas(districtId, importDefId);
+                if (!checkDeltas.equals("OK")) {
+                    throw new Exception("Check Import Delta failed: " + checkDeltas);
+                }
+
+            }
+
+
+      
+
+            i.boscoApi.sendImportToBosco(districtId);
+
+            i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
+
             LocalDateTime endDateTime = LocalDateTime.now();
     
             Duration duration = Duration.between(startDateTime, endDateTime);
@@ -590,12 +610,6 @@ public class ClassLinkOneRosterApi {
 
             i.importRepo.logInfo("Import " + importDefId + "  Complete in : " + duration.toSeconds() + " Seconds" );
 
-
-            //System.out.println ("Import ID is: " + importId);
-
-            i.boscoApi.sendImportToBosco(districtId);
-
-            i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
 
             result.success = true;
 

@@ -20,6 +20,7 @@ import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.service.UserFileService;
 import com.bosco.stdata.utils.ImportHelper;
+import com.bosco.stdata.utils.MappingHelper;
 import com.bosco.stdata.utils.TeaStaarFlatFileReader;
 
 import jakarta.annotation.PostConstruct;
@@ -49,211 +50,9 @@ public class UpliftFiles {
     }
 
 
-    private static String MapProficiencyCode (String one, String two) {
-        return "Q1";
-    }
 
-    private static String Map_proficiencyCode (String proficiency) {
-        // this is simply Quintile 2  => Q2
-         String proficiencyCode = switch (proficiency) {
-            case "Quintile 1" -> "Q1";
-            case "Quintile 2" -> "Q2";
-            case "Quintile 3" -> "Q3";
-            case "Quintile 4" -> "Q4";
-            case "Quintile 5" -> "Q5";
-            default -> "??";
-        };
-
-        return proficiencyCode;
-
-    }
-
-  
-     
-
-    private static String GeneralCsaCode (String subject) {
-        String lowerSubject = subject.toLowerCase();
-        if (lowerSubject.startsWith("math"))
-            return "M";
-        if (lowerSubject.startsWith("read"))
-            return "R";
-        if (lowerSubject.startsWith("written"))
-            return "W";
-        if (lowerSubject.startsWith("eng"))
-            return "R";
-        if (lowerSubject.startsWith("lang"))
-            return "L";
-        if (lowerSubject.startsWith("math"))
-            return "M";
-        if (lowerSubject.startsWith("science"))
-            return "C";
-        if (lowerSubject.startsWith("social"))
-            return "S";
-        if (lowerSubject.startsWith("adaptive"))
-            return "A";
-        if (lowerSubject.startsWith("behavior"))
-            return "B";
-        if (lowerSubject.startsWith("cognitive"))
-            return "G";
-        
-        return "NOT_FOUND";
-    }
-
-    private static String MapMclass_CsaCodeFromCourseName (String courseName) {
-        // This will return "" for N/A - IE ignore
-        // It will return "NOT_FOUND"  if not found!
-
-         String csaCode = switch (courseName) {
-            case "English II MYP" -> "R";
-            case "Algebra II MYP" -> "M";
-            case "Algebra II" -> "M";
-            case "Algebra I" -> "M";
-            case "Chemistry MYP" -> "C";
-            case "US Government" -> "S";
-            case "US Hist Since Recon MYP (YL)" -> "S";
-            case "IB Lang A: Lang & Lit SL2" -> "R";
-            case "IB Math: AI SL2" -> "M";
-            case "IB Theory of Knowledge 12 (Sem)" -> "";   // This is a known DO NOT LOAD.
-            case "IB Theory of Knowledge 11 (Sem)" -> "";   // This is a known DO NOT LOAD.
-            case "IB Global Politics HL2" -> "S";
-            case "IB History of Americas HL2" -> "S";
-            case "IB History of Americas HL1" -> "S";
-            case "IB Lang A: Lang & Lit HL2" -> "R";
-            case "IB Lang A: Lang & Lit SL1" -> "R";
-            case "IB Environ Sys & Soc SL1" -> "S";
-            case "IB Global Politics Higher Level 1" -> "S";
-            case "IB Math: AI SL1" -> "M";
-            case "IB Biology Standard Level 1" -> "C";
-            case "IB Psychology HL1" -> "S";
-            case "Geometry MYP" -> "M";
-            case "IB Lang A: Lang & Lit HL1" -> "R";
-            case "Precalculus" -> "M";
-            case "English I MYP" -> "R";
-            case "Biology MYP" -> "C";
-            case "Biology" -> "C";
-            case "World History Studies MYP" -> "S";
-            case "Ind Study in Math I (YL)" -> "M";
-            case "English Lang Arts & Read, Grade 8 MYP" -> "R";
-            case "Algebra I MYP MS" -> "M";
-            case "Science, Grade 8 MYP" -> "C";
-            case "US History, Grade 8 MYP" -> "S";
-            case "English Lang Arts & Read, Grade 6 MYP" -> "R";
-            case "Math, Grade 6 MYP" -> "M";
-            case "Science, Grade 6 MYP" -> "C";
-            case "Algebra I MYP" -> "M";
-            case "Reading I" -> "R";
-            case "English Lang Arts & Read, Grade 7 MYP" -> "R";
-            case "English II" -> "R";
-            case "Math, Grade 8 MYP" -> "M";
-            case "Science, Grade 7 MYP" -> "C";
-            case "Math, Grade 7 MYP" -> "M";
-            case "Texas History, Grade 7 MYP" -> "S";
-            case "English Language Arts & Reading, Grade 3" -> "R";
-            case "Social Studies, Grade 3" -> "S";
-            case "Math, Grade 7" -> "M";
-            case "English Language Arts & Reading, Grade 5" -> "R";
-            case "Science, Grade 5" -> "C";
-            case "Social Studies, Grade 5" -> "S";
-            case "World History, Grade 6 MYP" -> "S";
-            case "English Language Arts & Reading, Grade 4" -> "R";
-            case "Science, Grade 4" -> "C";
-            case "Social Studies, Grade 4" -> "S";
-            case "Math, Grade 4" -> "M";
-            case "Math, Grade 3" -> "M";
-            case "Math, Grade 5" -> "M";
-
-            case "Geometry" -> "M";
-
-            case "English III" -> "R";
-            case "Environmental Systems" -> "C";
-            case "World Geo Studies" -> "S";
-            case "English IV" -> "R";
-            case "Anatomy and Physiology" -> "C";
-            case "World Geo Studies MYP" -> "S";
-            case "English Language Arts & Reading, Grade 2" -> "R";
-            case "Math, Grade 2" -> "M";
-            case "Science, Grade 2" -> "C";
-            case "Social Studies, Grade 2" -> "S";
-            case "English Language Arts & Reading, KG" -> "R";
-            case "Math, Kindergarten" -> "M";
-            case "Science, Kindergarten" -> "C";
-            case "Social Studies, Kindergarten" -> "S";
-            case "English Language Arts & Reading, Grade 1" -> "R";
-            case "Math, Grade 1" -> "M";
-            case "Science, Grade 1" -> "C";
-            case "Social Studies, Grade 1" -> "S";
-
-            case "Physics" -> "C";
-            case "Science, Grade 3" -> "C";
-
-            case "Chemistry" -> "C";
-            case "US Hist Since Recon" -> "S";
-            case "World Hist Studies" -> "S";
-            case "Geometry MYP MS" -> "M";
-
-            case "Personal Financial Lit & Econ (Sem)" -> "";
-
-
-
-            default -> "NOT_FOUND";
-        };
-
-        return csaCode;
-
-
-    }
 
    
-
-    private static String Staar_SubjectFromCode (String code) {
-
-        String subject = switch (code) {
-            case "M" -> "Math";
-            case "R" -> "Reading";
-            case "S" -> "Science";
-            case "A1" -> "Algebra I";
-            case "B" -> "Biology";
-            case "E1" -> "English I";
-            case "E2" -> "English II";
-            case "USH" -> "US History";
-            case "SS" -> "Social Studies";
-            default -> "NOT_FOUND";
-        };
-
-        return subject;
-
-
-    }
-
-    private static String Staar_CsaCodeFromCode (String code) {
-
-        String csaCode = switch (code) {
-            case "M", "A1" -> "M";
-            case "R" -> "R";
-            case "S", "B" -> "C";
-            case "E1", "E2" -> "L";
-            case "USH", "SS" -> "S";
-            default -> "NOT_FOUND";
-        };
-
-        return csaCode;
-    }
-
-    private static String Staar_ProficiencyCodeFromProficiency (String proficiency) {
-
-        String pc = switch (proficiency) {
-            case "Did Not Meet" -> "DN";
-            case "Approaches" -> "AP";
-            case "Masters" -> "MA";
-            case "Meets" -> "MT";
-            default -> "NOT_FOUND";
-        };
-
-        return pc;
-
-
-    }
-    
 
     public static ImportResult Import(String importDefId) {
 
@@ -389,7 +188,10 @@ public class UpliftFiles {
 
                     //i.importRepo.saveStudent(s);
                     // studentNumber for row [0]
-                    i.importRepo.saveStudentDemographics(row[0], row[3], row[4], false, false, false, false, false, false,
+
+                        String dob = ImportHelper.DateToStdFormat(row[3]);
+
+                    i.importRepo.saveStudentDemographics(row[0], dob, row[4], false, false, false, false, false, false,
                     isEsl, is504, false
                     
                     );
@@ -556,7 +358,7 @@ public class UpliftFiles {
                     // they combine map and mclass
 
                     String proficiencyCode = "";
-                    String csaCode = GeneralCsaCode(row[4]);
+                    String csaCode = MappingHelper.GeneralCsaCode(row[4]);
 
                     if (csaCode.equals("NOT_FOUND")) {
                         i.importRepo.logError("Found Map or Mclass with unkown subject " + row[4]);
@@ -568,7 +370,7 @@ public class UpliftFiles {
                         switch (row[1]) {
                             case "MAP":
 
-                                proficiencyCode = Map_proficiencyCode(row[5]);
+                                proficiencyCode = MappingHelper.Map_proficiencyCode(row[5]);
                                 // So proficiency is "Quintile 2".   We could map that to something better here!
 
 
@@ -579,7 +381,7 @@ public class UpliftFiles {
                                 break;
                             case "MCLASS":
                                 // TODO : Get proficiencyCode and csaCode
-                                proficiencyCode = TeaStaarFlatFileReader.MClass_proficiencyCode(row[5]);
+                                proficiencyCode = MappingHelper.MClass_proficiencyCode(row[5]);
                                 i.importRepo.sisMclassAdd(row[0], row[2], row[3], row[4], row[5], proficiencyCode,  score, csaCode);
 
                                 counter2++;
@@ -633,7 +435,7 @@ public class UpliftFiles {
                     // do not import if grade is blank.
                     if (!row[3].isBlank()) {
                         int score = Integer.parseInt (row[3]);
-                        String csaCode = MapMclass_CsaCodeFromCourseName(row[2]);
+                        String csaCode = MappingHelper.MapMclass_CsaCodeFromCourseName(row[2]);
 
                         ///System.out.println("Got Code : " + csaCode);
 
@@ -692,11 +494,11 @@ public class UpliftFiles {
 
 
                     // calculate the year based on the date.
-                    String schoolYear = TeaStaarFlatFileReader.SchoolYearFromDate(row[1]);
+                    String schoolYear = MappingHelper.SchoolYearFromDate(row[1]);
 
-                    String proficiencyCode = Staar_ProficiencyCodeFromProficiency(row[4]);
-                    String csaCode = Staar_CsaCodeFromCode(row[2]);
-                    String subject = Staar_SubjectFromCode(row[2]);
+                    String proficiencyCode = MappingHelper.Staar_ProficiencyCodeFromProficiency(row[4]);
+                    String csaCode = MappingHelper.Staar_CsaCodeFromCode(row[2]);
+                    String subject = MappingHelper.Staar_SubjectFromCode(row[2]);
 
 
                     if (
@@ -756,7 +558,7 @@ public class UpliftFiles {
 
 
                     // calculate the year based on the date.
-                    String schoolYear = TeaStaarFlatFileReader.SchoolYearFromDate(row[3]);
+                    String schoolYear = MappingHelper.SchoolYearFromDate(row[3]);
 
 
                     String grade = row[2];
@@ -871,23 +673,29 @@ public class UpliftFiles {
             // NOW WE CAN CHECK CHANGES and BAIL IF NEED BE.
 
 
-            
+            if (!importDef.getForceLoad() && isRoster) {
+                String checkDeltas = i.importRepo.checkImportDeltas(districtId, importDefId);
+                if (!checkDeltas.equals("OK")) {
+                    throw new Exception("Check Import Delta failed: " + checkDeltas);
+                }
+
+            }
 
 
         
-            LocalDateTime endDateTime = LocalDateTime.now();
-    
-            Duration duration = Duration.between(startDateTime, endDateTime);
-
-            i.importRepo.logInfo("Import " + importDefId + " () Complete in : " + duration.toSeconds() + " Seconds" );
-
+           
             
 
              i.boscoApi.sendImportToBosco(districtId);
 
              i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
 
-            
+             LocalDateTime endDateTime = LocalDateTime.now();
+    
+            Duration duration = Duration.between(startDateTime, endDateTime);
+
+            i.importRepo.logInfo("Import " + importDefId + " () Complete in : " + duration.toSeconds() + " Seconds" );
+
 
             result.success = true;
 
