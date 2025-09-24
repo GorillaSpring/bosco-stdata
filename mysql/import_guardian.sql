@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `import` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `import`;
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
 -- Host: localhost    Database: import
@@ -25,16 +23,17 @@ DROP TABLE IF EXISTS `guardian`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `guardian` (
-  `importId` int NOT NULL,
-  `sourceId` varchar(255) NOT NULL,
-  `studentSourceId` varchar(255) NOT NULL,
+  `districtId` int NOT NULL,
+  `sourceId` varchar(50) NOT NULL,
+  `studentId` varchar(50) NOT NULL,
+  `studentSourceId` varchar(50) NOT NULL,
   `guardianId` varchar(50) NOT NULL,
-  `firstName` varchar(255) NOT NULL,
-  `lastName` varchar(255) NOT NULL,
+  `firstName` varchar(50) NOT NULL,
+  `lastName` varchar(50) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `type` varchar(50) NOT NULL,
-  `changed` int NOT NULL DEFAULT '1',
-  PRIMARY KEY (`importId`,`sourceId`)
+  `type` varchar(5) NOT NULL,
+  `importStatus` varchar(10) NOT NULL,
+  PRIMARY KEY (`districtId`,`sourceId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -47,4 +46,4 @@ CREATE TABLE `guardian` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-25 13:55:57
+-- Dump completed on 2025-09-24  7:26:38

@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `import` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `import`;
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
 -- Host: localhost    Database: import
@@ -28,12 +26,14 @@ CREATE TABLE `sis_map` (
   `districtId` int NOT NULL,
   `id` varchar(255) NOT NULL,
   `schoolYear` varchar(50) NOT NULL,
-  `term` varchar(50) NOT NULL,
+  `period` varchar(50) NOT NULL,
   `subject` varchar(50) NOT NULL,
-  `level` varchar(50) NOT NULL,
+  `proficiency` varchar(50) NOT NULL,
+  `proficiencyCode` varchar(5) NOT NULL DEFAULT '',
   `score` int NOT NULL,
-  `imported` tinyint NOT NULL DEFAULT '1',
-  PRIMARY KEY (`districtId`,`id`,`schoolYear`,`term`,`subject`,`level`,`score`)
+  `csaCode` varchar(5) NOT NULL DEFAULT '',
+  `importStatus` varchar(10) NOT NULL DEFAULT 'OK',
+  PRIMARY KEY (`districtId`,`id`,`schoolYear`,`period`,`subject`,`proficiency`,`score`,`proficiencyCode`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -46,4 +46,4 @@ CREATE TABLE `sis_map` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-25 13:55:56
+-- Dump completed on 2025-09-24  7:26:38

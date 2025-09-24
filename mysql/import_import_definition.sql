@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `import` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `import`;
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
 -- Host: localhost    Database: import
@@ -28,9 +26,11 @@ CREATE TABLE `import_definition` (
   `id` varchar(50) NOT NULL,
   `importType` varchar(50) DEFAULT NULL,
   `districtId` int NOT NULL,
+  `isStudentSource` tinyint NOT NULL DEFAULT '1',
   `active` tinyint NOT NULL DEFAULT '0',
   `forceLoad` tinyint NOT NULL DEFAULT '0',
-  `baseImportId` int NOT NULL DEFAULT '0',
+  `setNoEmails` tinyint NOT NULL DEFAULT '0',
+  `maxDeltaPercent` decimal(5,2) NOT NULL DEFAULT '20.00',
   `lastRunDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -45,4 +45,4 @@ CREATE TABLE `import_definition` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-25 13:55:57
+-- Dump completed on 2025-09-24  7:26:39

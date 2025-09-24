@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `import` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `import`;
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
 -- Host: localhost    Database: import
@@ -25,15 +23,17 @@ DROP TABLE IF EXISTS `student`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `student` (
-  `importId` int NOT NULL,
-  `sourceId` varchar(255) NOT NULL,
-  `studentNumber` varchar(255) NOT NULL,
-  `firstName` varchar(255) NOT NULL,
-  `lastName` varchar(255) NOT NULL,
-  `grade` varchar(50) NOT NULL DEFAULT '',
-  `dob` varchar(255) NOT NULL DEFAULT '',
+  `id` varchar(50) NOT NULL,
+  `districtId` int NOT NULL,
+  `importStatus` varchar(10) NOT NULL,
+  `sourceId` varchar(50) NOT NULL,
+  `studentNumber` varchar(50) NOT NULL,
+  `firstName` varchar(50) NOT NULL,
+  `lastName` varchar(50) NOT NULL,
+  `grade` varchar(5) NOT NULL DEFAULT '',
+  `dob` varchar(50) NOT NULL DEFAULT '',
   `gender` varchar(50) NOT NULL DEFAULT '',
-  `schoolCode` varchar(255) NOT NULL DEFAULT '',
+  `schoolSourceId` varchar(50) NOT NULL DEFAULT '',
   `americanIndianOrAlaskaNative` tinyint NOT NULL DEFAULT '0',
   `asian` tinyint NOT NULL DEFAULT '0',
   `blackOrAfricanAmerican` tinyint NOT NULL DEFAULT '0',
@@ -43,8 +43,11 @@ CREATE TABLE `student` (
   `demographicRaceTwoOrMoreRaces` tinyint NOT NULL DEFAULT '0',
   `isEsl` tinyint NOT NULL DEFAULT '0',
   `is504` tinyint NOT NULL DEFAULT '0',
-  `changed` int NOT NULL DEFAULT '1',
-  PRIMARY KEY (`importId`,`sourceId`)
+  `isBilingual` tinyint NOT NULL DEFAULT '0',
+  `isSpecialEd` tinyint NOT NULL DEFAULT '0',
+  `entryIepDate` varchar(50) NOT NULL DEFAULT '',
+  `hasNewSisData` tinyint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -57,4 +60,4 @@ CREATE TABLE `student` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-25 13:55:57
+-- Dump completed on 2025-09-24  7:26:39

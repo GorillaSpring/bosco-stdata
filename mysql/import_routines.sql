@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `import` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `import`;
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
 -- Host: localhost    Database: import
@@ -20,7 +18,7 @@ USE `import`;
 --
 -- Dumping routines for database 'import'
 --
-/*!50003 DROP PROCEDURE IF EXISTS `diff_imports` */;
+/*!50003 DROP PROCEDURE IF EXISTS `check_import_deltas` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -30,441 +28,317 @@ USE `import`;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `diff_imports`(p_importId int, p_baseimportId int)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `check_import_deltas`(
+	p_districtId int,
+    p_importDefinitionId varchar(50)
+    
+    )
 BEGIN
-	
-    -- school
-    
-	UPDATE 
-		school s
-	JOIN 
-		school bs ON bs.importId = p_baseImportId AND bs.sourceId = s.sourceId 
-	SET 
-		s.changed = 0
-	WHERE
-		s.importId = p_importId
-        AND s.name = bs.name;
-        
-	-- teacher
-	UPDATE 
-		teacher t
-	JOIN 
-		teacher bt ON bt.importId = p_baseImportId AND bt.sourceId = t.sourceId 
-	SET 
-		t.changed = 0
-	WHERE
-		t.importId = p_importId
-        AND t.firstName = bt.firstName
-        AND t.lastName = bt.lastName
-        AND t.email = bt.email;
-        
-	-- student
-    
-	UPDATE 
-		student s
-	JOIN 
-		student bs ON bs.importId = p_baseImportId AND bs.sourceId = s.sourceId 
-	SET 
-		s.changed = 0
-	WHERE
-		s.importId = p_importId
-        AND s.studentNumber = bs.studentNumber
-        AND s.firstName = bs.firstName
-        AND s.lastName = bs.lastName
-        AND s.grade = bs.grade
-        AND s.dob = bs.dob
-        AND s.gender = bs.gender
-        AND s.schoolCode = bs.schoolCode
-        AND s.americanIndianOrAlaskaNative = bs.americanIndianOrAlaskaNative
-        AND s.asian = bs.asian
-        AND s.blackOrAfricanAmerican = bs.blackOrAfricanAmerican
-        AND s.nativeHawaiianOrOtherPacificIslander = bs.nativeHawaiianOrOtherPacificIslander
-        AND s.white = bs.white
-        AND s.hispanicOrLatinoEthnicity = bs.hispanicOrLatinoEthnicity
-        AND s.is504 = bs.is504
-        AND s.isEsl = bs.isEsl;
-        
-        
-	-- guardian
 
-        
-	UPDATE 
-		guardian g
-	JOIN
-		guardian bg ON bg.importId = p_baseImportId AND bg.sourceId = g.sourceId 
-	SET 
-		g.changed = 0
-	WHERE
-		g.importId = p_importId
-        AND g.firstName = bg.firstName
-        AND g.lastName = bg.lastName
-        AND g.email = bg.email;
-        
-        
-	-- student teacher
-    update
-		student_teacher t
-	join 
-		student_teacher bt on bt.importId = p_baseImportId and bt.studentSourceId = t.studentSourceId and bt.teacherSourceId = t.teacherSourceId
-	set
-		t.changed = 0
-	where
-		t.importId = p_importId;
-        
-	-- if any student teachers have changed, then the student has changed.
-    update
-		student s
-	join
-		student_teacher st on st.importId = s.importId and st.studentSourceId = s.sourceId
-	set
-		s.changed = 1
-	where
-		s.importId = p_importId
-        and st.changed = 1;
-        
-	-- if any guardians have changed, then the student has changed.
-	
-    update
-		student s
-	join
-		guardian g on g.importId = s.importId and g.studentSourceId = s.sourceId
-	set
-		s.changed = 1
-	where
-		s.importId = p_importId
-        and g.changed = 1;
-        
-	
-		
-	-- removed guadians - mark student
+	declare totalStudents int;
+	declare changedStudents int;
     
-	update
-		student s
-	set
-		s.changed = 1
+    declare percentStudentChange decimal (10,2);
+    
+    
+    
+    declare v_maxDeltaPercent decimal(5,2);
+    
+    select
+		maxDeltaPercent
+	into
+		v_maxDeltaPercent
+	from
+		import_definition
 	where
-		s.importId = p_importId
-        and s.sourceId in (
-			select
-				g.studentSourceId
-			from
-				guardian g
-			where
-				g.importId = p_baseImportId
-				and g.sourceId not in (
-					select
-						bg.sourceId
-					from
-						guardian bg
-					where
-						bg.importId = p_importId
-					)
-				);
-                
-                
+		id = p_importDefinitionId;
+
+
+	select
+		count(*)
+	into 
+		totalStudents
+	from
+		student s
+	where
+		s.districtId = p_districtId;
+		
+		
+		
+	select
+		count(*)
+	into 
+		changedStudents
+	from
+		student s
+	where
+		s.districtId = p_districtId
+		and s.importStatus != 'OK';    -- CHANGED, DELETE, NEW
+        
+        
+        
+	-- TOOD: Same for Teachers....
+    
+    
+    select
+		(changedStudents * 100.0) / totalStudents
+	into
+		percentStudentChange;
+    
+    
+    
+
+	if (percentStudentChange > v_maxDeltaPercent) then
+		select concat ('Too many changes ',  percentStudentChange , ' : ' ,  v_maxDeltaPercent) as 'res';
+	else 
+		select 'OK';
+	end if;
+	
+        
+	
+
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `guardian_add` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `guardian_add`(
+	p_districtId int,
+    p_sourceId varchar(50),  
+    p_studentSourceId varchar(50),
+    p_guardianId varchar(50),
+    p_firstName varchar(50),
+    p_lastName varchar(50),
+    p_email varchar(255),
+    p_type varchar(5)
+    )
+BEGIN
+    
+    -- This does not work for deletes.
+    -- get the studentId from the studentSourceId
+    
+    select id  into @studentId from student where districtId = p_districtId and sourceId = p_studentSourceId;
+    
+    
+    
+    -- so for this one.
+    -- if exists and is the same - DO NOTING
+    -- if new - update Student (id) to 'CHANGED' if 'OK' -- KEEP NEW if NEW
+    -- if changed - same as above!
+    
+    if exists 
+		(
+			select 1 from guardian
+			where 
+				districtId = p_districtId
+                and sourceId = p_sourceId
+                and studentId = @studentId
+                and studentSourceId = p_studentSourceId
+                and guardianId = p_guardianId
+                and firstName = p_firstName
+                and lastName = p_lastName
+                and email = p_email
+                and type = p_type
+		)
+	then
+		update 
+			guardian
+		set
+			importStatus = 'OK'
+		where 
+			districtId = p_districtId
+			and sourceId = p_sourceId
+			and studentId = @studentId
+			and studentSourceId = p_studentSourceId
+			and guardianId = p_guardianId
+			and firstName = p_firstName
+			and lastName = p_lastName
+			and email = p_email
+			and type = p_type;
 			
+    else 
+		-- Not found or Different
+        -- either way, lets change the student.impotStatus flag
+        -- Only change OK.  NEW or CHANGE or DELETE, leave as is!
+        
+        -- this is done in the post import now.
+        /*
+        update
+			student
+		set
+			importStatus = 'CHANGED'
+		where
+			id = @studentId
+            and importStatus = 'OK';
+        */
+        
+        insert into guardian(districtId, sourceId, studentId,  studentSourceId, guardianId, firstName, lastName, email, type, importStatus)
+        values (p_districtId, p_sourceId, @studentId, p_studentSourceId, p_guardianId, p_firstName, p_lastName, p_email, p_type, 'NEW')
+        on duplicate key update
+			importStatus = 'CHANGED',
+			studentId = @studentId,
+			studentSourceId = p_studentSourceId,
+            guardianId = p_guardianId,
+            firstName = p_firstName,
+            lastName = p_lastName,
+            email = p_email,
+            type = p_type
+            
+            ;
+        
+            
+		
+            
+            
+	end if;
+    
+    
+    
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `post_sent_bosco` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `post_sent_bosco`(
+	p_districtId int,
+    p_importDefinitionId varchar(50),
+    p_isRoster tinyint,
+    p_isSisData tinyint
+    
+    )
+BEGIN
+	-- this will be called AFTER the data is sent to bosco (or atleast pepared in the case of sis_data
+    
+    update import_definition set lastRunDate = CURRENT_TIMESTAMP where id = p_importDefinitionId;
+    
+    
+    SET SQL_SAFE_UPDATES = 0;
+    
+	if (p_isRoster > 0)	then 
+		-- now we delete any DELETE ones.
+    
+		delete from student where districtId = p_districtId and importStatus = 'DELETE';
+		delete from teacher where districtId = p_districtId and importStatus = 'DELETE';
+    
+		delete from student_teacher where districtId = p_districtId and importStatus = 'DELETE';
+    
+		delete from guardian where districtId = p_districtId and importStatus = 'DELETE';
+    
+	end if;
+        
+	if (p_isSisData > 0) then
+		
+        
+        -- WE need to think about this.
+        -- We do updates only on bosco, we do not do any deletes.
+        
+        /*
+        update
+			sis_student ss
+            join sis_staar sd on sd.id = ss.id
+		set
+			sd.dirty = 1
+		where
+			sd.districtId = p_districtId and sd.importStatus != 'OK';
+          
+		*/
+		-- for now, we do the student too.
+        
+        -- this will change to sis_student being marked as dirty!
+        
+        update
+			student s
+            join sis_staar sd on sd.id = s.id
+		set
+			s.hasNewSisData = 1
+		where
+			sd.districtId = p_districtId and sd.importStatus != 'OK';
+            
+		-- follow this pattern for the rest
+        
+		update
+			student s
+            join sis_discipline sd on sd.id = s.id
+		set
+			s.hasNewSisData = 1
+		where
+			sd.districtId = p_districtId and sd.importStatus != 'OK';
 
-	-- removed teachers - mark student
+		update
+			student s
+            join sis_grade sd on sd.id = s.id
+		set
+			s.hasNewSisData = 1
+		where
+			sd.districtId = p_districtId and sd.importStatus != 'OK';
 
-	update 
-		student s
-	set
-		s.changed = 1
-	where
-		s.importId = p_importId
-		and s.sourceId in (
-			select 
-				st.studentSourceId
-			from
-				student_teacher st
-			where
-				st.importId = p_baseImportId
-				and st.teacherSourceId not in (
-					select 
-						bst.teacherSourceId
-					from
-						student_teacher bst
-					where
-						bst.importId = p_importId
-					)
-				);
-    
+		update
+			student s
+            join sis_map sd on sd.id = s.id
+		set
+			s.hasNewSisData = 1
+		where
+			sd.districtId = p_districtId and sd.importStatus != 'OK';
 
-	
-    
-	-- NEXT we will look for adds
-    -- this is just student only.
-    
-    
-   update
-		student
-	set
-		changed = 2
-	where
-		importId = p_importId
-        and sourceId not in (
+		update
+			student s
+            join sis_mclass sd on sd.id = s.id
+		set
+			s.hasNewSisData = 1
+		where
+			sd.districtId = p_districtId and sd.importStatus != 'OK';
+
+		update
+			student s
+            join sis_telpas sd on sd.id = s.id
+		set
+			s.hasNewSisData = 1
+		where
+			sd.districtId = p_districtId and sd.importStatus != 'OK';
+            
+		/*
+		update
+			student s
+            join sis_attendance sd on sd.id = s.id
+		set
+			s.hasNewSisData = 1
+		where
+			sd.districtId = p_districtId and sd.importStatus != 'OK';
+
+        */
         
-			select 
-				sourceId 
-			from 
-				(
-				select
-					s.sourceId
-				from
-					student s
-				where
-					s.importId = p_baseImportId
-				) as temp
-        
-        );
-        
-        
-	-- new teachers
-	update
-		teacher
-	set
-		changed = 2
-	where
-		importId = p_importId
-        and sourceId not in (
-			select
-				sourceId
-			from
-				(
-					select
-						t.sourceId
-					from
-						teacher t
-					where
-						t.importId = p_baseImportId
-                ) as temp
-		);
+
     
-    -- new schools
-    
-    update
-		school
-	set
-		changed = 2
-	where
-		importId = p_importId
-        and sourceId not in (
-			select
-				sourceId
-			from
-				(
-					select
-						s.sourceId
-					from
-						school s
-					where
-						s.importId = p_baseImportId
-				) as temp
-		);
-     
-  
+    end if;
 		
     
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `import_get_difs` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `import_get_difs`(
-	p_importId int
-)
-BEGIN
-	select
-		*
-	from
-		student s
-	where
-		s.importId = p_importId
-		and s.changed > 0;
-        
-  -- the students above get guarians and teachers.
-  
-   select 
-		*
-	from
-		guardian g
-	where
-		g.importId = p_importId
-		and g.studentSourceId in (
-			
-			select
-				s.sourceId
-			from
-				student s
-			where
-				s.importId = p_importId
-				and s.changed > 0
-        );
-        
-  -- teachers for changed students
-	select
-		*
-	from
-		studentteacher st
-	where
-		st.importId = p_importId
-		and st.studentSourceId in (
-			select
-				s.sourceId
-			from
-				student s
-			where
-				s.importId = p_importId
-				and s.changed > 0
-        
-        );
-        
-	
-        
-	select
-		*
-	from
-		teacher t
-	where
-		t.importId = p_importId
-		and t.changed = 1;
-
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `import_system_startup` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `import_system_startup`()
-BEGIN
-	update
-		system_status
-	set
-		status = 0
-	where
-		systemKey = 'Import';
-	
-	update
-		system_status
-	set
-		status = 0
-	where
-		systemKey = 'DataRequest';
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `post_sis_data` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `post_sis_data`(p_districtId int)
-BEGIN
-	SET SQL_SAFE_UPDATES = 0;
     
     
---	update
---		sis_student
---	set
---		dirty = 1
---	where
---		id in (
---			select distinct id from sis_academic_grade where districtId = p_districtId and imported = 0
- --       );
-        
-        
-	update
-		sis_student sd
-		join sis_academic_grade sag on sd.id = sag.id
-	set
-		sd.dirty = 1
-	where
 		
-		sag.districtId = p_districtId and sag.imported = 0;
-        
-	
-	delete from sis_academic_grade where districtId = p_districtId and imported = 0;
-    
-    update
-		sis_student sd
-		join sis_map sag on sd.id = sag.id
-	set
-		sd.dirty = 1
-	where
-		sag.districtId = p_districtId and sag.imported = 0;
-        
-	
-	delete from sis_map where districtId = p_districtId and imported = 0;
-    
-    
-	update
-		sis_student sd
-		join sis_mclass sag on sd.id = sag.id
-	set
-		sd.dirty = 1
-	where
-		sag.districtId = p_districtId and sag.imported = 0;
-        
-	
-	delete from sis_mclass where districtId = p_districtId and imported = 0;
-
-   
-	update
-		sis_student sd
-		join sis_staar sag on sd.id = sag.id
-	set
-		sd.dirty = 1
-	where
-		sag.districtId = p_districtId and sag.imported = 0;
-        
-	
-	delete from sis_staar where districtId = p_districtId and imported = 0;
-
-
-	update
-		sis_student sd
-		join sis_discipline sag on sd.id = sag.id
-	set
-		sd.dirty = 1
-	where
-		sag.districtId = p_districtId and sag.imported = 0;
-        
-	
-	delete from sis_discipline where districtId = p_districtId and imported = 0;
-
-    
 	SET SQL_SAFE_UPDATES = 1;
     
-	
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -482,56 +356,62 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prep_import`(
-	IN p_distrcitId int,
+	IN p_districtId int,
+    IN p_importDefinitionId varchar(50),
+    IN p_isRoster tinyint,
+    IN p_isSisData tinyint,
     IN p_log varchar(500),
     OUT p_importId int
 )
 BEGIN
+
 	insert into 
-		import (districtId, log) 
-	values (p_distrcitId, p_log);
-
-	set p_importId = LAST_INSERT_ID();
-
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `prep_sis_data` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prep_sis_data`(p_districtId int)
-BEGIN
-	-- this will do this for ALL data
+		import (districtId, importDefinitionId, log)
+	values (p_districtId, p_importDefinitionId, p_log);
     
+    set p_importId = LAST_INSERT_ID();
+
 	SET SQL_SAFE_UPDATES = 0;
-	update sis_academic_grade set imported = 0 where districtId = p_districtId;
     
-    update sis_map set imported = 0 where districtId = p_districtId;
-    update sis_mclass set imported = 0 where districtId = p_districtId;
-    update sis_staar set imported = 0 where districtId = p_districtId;
-    update sis_discipline set imported = 0 where districtId = p_districtId;
+    if (p_isRoster > 0)
+		then
     
+			insert into log_info (importId, info) values (p_importId, 'Preping Roster data');
+			-- for any that are set to OK already change to DELETE.
+			update student set importStatus = 'DELETE'  where districtId = p_districtId; -- and importStatus = 'OK';
+			update teacher set importStatus = 'DELETE'  where districtId = p_districtId; 
+			
+			update guardian set importStatus = 'DELETE'  where districtId = p_districtId; 
+			
+			update student_teacher set importStatus = 'DELETE'  where districtId = p_districtId;
+			-- do for other tables too, but maybe just Student and Teacher!
+			
+			delete from student_class where districtId = p_districtId;
+			delete from teacher_class where districtId = p_districtId;
+		end if;
+	
+    if (p_isSisData > 0)
+		then
+        
+			insert into log_info (importId, info) values (p_importId, 'Preping Sis data');
+            
+            -- This will simply mark the students as having no new sis data.  
+            -- This should be removed after the student registration is in place.
+            update student set hasNewSisData = 0 where districtId = p_districtId;
+			
+		
+			
+        end if;
     
-	SET SQL_SAFE_UPDATES = 1;
-    
-    
+    SET SQL_SAFE_UPDATES = 1;
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `sis_academic_grade_add` */;
+/*!50003 DROP PROCEDURE IF EXISTS `prep_send_bosco` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -541,59 +421,57 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sis_academic_grade_add`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prep_send_bosco`(
 	p_districtId int,
-	p_id varchar(255),
-    p_schoolYear varchar(50),
-    p_term varchar(50),
-    p_courseNumber varchar(50),
-    p_courseName varchar(50),
-    p_grade int
+    p_importDefinitionId varchar(50),
+    p_isRoster tinyint,
+    p_isSisData tinyint
+    
     )
 BEGIN
+	-- this will be called after the import has completed, but before data is sent to bosco
+    -- for sis data ???
     
-    if exists 
-		(
-			select 1 from sis_academic_grade 
-			where 
-				districtId = p_districtId
-				and id = p_id
-				and schoolYear = p_schoolYear
-				and term = p_term
-				and courseNumber = p_courseNumber
-				and courseName = p_courseName
- 				and grade = p_grade
-		)
-	then
-		-- set imported to true
-        update
-			sis_academic_grade
-		set
-			imported = 1
-		where
-			districtId = p_districtId
-			and id = p_id
-			and schoolYear = p_schoolYear
-			and term = p_term
-			and courseNumber = p_courseNumber
-			and courseName = p_courseName
-			and grade = p_grade;
-	else
-		-- we add it and set dirty to ture on the student_sis_data
-        update
-			sis_student
-		set
-			dirty = 1
-		where
-			id = p_id;
-            
-		insert into sis_academic_grade (districtId, id, schoolYear, term, courseNumber, courseName, grade)  
-        values (p_districtId, p_id, p_schoolYear, p_term, p_courseNumber, p_courseName, p_grade);
-
-            
-            
-	end if;
     
+    
+	SET SQL_SAFE_UPDATES = 0;
+    
+	if (p_isRoster > 0)
+		then 
+		
+			
+			update
+				student s
+				join guardian g on s.districtId = g.districtId and s.id = g.studentId
+			set
+				s.importStatus = 'CHANGED'
+			where
+				s.districtId = p_districtId
+				and g.importStatus != "OK"
+				and s.importStatus = 'OK';
+			
+			update
+				student s
+				join student_teacher st on s.districtId = st.districtId and s.id = st.studentId 
+			set
+				s.importStatus = 'CHANGED'
+			where
+				s.districtId = p_districtId
+				and st.importStatus != "OK"
+				and s.importStatus = 'OK';
+		end if;
+        
+	-- if (p_isSisData > 0) then
+		
+		
+    -- end if;
+		
+        
+	
+    
+    
+		
+	SET SQL_SAFE_UPDATES = 1;
     
     
 END ;;
@@ -618,11 +496,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sis_discipline_add`(
     p_issDays varchar(50),
     p_ossDays varchar(50),
     p_aepDays varchar(50),
+    p_grade varchar(5),
     p_schoolYear varchar(50)
     )
 BEGIN
     
-    if exists 
+    if not exists 
 		(
 			select 1 from sis_discipline
 			where 
@@ -631,32 +510,82 @@ BEGIN
                 and issDays = p_issDays
                 and ossDays = p_ossDays
                 and aepDays = p_aepDays
+                and grade = p_grade
                 and schoolYear = p_schoolYear
 		)
 	then
-		-- set imported to true
-        update
-			sis_discipline
-		set
-			imported = 1
-		where
-			districtId = p_districtId
-			and id = p_id
-			and issDays = p_issDays
-			and ossDays = p_ossDays
-			and aepDays = p_aepDays
-			and schoolYear = p_schoolYear;
-	else
-		-- we add it and set dirty to ture on the student_sis_data
-        update
-			sis_student
-		set
-			dirty = 1
-		where
-			id = p_id;
-            
-		insert into sis_discipline (districtId, id, issDays, ossDays, aepDays, schoolYear)  
-        values (p_districtId, p_id, p_issDays, p_ossDays, p_aepDays, p_schoolYear);
+		-- we did not find an exact match..
+        
+		insert into sis_discipline (districtId, id, issDays, ossDays, aepDays, grade, schoolYear, importStatus)  
+        values (p_districtId, p_id, p_issDays, p_ossDays, p_aepDays, p_grade, p_schoolYear, 'NEW')
+        on duplicate key update
+        	issDays = p_issDays,
+			ossDays = p_ossDays,
+			aepDays = p_aepDays,
+            grade = p_grade,
+			schoolYear = p_schoolYear,
+              importStatus = 'CHANGED'
+
+            ;
+	end if;
+    
+    
+    
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `sis_grade_add` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sis_grade_add`(
+	p_districtId int,
+	p_id varchar(255),
+    p_schoolYear varchar(50),
+    p_period varchar(50),
+    p_code varchar(50),
+    p_subject varchar(50),
+    p_score int,
+    p_csaCode varchar(5)
+    )
+BEGIN
+    
+    if not exists 
+		(
+			select 1 from sis_grade 
+			where 
+				districtId = p_districtId
+				and id = p_id
+				and schoolYear = p_schoolYear
+				and period = p_period
+				and code = p_code
+				and subject = p_subject
+ 				and score = p_score
+                and csaCode = p_csaCode
+		)
+	then
+		-- we did not find an exact match..
+        
+        insert into sis_grade (districtId, id, schoolYear, period, code, subject, score, csaCode, importStatus)  
+        values (p_districtId, p_id, p_schoolYear, p_period, p_code, p_subject, p_score, p_csaCode, 'NEW')
+		on duplicate key update
+			period = p_period,
+			code = p_code,
+			subject = p_subject,
+			score = p_score,
+            csaCode = p_csaCode,
+            importStatus = 'CHANGED'
+
+            ;
 
             
             
@@ -684,50 +613,45 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sis_map_add`(
 	p_districtId int,
 	p_id varchar(255),
     p_schoolYear varchar(50),
-    p_term varchar(50),
+    p_period varchar(50),
     p_subject varchar(50),
-    p_level varchar(50),
-    p_score int
+    p_proficiency varchar(50),
+    p_proficiencyCode varchar(5),
+    p_score int,
+    p_csaCode varchar(5)
     )
 BEGIN
     
-    if exists 
+    if not exists 
 		(
 			select 1 from sis_map 
 			where 
 				districtId = p_districtId
 				and id = p_id
 				and schoolYear = p_schoolYear
-				and term = p_term
+				and period = p_period
                 and subject = p_subject
+                and proficiency = p_proficiency
+                and proficiencyCode = p_proficiencyCode
                 and score = p_score      
+                and csaCode = p_csaCode
 		)
 	then
-		-- set imported to true
-        update
-			sis_map
-		set
-			imported = 1
-		where
-			districtId = p_districtId
-			and id = p_id
-			and schoolYear = p_schoolYear
-			and term = p_term
-			and subject = p_subject
-            and score = p_score;
-	else
-		-- we add it and set dirty to ture on the student_sis_data
-        update
-			sis_student
-		set
-			dirty = 1
-		where
-			id = p_id;
+		-- we did not find an exact match..
             
-		insert into sis_map (districtId, id, schoolYear, term, subject, level, score)  
-        values (p_districtId, p_id, p_schoolYear, p_term, p_subject, p_level, p_score);
+		insert into sis_map (districtId, id, schoolYear, period, subject, proficiency, proficiencyCode, score, csaCode, importStatus)  
+        values (p_districtId, p_id, p_schoolYear, p_period, p_subject, p_proficiency, p_proficiencyCode, p_score, p_csaCode, 'NEW')
 
-            
+		 on duplicate key update
+            period = p_period,
+            subject = p_subject, 
+            proficiency = p_proficiency,
+            proficiencyCode = p_proficiencyCode, 
+            score = p_score,
+            csaCode = p_csaCode,
+			importStatus = 'CHANGED'
+
+            ;
             
 	end if;
     
@@ -753,51 +677,46 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sis_mclass_add`(
 	p_districtId int,
 	p_id varchar(255),
     p_schoolYear varchar(50),
-    p_term varchar(50),
+    p_period varchar(50),
     p_subject varchar(50),
-    p_level varchar(50),
-    p_score int
+    p_proficiency varchar(50),
+	p_proficiencyCode varchar(5),
+    p_score int,
+    p_csaCode varchar(5)
     )
 BEGIN
     
-    if exists 
+    if not exists 
 		(
 			select 1 from sis_mclass
 			where 
 				districtId = p_districtId
 				and id = p_id
 				and schoolYear = p_schoolYear
-				and term = p_term
+				and period = p_period
                 and subject = p_subject
+                and proficiency = p_proficiency
+                and proficiencyCode = p_proficiencyCode
                 and score = p_score      
+                and csaCode = p_csaCode  
 		)
 	then
-		-- set imported to true
-        update
-			sis_mclass
-		set
-			imported = 1
-		where
-			districtId = p_districtId
-			and id = p_id
-			and schoolYear = p_schoolYear
-			and term = p_term
-			and subject = p_subject
-            and score = p_score;
-	else
-		-- we add it and set dirty to ture on the student_sis_data
-        update
-			sis_student
-		set
-			dirty = 1
-		where
-			id = p_id;
-            
-		insert into sis_mclass (districtId, id, schoolYear, term, subject, level, score)  
-        values (p_districtId, p_id, p_schoolYear, p_term, p_subject, p_level, p_score);
+		-- we did not find an exact match..
+              
+		insert into sis_mclass (districtId, id, schoolYear, period, subject, proficiency, proficiencyCode, score, csaCode, importStatus) 
+        values (p_districtId, p_id, p_schoolYear, p_period, p_subject, p_proficiency, p_proficiencyCode, p_score, p_csaCode, 'NEW')
+		on duplicate key update
+    
+			period = p_period,
+			subject = p_subject,
+            proficiency = p_proficiency,
+			proficiencyCode = p_proficiencyCode,
+			score = p_score,
+			csaCode = p_csaCode,
+             importStatus = 'CHANGED'
 
-            
-            
+            ;
+	
 	end if;
     
     
@@ -821,49 +740,104 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sis_staar_add`(
 	p_districtId int,
 	p_id varchar(255),
-    p_testDate varchar(50),
-    p_stateAssessmentSubject varchar(50),
-    p_gradeDuringAssessment varchar(50),
-    p_stateAssessmentScore varchar(50)
+    p_schoolYear varchar(50),
+    p_subject varchar(50),
+    p_code varchar(50),
+    p_grade varchar(5),
+    p_proficiency varchar(50),
+    p_proficiencyCode varchar(5),
+    p_csaCode varchar(5)
     )
 BEGIN
     
-    if exists 
+    if not exists 
 		(
 			select 1 from sis_staar
 			where 
 				districtId = p_districtId
 				and id = p_id
-                and testDate = p_testDate
-                and stateAssessmentSubject = p_stateAssessmentSubject
-                and gradeDuringAssessment = p_gradeDuringAssessment
-                and stateAssessmentScore = p_stateAssessmentScore
+                and schoolYear = p_schoolYear
+                and subject = p_subject
+                and code = p_code
+                and grade = p_grade
+                and proficiency = p_proficiency                
+                and proficiencyCode = p_proficiencyCode
+                and csaCode = p_csaCode
 		)
 	then
-		-- set imported to true
-        update
-			sis_staar
-		set
-			imported = 1
-		where
-			districtId = p_districtId
-			and id = p_id
-			and testDate = p_testDate
-			and stateAssessmentSubject = p_stateAssessmentSubject
-			and gradeDuringAssessment = p_gradeDuringAssessment
-			and stateAssessmentScore = p_stateAssessmentScore;
-	else
-		-- we add it and set dirty to ture on the student_sis_data
-        update
-			sis_student
-		set
-			dirty = 1
-		where
-			id = p_id;
-            
-		insert into sis_staar (districtId, id, testDate, stateAssessmentSubject, gradeDuringAssessment, stateAssessmentScore)  
-        values (p_districtId, p_id, p_testDate, p_stateAssessmentSubject, p_gradeDuringAssessment, p_stateAssessmentScore);
+		-- we did not find an exact match..
+        insert into sis_staar (districtId, id, schoolYear, subject, code, grade, proficiency, proficiencyCode, csaCode, importStatus)  
+        values (p_districtId, p_id, p_schoolYear, p_subject, p_code, p_grade, p_proficiency, p_proficiencyCode, p_csaCode, 'NEW')
+        on duplicate key update
+            grade = p_grade,
+            proficiency = p_proficiency, 
+            proficiencyCode = p_proficiencyCode, 
+            csaCode = p_csaCode,
+			importStatus = 'CHANGED'
 
+            ;
+            
+	end if;
+    
+    
+    
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `sis_telpas_add` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sis_telpas_add`(
+	p_districtId int,
+	p_id varchar(255),
+    p_schoolYear varchar(50),
+    p_grade varchar(5),
+    p_proficiency varchar(50),
+    p_listeningScore int,
+    p_speakingScore int,
+    p_readingScore int,
+    p_writingScore int
+    
+    )
+BEGIN
+    
+    if not exists 
+		(
+			select 1 from sis_telpas
+			where 
+				districtId = p_districtId
+				and id = p_id
+                and schoolYear = p_schoolYear
+                and grade = p_grade
+                and proficiency = p_proficiency        
+                and listeningScore = p_listeningScore
+                and speakingScore = p_speakingScore
+                and readingScore = p_readingScore
+                and writingScore = p_writingScore
+		)
+	then
+		-- we did not find an exact match..
+		insert into sis_telpas (districtId, id, schoolYear, grade, proficiency, listeningScore, speakingScore, readingScore, writingScore, importStatus)  
+        values (p_districtId, p_id, p_schoolYear, p_grade, p_proficiency, p_listeningScore, p_speakingScore, p_readingScore, p_writingScore, 'NEW')
+        on duplicate key update
+			proficiency = p_proficiency, 
+			listeningScore = p_listeningScore,
+			speakingScore = p_speakingScore,
+			readingScore = p_readingScore,
+			writingScore = p_writingScore,
+              importStatus = 'CHANGED'
+
+            ;
             
             
 	end if;
@@ -876,7 +850,7 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `student_get` */;
+/*!50003 DROP PROCEDURE IF EXISTS `student_add` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -886,40 +860,129 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `student_get`(
-	importId int,
-    studentId VARCHAR(255)
-)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `student_add`(
+	p_id varchar(50),
+	p_districtId int,
+    p_sourceId varchar(50),
+    p_studentNumber varchar(50),
+    p_firstName varchar(50),
+    p_lastName varchar(50),
+    p_grade varchar(5),
+    p_schoolSourceId varchar(50)
+    )
+BEGIN
+    
+    if exists 
+		(
+			select 1 from student
+			where 
+				id = p_id
+				and districtId = p_districtId
+                and sourceId = p_sourceId
+                and studentNumber = p_studentNumber
+                and firstName = p_firstName
+                and lastName = p_lastName
+                and grade = p_grade
+                and schoolSourceId = p_schoolSourceId
+		)
+	then
+		-- Found, exact match, so OK
+        
+        update
+			student
+		set
+			importStatus = 'OK'
+		where
+			id = p_id;
+	else
+		-- Not found or Different
+        
+        insert into student (id, districtId, importStatus, sourceId, studentNumber, firstName, lastName, grade, schoolSourceId)
+        values (p_id, p_districtId, 'NEW', p_sourceId, p_studentNumber, p_firstName, p_lastName, p_grade, p_schoolSourceId)
+        on duplicate key update
+			importStatus = 'CHANGED',
+			sourceId = p_sourceId,
+            studentNumber = p_studentNumber,
+            firstName = p_firstName, 
+            lastName = p_lastName, 
+            grade = p_grade, 
+            schoolSourceId = p_schoolSourceId
+            
+            ;
+        
+            
+		
+            
+            
+	end if;
+    
+    
+    
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `student_sped_add` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `student_sped_add`(
+	p_districtId int,
+	p_studentSourceId varchar(50),
+    p_stateInstructionalSettingCode varchar(10),
+    p_stateChildCountFundCode varchar(10),
+    p_specialEducationEnrollmentTXID int,
+    p_startDate varchar(50),
+    p_endDate varchar(50),
+    p_multiplyDisabled tinyint,
+    p_entryComment varchar(500),
+    p_exitComment varchar(500)
+    )
 BEGIN
 
-
-	select
-		*
-	from
-		student s
-		left join school sch on sch.sourceId = s.schoolCode and sch.ImportId = s.ImportId 
-	where
-		s.ImportId = importId 
-		and s.SourceId = studentId;
+	 declare isChanged int;
+    
+    if exists 
+		(
+			select 1 from student_sped
+			where 
+				districtId = p_districtId
+                and studentSourceId = p_studentSourceId
+                and stateInstructionalSettingCode = p_stateInstructionalSettingCode
+                and stateChildCountFundCode = p_stateChildCountFundCode
+                and specialEducationEnrollmentTXID = p_specialEducationEnrollmentTXID
+                and startDate = p_startDate
+                and endDate = p_endDate
+                and multiplyDisabled = p_multiplyDisabled
+                and entryComment = p_entryComment
+                and exitComment = p_exitComment
+		)
+	then
+		select 0 into isChanged;
+	else
+    
+		-- this is where we need to update the import student to changed.
+        
+        -- SO here we need to delete the record if it exists.
+        delete from student_sped where districtId = p_districtId and studentSourceId = p_studentSourceId;
+        
+        insert into student_sped (districtId, studentSourceId, stateInstructionalSettingCode, stateChildCountFundCode, specialEducationEnrollmentTXID, startDate, endDate, multiplyDisabled, entryComment, exitComment)
+		values (p_districtId, p_studentSourceId, p_stateInstructionalSettingCode, p_stateChildCountFundCode, p_specialEducationEnrollmentTXID, p_startDate, p_endDate, p_multiplyDisabled, p_entryComment, p_exitComment);
 		
-
-	select
-		*
-	from
-		guardian g
-	where
-		g.ImportId = importId 
-		and g.studentSourceId = studentId;
-
-	select
-		t.*
-	from
-		studentClass sc
-		join teacherClass tc on tc.ClassSourceId = sc.ClassSourceId and tc.ImportId = sc.ImportId
-		join teacher t on t.SourceId = tc.TeacherSourceId and t.ImportId = tc.ImportId 
-	where
-		sc.ImportId = importId 
-		and sc.StudentSourceId = studentId;
+        select 1 into isChanged;
+            
+	end if;
+    
+    select isChanged;
+    
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -937,23 +1000,256 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `student_teacher_build`(
-	p_importId int
+	p_districtId int
 )
 BEGIN
-	-- flush and fill
-    
-    delete from student_teacher where importId = p_importId;
 	
-	insert into 
-		student_teacher (importId, studentSourceID, teacherSourceId, changed)
-	select distinct
-		sc.importId, sc.studentSourceId, tc.teacherSourceId, 1
-	from
-		student_class sc
-		join teacher_class tc on tc.importId = sc.importId and tc.classSourceId = sc.classSourceId
-	where
-		sc.importId = p_importId;
+    
+    -- delete from student_teacher where importId = p_importId;
+    
+    insert into 
+		student_teacher (districtId, studentId, teacherId, importStatus)
+	select
+		distinct
+			p_districtId, s.id, t.id, 'NEW'
+		from
+			student_class sc
+            join student s on s.districtId = sc.districtId and s.sourceId = sc.studentSourceId
+            join teacher_class tc on tc.districtId = sc.districtId and tc.classSourceId = sc.classSourceId
+            join teacher t on t.districtId = tc.districtId and t.sourceId = tc.teacherSourceId            
+		where
+			sc.districtId = p_districtId
+	on duplicate key update 
+		importStatus = 'OK';
+	
+    
+   
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `teacher_add` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `teacher_add`(
+	p_id varchar(50),
+	p_districtId int,
+    p_sourceId varchar(50),
+    p_teacherId varchar(50),
+    p_firstName varchar(50),
+    p_lastName varchar(50),
+    p_email varchar(255)
+    )
+BEGIN
+    
+    if exists 
+		(
+			select 1 from teacher
+			where 
+				id = p_id
+				and districtId = p_districtId
+                and sourceId = p_sourceId
+                and teacherId = p_teacherId
+                and firstName = p_firstName
+                and lastName = p_lastName
+                and email = p_email
+		)
+	then
+		-- Found, exact match, so OK
+        
+        update
+			teacher
+		set
+			importStatus = 'OK'
+		where
+			id = p_id;
+	else
+		-- Not found or Different
+        
+        insert into teacher (id, districtId, importStatus, sourceId, teacherId, firstName, lastName, email)
+        values (p_id, p_districtId, 'NEW', p_sourceId, p_teacherId, p_firstName, p_lastName, p_email)
+        on duplicate key update
+			importStatus = 'CHANGED',
+			sourceId = p_sourceId,
+            teacherId = p_teacherId,
+            firstName = p_firstName, 
+            lastName = p_lastName, 
+            email = p_email 
+            
+            ;
+        
+            
 		
+            
+            
+	end if;
+    
+    
+    
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `test` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `test`()
+BEGIN
+
+	declare countone int;
+    declare counttwo int;
+    
+    declare per decimal (10,2);
+    
+    
+    
+    declare v_maxDeltaPercent decimal(5,2);
+    
+    select
+		maxDeltaPercent
+	into
+		v_maxDeltaPercent
+	from
+		import_definition
+	where
+		id = 'Testing';
+
+
+select
+	count(*)
+into 
+	countone
+from
+	student s
+where
+	s.districtId = 4800030;
+    
+    
+    
+select
+	count(*)
+into 
+	counttwo
+from
+	student s
+where
+	s.districtId = 4813290;
+    
+    
+    select
+		(countone * 100.0) / counttwo
+	into
+		per;
+    
+    
+    
+
+	if (per > v_maxDeltaPercent) then
+		select 'GREATER', per, v_maxDeltaPercent;
+	else 
+		select 'LESS', per, v_maxDeltaPercent;
+	end if;
+	
+        
+        
+	-- this should be able to check the tolarances in the procedure.
+	-- the return of OK is good, antying else will log and throw an exception
+        
+	-- select countone, counttwo, per;
+
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `x_clear_all_district_data` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `x_clear_all_district_data`(p_districtId int)
+BEGIN
+
+
+	SET SQL_SAFE_UPDATES = 0;
+    
+    delete from student where districtId = p_districtId;
+    delete from guardian where districtId = p_districtId;
+    delete from student_class where districtId = p_districtId;
+    delete from teacher_class where districtId = p_districtId;
+    delete from student_teacher where districtId = p_districtId;
+    delete from student_sped where districtId = p_districtId;
+    
+    delete from sis_grade where districtId = p_districtId;
+    delete from sis_map where districtId = p_districtId;
+    delete from sis_mclass where districtId = p_districtId;
+    delete from sis_staar where districtId = p_districtId;
+    delete from sis_discipline where districtId = p_districtId;
+    
+    delete from sis_telpas where  districtId = p_districtId;
+    
+    
+	SET SQL_SAFE_UPDATES = 1;
+    
+
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `x_clear_sis_district` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `x_clear_sis_district`(p_districtId int)
+BEGIN
+
+
+	SET SQL_SAFE_UPDATES = 0;
+    
+    delete from sis_grade where districtId = p_districtId;
+    delete from sis_map where districtId = p_districtId;
+    delete from sis_mclass where districtId = p_districtId;
+    delete from sis_staar where districtId = p_districtId;
+    delete from sis_discipline where districtId = p_districtId;
+    
+    delete from sis_telpas where  districtId = p_districtId;
+    
+    
+	SET SQL_SAFE_UPDATES = 1;
+    
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -984,19 +1280,25 @@ BEGIN
 	truncate table teacher;
 	truncate table teacher_class;
     
-    truncate table sis_academic_grade;
+    truncate table sis_grade;
     truncate table sis_discipline;
     truncate table sis_map;
     truncate table sis_mclass;
     truncate table sis_staar;
     
+    truncate table sis_telpas;
+    
+    truncate table student_sped;
     
     -- for now, we dont do this.
     -- truncate table sis_student;
     
+    /*
     SET SQL_SAFE_UPDATES = 0;
-	update import_definition set baseImportId = 0 ;
+	
     SET SQL_SAFE_UPDATES = 1;
+    
+    */
 
 END ;;
 DELIMITER ;
@@ -1014,4 +1316,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-25 13:55:57
+-- Dump completed on 2025-09-24  7:26:40
