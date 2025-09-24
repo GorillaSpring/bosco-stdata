@@ -240,7 +240,6 @@ public class CsvFiles {
 
                     if (studentNumber != null) {
                         //System.out.println("       --- "  + studentNumber);
-                        count++;
 
 
                         String schoolYear = cc.getSchoolYear();         /// shoudl be correct.
@@ -257,26 +256,28 @@ public class CsvFiles {
                         String proficiency = cc.getCompositeLevel();
 
                         String proficiencyCode = MappingHelper.MClass_proficiencyCode (proficiency);
+                        if (proficiencyCode != "") {
 
+                            count++;
 
-                        String testScore = cc.getCompositeScore();
-                        // shoudl we check?
-                        int score = Integer.parseInt(testScore);
+                            String testScore = cc.getCompositeScore();
+                            // shoudl we check?
+                            int score = Integer.parseInt(testScore);
 
-                        //String studentNumber, 
-                        // String schoolYear, 
-                        // String period, 
-                        // String subject, 
-                        // String proficiency, 
-                        // String proficiencyCode, 
-                        // int score, 
-                        // String csaCode
+                            //String studentNumber, 
+                            // String schoolYear, 
+                            // String period, 
+                            // String subject, 
+                            // String proficiency, 
+                            // String proficiencyCode, 
+                            // int score, 
+                            // String csaCode
 
-                        // String studentNumber, String schoolYear, String period, String subject, String proficiency, String proficiencyCode, int score, String csaCode
-                        i.importRepo.sisMclassAdd(studentNumber, schoolYear, period, subject, proficiency, proficiencyCode, score, csaCode);
+                            // String studentNumber, String schoolYear, String period, String subject, String proficiency, String proficiencyCode, int score, String csaCode
+                            i.importRepo.sisMclassAdd(studentNumber, schoolYear, period, subject, proficiency, proficiencyCode, score, csaCode);
 
-                        //System.out.println ("sisMclassAdd(" + studentNumber + ", " + schoolYear + ", " + period + ", " + subject + ", " + proficiency + "," + proficiencyCode + ", " + score + ", " + csaCode + ");");
-
+                            //System.out.println ("sisMclassAdd(" + studentNumber + ", " + schoolYear + ", " + period + ", " + subject + ", " + proficiency + "," + proficiencyCode + ", " + score + ", " + csaCode + ");");
+                        }
                         
                     }
                 }

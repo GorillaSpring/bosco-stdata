@@ -277,7 +277,6 @@ public class ImportRepo {
 
     public String studentNumberFromDemographics (int forDistrictId, String firstName, String lastName, String dob ) {
 
-// DOB HERE
         
         Object[] args = {
             forDistrictId,

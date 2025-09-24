@@ -231,7 +231,8 @@ public class MappingHelper {
             case "At Benchmark" -> "AT";
             case "Below Benchmark" -> "BB";
             case "Well Below Benchmark" -> "WB";
-            default -> throw new Exception("Unknown MClass ProficiencyCode");
+            case "Discontinue", "Tested out" -> "";   // This is DO NOT LOAD!
+            default -> throw new Exception("Unknown MClass ProficiencyCode: " + proficiency);
         };
 
         return proficiencyCode;
@@ -331,7 +332,7 @@ public class MappingHelper {
             case "Algebra I MYP" -> "M";
             case "Reading I" -> "R";
             case "English Lang Arts & Read, Grade 7 MYP" -> "R";
-            case "English II" -> "R";
+            case "English I", "English II" -> "R";
             case "Math, Grade 8 MYP" -> "M";
             case "Science, Grade 7 MYP" -> "C";
             case "Math, Grade 7 MYP" -> "M";
@@ -383,7 +384,7 @@ public class MappingHelper {
 
 
 
-             default -> throw new Exception("Unknown MapMclass_CsaCodeFromCourseName");
+             default -> throw new Exception("Unknown MapMclass_CsaCodeFromCourseName: " + courseName);
         };
 
         return csaCode;

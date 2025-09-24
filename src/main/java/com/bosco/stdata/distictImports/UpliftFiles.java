@@ -382,9 +382,10 @@ public class UpliftFiles {
                             case "MCLASS":
                                 // TODO : Get proficiencyCode and csaCode
                                 proficiencyCode = MappingHelper.MClass_proficiencyCode(row[5]);
-                                i.importRepo.sisMclassAdd(row[0], row[2], row[3], row[4], row[5], proficiencyCode,  score, csaCode);
-
-                                counter2++;
+                                if (proficiencyCode != "") {
+                                    i.importRepo.sisMclassAdd(row[0], row[2], row[3], row[4], row[5], proficiencyCode,  score, csaCode);
+                                    counter2++;
+                                }
                                 break;
 
                         
