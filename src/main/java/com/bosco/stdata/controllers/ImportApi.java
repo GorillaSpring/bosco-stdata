@@ -234,23 +234,7 @@ public class ImportApi {
 
     }
 
-     @Operation(
-        summary = "Run Skyward SpecialEducationEnrollmentTX  test ",
-        description = "Testing",
-        tags = {"Import Testing"}
-        )
-    @GetMapping("/import/runImportSpEd/{sendEmail}")
-    public String runImportSpEdNow(@PathVariable Boolean sendEmail) {
-        //ImportTask importTask = new ImportTask();
-
-
-        
-
-        String result = importTask.doSkywardSpedTest();
-
-        return result;
-
-    }
+    
 
 
   

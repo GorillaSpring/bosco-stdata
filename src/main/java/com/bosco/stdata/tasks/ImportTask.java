@@ -52,12 +52,7 @@ public class ImportTask {
     }
 
 
-    public String doSkywardSpedTest () {
-        //String res = SkywardOneRosterApi.GetSpecialEducationEnrollmentTX("BoscoSkywardApi");
-        String res = SkywardOneRosterApi.GetSpecialEducationEnrollmentTX("ClintSkywardApi");
-        // ClintSkywardApi
-        return res;
-    }
+   
 
     public String doImports (Boolean sendEmail) {
 

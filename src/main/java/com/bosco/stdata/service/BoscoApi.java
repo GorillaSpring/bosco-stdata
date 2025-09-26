@@ -375,7 +375,8 @@ public class BoscoApi {
             for (Teacher bu : teachers) {
 
                 newTeachers++;
-                boscoClient.postTeacher(baseUrl + "users", token, bu);
+                //boscoClient.postTeacher(baseUrl + "users", token, bu);
+                boscoClient.putTeacher(baseUrl + "users/upsertUser/{id}", token, bu);
             }
 
             System.out.println("    - " + newTeachers);
@@ -387,7 +388,7 @@ public class BoscoApi {
 
                 changedTeachers++;
                 //boscoClient.putTeacher(baseUrl + "users/{id}", token, bu);
-                boscoClient.putTeacher(baseUrl + "users/updateInfo/{id}", token, bu);
+                boscoClient.putTeacher(baseUrl + "users/upsertUser/{id}", token, bu);
             }
 
             System.out.println("    - " + changedTeachers);

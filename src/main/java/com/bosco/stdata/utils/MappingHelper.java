@@ -8,6 +8,15 @@ import com.bosco.stdata.teaModel.BoscoProficiency;
 
 public class MappingHelper {
 
+
+    public static String GuardianTypeFromString (String type) {
+        if (type.startsWith("M"))
+            return "M";
+        if (type.startsWith("F"))
+            return "F";
+        return "O";
+    }
+
     // SchoolYearFromTeaAdminDate  or Tea_SchoolYearFromAdminDate
 
     // LoadStar, LoadStarEOC, LoadTelpas, LoadTelpasAlt
@@ -250,7 +259,7 @@ public class MappingHelper {
             case "Quintile 3" -> "Q3";
             case "Quintile 4" -> "Q4";
             case "Quintile 5" -> "Q5";
-            default -> throw new Exception("Unknown Map_proficiencyCode");
+            default -> throw new Exception("Unknown Map_proficiencyCode: " + proficiency);
         };
 
         return proficiencyCode;
@@ -349,7 +358,7 @@ public class MappingHelper {
             case "Social Studies, Grade 4" -> "S";
             case "Math, Grade 4" -> "M";
             case "Math, Grade 3" -> "M";
-            case "Math, Grade 5" -> "M";
+            case "Math, Grade 5", "Math, Grade 8" -> "M";
 
             case "Geometry" -> "M";
 

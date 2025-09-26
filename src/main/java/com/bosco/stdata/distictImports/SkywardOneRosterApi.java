@@ -21,6 +21,7 @@ import com.bosco.stdata.service.BoscoClient;
 import com.bosco.stdata.service.SkywardOneRosterService;
 import com.bosco.stdata.service.SkywardTokenService;
 import com.bosco.stdata.utils.ImportHelper;
+import com.bosco.stdata.utils.MappingHelper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
@@ -28,6 +29,10 @@ import jakarta.annotation.PostConstruct;
 
 @Component
 public class SkywardOneRosterApi {
+
+    
+
+    
 
     private final BoscoClient boscoClient;
 
@@ -58,9 +63,9 @@ public class SkywardOneRosterApi {
     static String apiBase = "";
 
     static Boolean useSkywardSpEd = false;  
-    static Boolean tempSkipSkyward = true;
+    //static Boolean tempSkipSkyward = true;
 
-    SkywardOneRosterApi(AppConfig appConfig, BoscoClient boscoClient) {
+   SkywardOneRosterApi(AppConfig appConfig, BoscoClient boscoClient) {
         this.appConfig = appConfig;
         this.boscoClient = boscoClient;
     }
@@ -74,106 +79,155 @@ public class SkywardOneRosterApi {
 
     // NOT CURRENTLY USING.  STILL NEED TO SORT.
 
-    public static String GetSpecialEducationEnrollmentTX (String importDefId) {
-        // this will call the skyward SpecialEducationEnrollmentTX for each student?
-        // https://sandbox.skyward.com/BoscoK12SandboxAPI/SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/627224118
+    // THIS IS ALL DONE BELOW.
+
+    
+
+    private static void GetDemographisViaSpedApi (String token) throws Exception{
+        System.out.println("Getting Student Demographics via SpecialEducation");
+        JsonNode data;
+
+        int demoCount = 0;
+        int guardianCount = 0;
+                 
+        List<String> studentSourceIds =i.importRepo.studentSourceIdsForDistrict(districtId);
+
+        //studentNumbers.add("218879766");
+
+        for (String studentSourceId: studentSourceIds) {
+            //data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
+
+            // trim the Student_ from it
+            String[] sss = studentSourceId.split("_");
+
+           // try {
+                // https://sandbox.skyward.com/BoscoK12SandboxAPI/SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/25
+                // https://sandbox.skyward.com/BoscoK12SandboxAPI/SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/25
+
+                
+                data = i.skywardOneRosterService.fetchSkywardApi(apiBase + "SpecialEducation/StudentDemographic/1/" + sss[1], token);
+
+                //System.out.println("\nFOUND for student: " + studentSourceId);
 
 
-        try {
-            ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
-
-
-            Boolean setNoEmails = importDef.getSetNoEmails();
-
-            List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
-
-            districtId = importDef.getDistrictId();
-
-            clientId = ImportHelper.ValueForSetting(importSettings, "clientId");
-
-            clientSecret =  ImportHelper.ValueForSetting(importSettings, "clientSecret");
-            
-            tokenUrl =  ImportHelper.ValueForSetting(importSettings, "tokenUrl");
-            apiBase =  ImportHelper.ValueForSetting(importSettings, "apiBase");
-
-
-            useSkywardSpEd = Boolean.parseBoolean(ImportHelper.ValueForSetting(importSettings, "useSkywardSpEd"));
-
-
-            LocalDateTime startDateTime = LocalDateTime.now();
-
-            
-
-            System.out.println("Import One Roster Start");
-
-            String token = i.tokenService.getAccessToken(clientId, clientSecret, tokenUrl);
-
-            int studentsChecked = 0;
-
-            // now we need to go through for every student!
-
-            // apiBase is:  https://sandbox.skyward.com/BoscoK12SandboxAPI/
-
-            JsonNode data;
-            List<String> studentSourceIds =i.importRepo.studentSourceIdsForDistrict(districtId);
-
-            //studentNumbers.add("218879766");
-
-            for (String studentSourceId: studentSourceIds) {
-                 //data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
-
-                // trim the Student_ from it
-                String[] sss = studentSourceId.split("_");
-
-                 try {
-                    // https://sandbox.skyward.com/BoscoK12SandboxAPI/SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/25
-                    // https://sandbox.skyward.com/BoscoK12SandboxAPI/SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/25
-
+                JsonNode sdNode = data.get("StudentDemographics");
+                if (sdNode != null && sdNode.isArray()  && sdNode.size() > 0) {
                     
-                    data = i.skywardOneRosterService.fetchSkywardApi(apiBase + "SpecialEducation/SpecialEducationEnrollmentTX/GetByStudent/" + sss[1], token);
 
-                    System.out.println("\nFOUND for student: " + studentSourceId);
+                        JsonNode sdData = sdNode.get(0);
+                        
 
-                    System.out.println(data.toPrettyString());
+                        //System.out.println("ARRAY");
+                        // do it this way..
 
-                    // now lets try to parse it
-                    if (data.isArray()) {
-                         ArrayNode arrayNode = (ArrayNode) data;
-                         
+                        // JsonNode theNode = arrayNode.get(0);
 
-                         // do it this way..
+                        String studentNumber = sdData.get("StudentNumber").asText();
+                        String dateOfBirth = sdData.get("DateOfBirth").asText();
+                        String gender = sdData.get("Gender").asText();
 
-                         JsonNode theNode = arrayNode.get(0);
+                        String dob = ImportHelper.DateToStdFormat(dateOfBirth);
 
-                        String stateInstructionalSettingCode = theNode.get("StateInstructionalSettingCode").asText();
+                        System.out.println("StudentNumber : " + studentNumber);
 
-                        System.out.println("StateInstructionalSettingCode : " + stateInstructionalSettingCode);
+                        // SEE WHAT WE NEED.
 
-                         // see one note for the resulst and to pare.
+                        // We should gust get this and the guardian.
 
-                         
-                    }
+                        // be sure we get for EVERY student.
 
-                 }
-                catch (Exception ex) {
-          
-                    System.out.print(".");
-                    // System.out.println("Did not find for student: " + studentSourceId);
-                    //  System.out.println(ex.toString());
+
+                        demoCount++;
+                        
+                        i.importRepo.saveStudentDemographics(
+                            studentNumber,
+                            dob,
+                            gender,
+                            Boolean.parseBoolean(sdData.get("IsAmericanIndianOrAlaskanNative").asText()),
+                            Boolean.parseBoolean(sdData.get("IsAsian").asText()),
+                            Boolean.parseBoolean(sdData.get("IsBlackOrAfricanAmerican").asText()),
+                            Boolean.parseBoolean(sdData.get("IsNativeHawaiianOrOtherPacificIslander").asText()),
+                            Boolean.parseBoolean(sdData.get("IsWhite").asText()),
+                            Boolean.parseBoolean(sdData.get("IsHispanic").asText()),
+                            Boolean.parseBoolean(sdData.get("IsLEP").asText())
+                            , false, false
+                        );
+                    
+
+                        // now parents
+
+                        JsonNode parentsNode = sdData.get("Parents");
+                        if (parentsNode != null && parentsNode.isArray() && parentsNode.size() > 0) {
+                            // we found some parents.
+
+                            ArrayNode arrayNode = (ArrayNode) parentsNode;
+                            for (JsonNode parentNode: arrayNode) { 
+                                String localId = parentNode.get("LocalID").asText();
+
+
+                                String firstName = parentNode.get("FirstName").asText();
+                                String lastName = parentNode.get("LastName").asText();
+                                JsonNode relationshipNode = parentNode.get("Relationship");
+
+
+                                String guardianType = "O";
+                                if (relationshipNode != null && !relationshipNode.isNull())
+                                    guardianType = MappingHelper.GuardianTypeFromString(relationshipNode.asText());
+
+                                JsonNode emailNode = parentNode.get("EmailAddress");
+                                String email = "";
+                                if (emailNode != null && !emailNode.isNull())
+                                    email = emailNode.asText();
+
+                                String guardianId = "Guardian_" + localId;
+                                
+                                
+                                // System.out.println("Got Parent: " + localId + " - " + firstName + " - " + email);
+
+
+
+                                i.importRepo.saveGuardian(
+                                            guardianId, 
+                                            guardianId, 
+                                            studentSourceId,                        // good.
+                                            firstName, 
+                                            lastName, 
+                                            email, 
+                                            guardianType
+                                        );
+                                        guardianCount++;
+
+                                                
+                            }
+
+                        }
+
+                        // see one note for the resulst and to pare.
+
+                        
+                    
                 }
 
+                else {
+                    throw new Exception ("Invalid StudentDemographics from API : " + studentSourceId);
+                }
+                //System.out.println(data.toPrettyString());
 
-            }
 
+            // }
+            // catch (Exception ex) {
+    
+            //     System.out.print(ex.getMessage());
+            //     // System.out.println("Did not find for student: " + studentSourceId);
+            //     //  System.out.println(ex.toString());
 
+            //     return true;
+            // }
         }
-        catch (Exception ex) {
-          
-            System.out.println(ex.toString());
-        }
 
-        return "OK";
+        System.out.println ("Imported Student Demographics: " + demoCount + "  AND Guardians: " + guardianCount);
 
+        
     }
 
     public static ImportResult Import(String importDefId) {
@@ -219,9 +273,13 @@ public class SkywardOneRosterApi {
             
 
 
+
             System.out.println("Import One Roster Start");
 
             String token = i.tokenService.getAccessToken(clientId, clientSecret, tokenUrl);
+
+// GetDemographisViaSpedApi(token);
+            
 
             JsonNode data;
 
@@ -368,8 +426,7 @@ public class SkywardOneRosterApi {
                         
                             case "guardian":
                                 // If we are using useSkywardSpEd then we will get the guardians THERE.
-                                if (tempSkipSkyward) {
-                                //if (!useSkywardSpEd) {
+                                if (!useSkywardSpEd) {
 
                                     // we only pull in if the email is not null or empty
                                     String email = userNode.get("email").asText();
@@ -540,8 +597,8 @@ public class SkywardOneRosterApi {
             // if we use the SkywardSpEd, this is done at the END of the imports
             // we only need to do for NEW studens.
 
-            if (tempSkipSkyward) {
-            //if (!useSkywardSpEd) {
+            //if (tempSkipSkyward) {
+            if (!useSkywardSpEd) {
 
                 System.out.println("Getting Student Demographics");
 
@@ -800,6 +857,13 @@ public class SkywardOneRosterApi {
                     }
                 }
                 
+
+
+
+                // and now
+                
+                GetDemographisViaSpedApi (token);
+
             }
 
 

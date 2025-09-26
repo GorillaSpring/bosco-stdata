@@ -1289,7 +1289,7 @@ public Student studentBoscoForExport (String id) {
         //System.out.println("Added");
 
         Object[] args = {
-            importId,
+            districtId,
             sourceId,
             name,
             schoolCode,
@@ -1301,7 +1301,7 @@ public Student studentBoscoForExport (String id) {
         
         String sql = """
             insert into
-                school (importId, sourceId, name, schoolCode)
+                school (districtId, sourceId, name, schoolCode)
             values (?, ?, ?, ?)
             on duplicate key update
                 name = ?,

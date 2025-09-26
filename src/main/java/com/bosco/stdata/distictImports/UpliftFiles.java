@@ -89,7 +89,8 @@ public class UpliftFiles {
               // Before we start, lets make sure there are files in the baseFolder
               // additional users NO
               // additional_users.csv  NO
-            String[] files = {"academics_grades.csv", "attendance.csv", "campuses.csv", "discipline.csv", "mCLASS and MAP.csv", "state_assessment.csv", 
+              //  "attendance.csv",  THIS IS Yearly?
+            String[] files = {"academics_grades.csv",  "campuses.csv", "discipline.csv", "mCLASS and MAP.csv", "state_assessment.csv", 
             "students.csv", "teacherstudentassignements.csv", "TELPAS.csv", "users.csv"};
             if (!ImportHelper.CheckFilesExist(baseFileFolder, files)) {
                 throw new FileNotFoundException("One or more import files missing!");
@@ -155,12 +156,17 @@ public class UpliftFiles {
 
 
             String[] fr = data.removeFirst();
-            String[] colNames = new String[]{"studentid", "lastname", "firstname", "dob", "gender", "schoolcode", "gradecode", "is504", "englishlanguagelearner", "guardiantype", "guardianfirstname", "guardianlastname", "guardianemail"};
+            String[] colNames = new String[]{"studentid", "lastname", "firstname", "dob", "gender", "schoolcode", "gradecode", "is504", "englishlanguagelearner", 
+            "issped", 
+            "guardiantype", "guardianfirstname", "guardianlastname", "guardianemail"};
 
             if (!ImportHelper.CheckColumnHeaders(fr, colNames))
                 throw new Exception("File : students.csv does not match column specs" );
 
             int counter1 = 0;
+
+            // isSped is 9
+            // guardiantype is now 10.
 
             //data.forEach(row -> {
             for (String [] row : data) {
@@ -170,6 +176,7 @@ public class UpliftFiles {
 
                     Boolean is504 = row[7].equals("Yes");
                     Boolean isEsl = row[8].equals("Yes");
+                    Boolean isSped = row[9].equals("Yes");
 
                     String email = row[12];
                     // To do if we need to scramble email , do it here.
@@ -196,6 +203,11 @@ public class UpliftFiles {
                     
                     );
 
+                    if (isSped)
+                        i.importRepo.saveStudentProperty(row[0], "isSpecialEd", "1");
+                    else
+                        i.importRepo.saveStudentProperty(row[0], "isSpecialEd", "0");
+
                     // 504
                     // if (row[7] == "Yes")
                     //     i.importRepo.saveStudentProperty(row[0], "is504", "1");
@@ -208,7 +220,7 @@ public class UpliftFiles {
                     // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type
 
                     // String sourceId, String guardianId, String studentSourceId, String firstName, String lastName, String email, String type
-                    i.importRepo.saveGuardian("Guardian_" + row[0], "G_" + row[0],  row[0],  row[10], row[11], email, row[9]);
+                    i.importRepo.saveGuardian("Guardian_" + row[0], "G_" + row[0],  row[0],  row[11], row[12], email, row[10]);
 
                     
                     //i.importRepo.saveGuardian(g);
@@ -246,8 +258,10 @@ public class UpliftFiles {
             counter1 = 0;
             //data.forEach(row -> {
             for (String [] row : data) {
-                if (!row[0].isBlank()) 
+                if ( row.length > 1 && !row[1].isBlank()) 
                 {
+
+                    //System.out.println(row[0] + " " + row[1] + " "+ row[2] + " "+ row[3] + " "+ row[4] + " "+ row[5] + " ");
 
                     String email = row[3];
 
@@ -259,6 +273,8 @@ public class UpliftFiles {
                     
                     // sourceid, teacherId, firstname, lastname,  email
                     //Teacher t = new Teacher(row[0], row[0], row[2], row[1], row[3]);
+
+                    
 
                     // String sourceid, String teacherId, String firstname, String lastname, String email
                     // String sourceId, String teacherId, String firstName, String lastName, String email
