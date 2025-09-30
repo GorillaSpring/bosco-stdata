@@ -198,15 +198,14 @@ public class UpliftFiles {
 
                         String dob = ImportHelper.DateToStdFormat(row[3]);
 
-                    i.importRepo.saveStudentDemographics(row[0], dob, row[4], false, false, false, false, false, false,
-                    isEsl, is504, false
-                    
-                    );
+                    i.importRepo.saveStudentDemographics(row[0], dob, row[4], false, false, false, false, false, false);
 
-                    if (isSped)
-                        i.importRepo.saveStudentProperty(row[0], "isSpecialEd", "1");
-                    else
-                        i.importRepo.saveStudentProperty(row[0], "isSpecialEd", "0");
+                    // TODO: Save isEsl, is504, isSped 
+
+                    // if (isSped)
+                    //     i.importRepo.saveStudentProperty(row[0], "isSpecialEd", "1");
+                    // else
+                    //     i.importRepo.saveStudentProperty(row[0], "isSpecialEd", "0");
 
                     // 504
                     // if (row[7] == "Yes")
@@ -279,7 +278,7 @@ public class UpliftFiles {
                     // String sourceid, String teacherId, String firstname, String lastname, String email
                     // String sourceId, String teacherId, String firstName, String lastName, String email
                     i.importRepo.saveTeacher(
-                        row[0], row[0], row[2], row[1], email
+                        row[0], row[0], row[2], row[1], email, row[4]
                     );
                     counter1++;
                 }

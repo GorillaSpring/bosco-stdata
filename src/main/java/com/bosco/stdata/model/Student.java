@@ -28,32 +28,14 @@ public class Student {
 	private Boolean blackOrAfricanAmerican;
 	private Boolean nativeHawaiianOrOtherPacificIslander;
 	private Boolean white;
-	private Boolean hispanicOrLatinoEthnicity;
+	private Boolean hispanicOrLatino;
 
-	private Boolean isEsl;
-	private Boolean is504;
-	private Boolean isBilingual;
-
-	private Boolean isSpecialEd;
-	private String entryIepDate;
-
+	
+	
 	
     private List<Guardian> guardians = new ArrayList();
     private List<String> teacherIds = new ArrayList();
 
-	// Perhaps belongs in Referral packet, since it changes over time
-	private String schoolYear;				// NO
-	// Perhaps belongs in Referral packet, since it changes over time
-	private String teacher;				// NO
-	// Perhaps belongs in Referral packet, since it changes over time
-	private String ethnicity;			// NO
-	private String suffixName;			// NO
-	private String middleName;			// NO
 	
-
-
-	// Educational Placement of 0 means it is not set or is unknown
-	private int educationalPlacement;		// NO
-	// From SIS and/or Surveys
 
 }

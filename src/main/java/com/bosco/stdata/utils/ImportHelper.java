@@ -27,6 +27,64 @@ public  class ImportHelper {
     public static Boolean importRunning = false;
 
     
+    // for debug output.
+
+    public static int debuggerCountdown = 1;
+
+    public static void DebugCountdownSet(int count) {
+        debuggerCountdown = count;
+
+        // we want to pad this 
+        String paddedString = String.format("%08d", debuggerCountdown);
+
+        System.out.print(paddedString);
+    }
+
+    public static void DebugCountdown() {
+        debuggerCountdown--;
+        String paddedString = String.format("%08d", debuggerCountdown);
+
+        System.out.print("\b\b\b\b\b\b\b\b");
+
+        System.out.print(paddedString);
+    }
+
+
+
+    public static int debugSpinner = 1;
+
+    public static void DebugSpin(Boolean start) {
+
+        if (!start) {
+            System.out.print("\b");
+        }
+        switch (debugSpinner) {
+            case 1:
+                System.out.print("|");
+                break;
+            case 2:
+                System.out.print("/");
+                break;
+            case 3:
+                System.out.print("-");
+                break;
+            case 4:
+                System.out.print("\\");
+                break;
+            case 5:
+                System.out.print("*");
+                break;
+            default:
+                System.out.print(".");
+                debugSpinner = 1;
+                break;
+        }
+
+        debugSpinner++;
+
+    }
+
+
 
     public static String DateToStdFormat (String dateString) throws Exception {
         // this will convert a date string to yyyy-MM-dd if it is in one of the provide formats
@@ -36,7 +94,8 @@ public  class ImportHelper {
             "yyyy-MM-dd HH:mm:ss",
             "yyyy-MM-dd",
             "MM/dd/yyyy HH:mm:ss",
-            "MM/dd/yyyy"
+            "MM/dd/yyyy",
+            "MM/dd/yy"
         };
 
 

@@ -83,7 +83,7 @@ public class SkywardOneRosterApi {
 
     
 
-    private static void GetDemographisViaSpedApi (String token) throws Exception{
+    private static void GetDemographisViaSpedApi (String token, Boolean setNoEmails) throws Exception{
         System.out.println("Getting Student Demographics via SpecialEducation");
         JsonNode data;
 
@@ -128,7 +128,7 @@ public class SkywardOneRosterApi {
 
                         String dob = ImportHelper.DateToStdFormat(dateOfBirth);
 
-                        System.out.println("StudentNumber : " + studentNumber);
+                        //System.out.println("StudentNumber : " + studentNumber);
 
                         // SEE WHAT WE NEED.
 
@@ -148,10 +148,10 @@ public class SkywardOneRosterApi {
                             Boolean.parseBoolean(sdData.get("IsBlackOrAfricanAmerican").asText()),
                             Boolean.parseBoolean(sdData.get("IsNativeHawaiianOrOtherPacificIslander").asText()),
                             Boolean.parseBoolean(sdData.get("IsWhite").asText()),
-                            Boolean.parseBoolean(sdData.get("IsHispanic").asText()),
-                            Boolean.parseBoolean(sdData.get("IsLEP").asText())
-                            , false, false
+                            Boolean.parseBoolean(sdData.get("IsHispanic").asText())
                         );
+
+                        // TODO: save Boolean.parseBoolean(sdData.get("IsLEP").asText())
                     
 
                         // now parents
@@ -176,8 +176,16 @@ public class SkywardOneRosterApi {
 
                                 JsonNode emailNode = parentNode.get("EmailAddress");
                                 String email = "";
-                                if (emailNode != null && !emailNode.isNull())
+                                if (emailNode != null && !emailNode.isNull()) {
                                     email = emailNode.asText();
+
+                                    if (setNoEmails && email.length() >= 4) {
+                                        String trimedEmail = email.substring(0, email.length() - 4);
+                                        email = trimedEmail + "_no.no";
+                                    }
+
+
+                                }
 
                                 String guardianId = "Guardian_" + localId;
                                 
@@ -307,46 +315,46 @@ public class SkywardOneRosterApi {
 
             int schoolCount = 0;
 
-            //filter = "status='active'/orgs?type='school'";
-            // filter = "status='active'";
-            // data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
+            filter = "status='active'/orgs?type='school'";
+            filter = "status='active'";
+            data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
 
-            // while ( data.size() > 0) {
+            while ( data.size() > 0) {
                     
                 
 
-            //     if (data.isArray()) {
-            //         ArrayNode arrayNode = (ArrayNode) data;
-            //         for (JsonNode orgsNode: arrayNode) {
+                if (data.isArray()) {
+                    ArrayNode arrayNode = (ArrayNode) data;
+                    for (JsonNode orgsNode: arrayNode) {
 
-            //             String sourceId = orgsNode.get("sourcedId").asText();
-            //             String name = orgsNode.get("name").asText();
+                        String sourceId = orgsNode.get("sourcedId").asText();
+                        String name = orgsNode.get("name").asText();
 
-            //             String identifier = orgsNode.get("identifier").asText();
-            //             // 
+                        String identifier = orgsNode.get("identifier").asText();
+                        // 
 
-            //             i.importRepo.saveSchool(sourceId, name, identifier);
-            //             schoolCount++;
+                        i.importRepo.saveSchool(sourceId, name, identifier);
+                        schoolCount++;
 
                     
-            //         }
+                    }
                         
                     
-            //     }
-            //     else {
-            //         System.out.println("Not Array");
-            //     }
+                }
+                else {
+                    System.out.println("Not Array");
+                }
 
-            //     // next page
-            //     pageNumber++;
+                // next page
+                pageNumber++;
 
-            //     System.out.println("Getting Orgs page : " + pageNumber);
-            //     data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
+                System.out.println("Getting Orgs page : " + pageNumber);
+                data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
 
 
-            // }
-            // System.out.println ("Schools Imported: " + schoolCount);
-            // i.importRepo.logInfo("Schools Imported: " + schoolCount);
+            }
+            System.out.println ("Schools Imported: " + schoolCount);
+            i.importRepo.logInfo("Schools Imported: " + schoolCount);
 
 
             System.out.println("Getting USERS");
@@ -361,6 +369,11 @@ public class SkywardOneRosterApi {
             data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/users", filter, token, pageNumber);
 
             //data = i.skywardOneRosterService.fetchResourcePage( apiBase + "users", token, pageNumber);
+
+
+            // *** The student will work if we just load student via:
+            // vhttps://sandbox.skyward.com/BoscoK12SandboxAPI/ims/oneroster/v1p1/students
+
 
             while ( data.size() > 0) {
 
@@ -467,6 +480,21 @@ public class SkywardOneRosterApi {
                                 String teacherEmail = userNode.get("email").asText();
 
 
+                                 String tschoolSourceId = "X";
+                                JsonNode tschoolNode = userNode.get("orgs");
+                                if (tschoolNode != null) {
+                                    if (tschoolNode.isArray()) {
+                                            if (tschoolNode.size() > 0) {
+                                                JsonNode tschoolElement = tschoolNode.get(0);
+                                                tschoolSourceId = tschoolElement.get("sourcedId").asText();
+                                            }
+
+                                    }
+                                }
+
+                                // We now have the teacher school in tschoolSourceId
+
+
                                 if (setNoEmails && teacherEmail.length() >= 4) {
                                     String trimedEmail = teacherEmail.substring(0, teacherEmail.length() - 4);
                                     teacherEmail = trimedEmail + "_no.no";
@@ -478,7 +506,8 @@ public class SkywardOneRosterApi {
                                 // String sourceid, String teacherId, String firstname, String lastname, String email
                                 // String sourceId, String teacherId, String firstName, String lastName, String email
                                 i.importRepo.saveTeacher(
-                                    userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail
+                                    userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), 
+                                    teacherEmail, tschoolSourceId
                                 );
                                 teacherCount++;
                                 
@@ -540,18 +569,27 @@ public class SkywardOneRosterApi {
                         JsonNode classNode = enrollmentNode.get("class");
                         classSourceId = classNode.get("sourcedId").asText();
 
+                        // we can get school here.
+
+                        String schoolSourceId = "";
+                        JsonNode schoolNode = enrollmentNode.get("school");
+                        schoolSourceId = schoolNode.get("sourcedId").asText();
+
+
                         JsonNode userNode = enrollmentNode.get("user");
                         userSourceId = userNode.get("sourcedId").asText();
                         
                         if (userSourceId != "" && classSourceId != "") {
 
+                            // TODO: so here we need to get the school code for teacher and student.
+                            // look at the api and see if we have alternatives.
                             switch (role) {
                                 case "teacher":
-                                    i.importRepo.saveTeacherClass(userSourceId, classSourceId);
+                                    i.importRepo.saveTeacherClass(userSourceId, schoolSourceId + classSourceId);
                                     teacherCount++;
                                     break;
                                 case "student":
-                                    i.importRepo.saveStudentClass(userSourceId, classSourceId);
+                                    i.importRepo.saveStudentClass(userSourceId, schoolSourceId + classSourceId);
                                     studentCount++;
                                     break;
                             
@@ -658,8 +696,8 @@ public class SkywardOneRosterApi {
                                     Boolean.parseBoolean(demographicsNode.get("blackOrAfricanAmerican").asText()),
                                     Boolean.parseBoolean(demographicsNode.get("nativeHawaiianOrOtherPacificIslander").asText()),
                                     Boolean.parseBoolean(demographicsNode.get("white").asText()),
-                                    Boolean.parseBoolean(demographicsNode.get("hispanicOrLatinoEthnicity").asText()),
-                                    false, false, false
+                                    Boolean.parseBoolean(demographicsNode.get("hispanicOrLatinoEthnicity").asText())
+                                    
                                 );
 
                                 studentCount++;
@@ -701,7 +739,7 @@ public class SkywardOneRosterApi {
             if (useSkywardSpEd) {
 
 
-
+/*
                 //JsonNode data;
                 List<String> studentSourceIds =i.importRepo.studentSourceIdsForDistrict(districtId);
 
@@ -855,14 +893,14 @@ public class SkywardOneRosterApi {
                         // System.out.println("Did not find for student: " + studentSourceId);
                         //  System.out.println(ex.toString());
                     }
-                }
+                }   // End of useSky.... 
                 
 
-
+*/
 
                 // and now
                 
-                GetDemographisViaSpedApi (token);
+                GetDemographisViaSpedApi (token, setNoEmails);
 
             }
 

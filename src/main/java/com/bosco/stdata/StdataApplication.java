@@ -1,6 +1,7 @@
 package com.bosco.stdata;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -15,6 +16,10 @@ import com.bosco.stdata.repo.ImportRepo;
 @ComponentScan ("com.bosco")
 public class StdataApplication {
 
+	  
+    @Value("${bosco.api.instance}")
+    private String boscoInstance;
+
 	@Autowired
 	ImportRepo importRepo;
 
@@ -25,7 +30,7 @@ public class StdataApplication {
 	
 	@EventListener(ApplicationReadyEvent.class)
 	public void doSomethingAfterStartup() {
-		System.out.println("hello world, I have just started up");
+		System.out.println("hello world, I have just started up - " + boscoInstance);
 		//importRepo.importSystemStartup();
 	}
 

@@ -162,7 +162,14 @@ public class ImportApi {
 
                         // we want studentId 
 
-                        importRepo.boscoStudentAdd(boscoInstance, districtId, studentNode.get("id").asText(), studentNode.get("studentId").asText());
+                        if (Boolean.parseBoolean(studentNode.get("active").asText())) {
+
+                            importRepo.boscoStudentAdd(districtId, studentNode.get("id").asText(), studentNode.get("studentId").asText());
+                        }
+                        else {
+                            importRepo.boscoStudentRemove(districtId, studentNode.get("id").asText(), studentNode.get("studentId").asText());
+
+                        }
 
                         //results += studentNode.get("id").asText() + "  - " + studentNode.get("firstName").asText() + " " + studentNode.get("lastName").asText() + "\n";
                     }
@@ -191,7 +198,7 @@ public class ImportApi {
     
     @Operation(
             summary = "Testing Bosco web get Students *** CHECK boscoInstance *** " ,
-            description = "This will be removed soon.",
+            description = "This will get all active students to allow us to check for any differences.",
             tags = {"Testing"}
             )
     @GetMapping("/import/boscoStudents/{id}")
@@ -208,7 +215,103 @@ public class ImportApi {
             //importRepo.setSystemStatus("Import", 1);
             taskThread.start();
 
-            return "Getting Students";
+            return "Getting Students " + boscoInstance;
+
+
+        
+
+
+        
+    }
+
+
+     private void getBoscoUsers (int districtId) {
+
+        
+
+        // So we get  all the pages
+        int pageNumber = 0;
+        Boolean done = false;
+
+        String results = "Users: " + boscoInstance + " \n\n";
+        
+
+
+        while (!done) {
+            JsonNode resNode = boscoApi.getUsers(districtId, pageNumber);
+
+            if (resNode.size() > 0) {
+
+                if (resNode.isArray()) {
+                    System.out.println("Getting users page: " + pageNumber);
+            
+                    ArrayNode arrayNode = (ArrayNode) resNode;
+
+                    for (JsonNode boscoUserNode: arrayNode) {
+
+
+                        // So here we can actually save it to the importRepo
+                        // we know the boscoInstance
+
+                        // we want studentId 
+
+                        if (Boolean.parseBoolean(boscoUserNode.get("active").asText())) {
+
+                            importRepo.boscoUserAdd(districtId, boscoUserNode.get("id").asText(), boscoUserNode.get("role").asText());
+                        }
+                        else {
+                            importRepo.boscoUserRemove(districtId, boscoUserNode.get("id").asText(), boscoUserNode.get("role").asText());
+
+                        }
+
+                        //results += studentNode.get("id").asText() + "  - " + studentNode.get("firstName").asText() + " " + studentNode.get("lastName").asText() + "\n";
+                    }
+
+                    pageNumber++;
+                
+                }
+                else {
+                    done = true;
+                    results = "NOT ARRAY";
+
+                }
+
+            }
+            else {
+                done = true;
+            }
+
+            
+        }
+
+        System.out.println("DONE");
+        //return results;
+
+    }
+    
+  
+
+
+     @Operation(
+            summary = "Testing Bosco web get USERS *** CHECK boscoInstance *** " ,
+            description = "This allow us to get all active users to allow us to check for any differences.",
+            tags = {"Testing"}
+            )
+    @GetMapping("/import/boscoUsers/{id}")
+    public String boscoUsers(@PathVariable int id) {
+
+
+         Thread taskThread = new Thread(() -> {
+               
+                getBoscoUsers(id);
+            });
+
+
+            ImportHelper.importRunning = true;
+            //importRepo.setSystemStatus("Import", 1);
+            taskThread.start();
+
+            return "Getting Users " + boscoInstance;
 
 
         
@@ -456,6 +559,40 @@ public class ImportApi {
 
         
     }
+
+
+    @Operation(
+            summary = "Get Import System Info",
+            description = "Get the status etc. of import system",
+            tags = {"Import Defs"}
+            )
+
+    @GetMapping("/import/importSystemInfo")
+    public String importSystemInfo() {
+        
+
+        List<ImportDefinition> defs = importRepo.getAllImportDefinitions();
+
+        String res = "Inport System\n\n";
+
+        res += "  - Instance : " + boscoInstance + "\n\nActive Imports: \n";
+
+
+        for (ImportDefinition id : defs) {
+            if (id.getActive()) {
+                res += " - " + id.getId() + " : " + id.getDistrictId() + "  ForceLoad: " + Boolean.toString(id.getForceLoad())  + "\n";
+            }
+        }
+
+        res += "--------------------------------\n";
+
+
+        return res;
+        // return defs;
+
+        //return "TODO Get defs";
+    }
+    
 
 
      @Operation(

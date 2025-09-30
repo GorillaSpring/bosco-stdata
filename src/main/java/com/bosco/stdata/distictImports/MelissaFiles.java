@@ -103,32 +103,36 @@ private static MelissaFiles i;  // instance
 
 
             
-            // System.out.println("Importing schools File");
+            System.out.println("Importing schools File");
 
-            // List<String[]> data = msp.readCsvFile( baseFileFolder + "schools.csv");
+            List<String[]> dataSchool = msp.readCsvFile( baseFileFolder + "schools.csv");
 
-            // int counter1 = 0;
+            int counterSchools1 = 0;
 
-            // String [] colNames = {"SchoolCode", "SchoolName"};
+            String [] colNamesSchools = {"SchoolCode", "SchoolName"};
 
 
             
-            // String[] fr = data.removeFirst();
-            // if (!ImportHelper.CheckColumnHeaders(fr, colNames))
-            //     throw new Exception("File : schools.csv does not match column specs" );
+            String[] frSchools = dataSchool.removeFirst();
+            if (!ImportHelper.CheckColumnHeaders(frSchools, colNamesSchools))
+                throw new Exception("File : schools.csv does not match column specs" );
 
           
-            // for (String [] row : data) {
-            //     if (!row[0].isBlank()) 
-            //     {
-            //         i.importRepo.saveSchool(row[0], row[1], row[0]);
-            //         counter1++;
-            //     }
+            for (String [] row : dataSchool) {
+                if (!row[0].isBlank()) 
+                {
+                    i.importRepo.saveSchool(row[0], row[1], row[0]);
+                    counterSchools1++;
+                }
 
-            // }
+            }
 
 
-            // i.importRepo.logInfo("Imported Schools : " + counter1);
+            i.importRepo.logInfo("Imported Schools : " + counterSchools1);
+
+
+
+
 
             System.out.println("Importing Students File");
 
@@ -153,10 +157,14 @@ private static MelissaFiles i;  // instance
             int counter1 = 0;
 
             //data.forEach(row -> {
+
+            ImportHelper.DebugCountdownSet(data.size());
+
             for (String [] row : data) {
                 if (!row[0].isBlank()) 
                 {
 
+                    ImportHelper.DebugCountdown();
                     // so we need to parse "Yes" and "No" to true or false.
 
                     Boolean americanIndianOrAlaskaNative = row[10].equals("Yes");
@@ -188,9 +196,10 @@ private static MelissaFiles i;  // instance
 
                     // student number now.
                     i.importRepo.saveStudentDemographics(
-                        row[1], dob, row[5], americanIndianOrAlaskaNative, asian, blackOrAfricanAmerican,nativeHawaiianOrOtherPacificIslander, white, hispanicOrLatinoEthnicity,
-                        false, false, isBilingual
+                        row[1], dob, row[5], americanIndianOrAlaskaNative, asian, blackOrAfricanAmerican,nativeHawaiianOrOtherPacificIslander, white, hispanicOrLatinoEthnicity
                     );
+
+                    // TODO: save isBilingual
 
                     // 504
                     // if (row[7] == "Yes")
@@ -229,11 +238,15 @@ private static MelissaFiles i;  // instance
 
             // we have SchoolCode and UserType here.  Ignore?
 
+
+            ImportHelper.DebugCountdownSet(data.size());
+
             counter1 = 0;
             //data.forEach(row -> {
             for (String [] row : data) {
                 if (!row[0].isBlank()) 
                 {
+                    ImportHelper.DebugCountdown();
            
                     // sourceid, teacherId, firstname, lastname,  email
                     //Teacher t = new Teacher(row[0], row[1],  row[3], row[2], row[4]);
@@ -248,7 +261,7 @@ private static MelissaFiles i;  // instance
                     // String sourceid, String teacherId, String firstname, String lastname, String email
                     // String sourceId, String teacherId, String firstName, String lastName, String email
                     i.importRepo.saveTeacher(
-                        row[0], row[1],  row[3], row[2], email
+                        row[0], row[1],  row[3], row[2], email, row[5]
                     );
                     counter1++;
                 }
@@ -285,11 +298,14 @@ private static MelissaFiles i;  // instance
             // email        6
 
 
+            ImportHelper.DebugCountdownSet(data.size());
+
             counter1 = 0;
             //data.forEach(row -> {
             for (String [] row : data) {
                 if (!row[0].isBlank()) 
                 {
+                    ImportHelper.DebugCountdown();
 
                     // So for guardians, we may not have a unique source id in the spreadsheet.
                     // We don't actually need it.
@@ -333,17 +349,31 @@ private static MelissaFiles i;  // instance
             if (!ImportHelper.CheckColumnHeaders(fr, colNames))
                 throw new Exception("File : user_enrollments.csv does not match column specs" );
 
+
+
             counter1 = 0;
+
+            ImportHelper.DebugCountdownSet(data.size());
+
 
             //data.forEach(row -> {
             for (String [] row : data) {
                 if (!row[0].isBlank()) 
                 {
+                    ImportHelper.DebugCountdown();
                     // skip 000000 teachers
                     if (!row[0].equals("000000")) {
 
-                        i.importRepo.saveTeacherClass(row[0], row[3]);
-                        counter1++;
+
+                        //System.out.println("Getting School Code for : " + row[1]);
+
+                        String teacherSchool = i.importRepo.schoolSourceIdForTeacherId(row[1]);
+
+                        if (teacherSchool != null) {
+
+                            i.importRepo.saveTeacherClass(row[0], teacherSchool + row[3]);
+                            counter1++;
+                        }
                     }
 
                 }
@@ -371,15 +401,25 @@ private static MelissaFiles i;  // instance
 
             counter1 = 0;
 
+            ImportHelper.DebugCountdownSet(data.size());
+
             //data.forEach(row -> {
             for (String [] row : data) {
                 
                 
                 if (!row[0].isBlank()) 
                 {
+                    ImportHelper.DebugCountdown();
 
-                    i.importRepo.saveStudentClass(row[0], row[3]);
-                    counter1++;
+                    String studentSchool = i.importRepo.schoolSourceIdForStudentNumber(row[1]);
+
+                    if (studentSchool != null) {
+
+                        // TODO: Again, we need the school code.
+                        i.importRepo.saveStudentClass(row[0], studentSchool +  row[3]);
+                        counter1++;
+
+                    }
 
                 }
 
@@ -422,6 +462,9 @@ private static MelissaFiles i;  // instance
 
             counter1 = 0;
 
+            ImportHelper.DebugCountdownSet(data.size());
+
+
             //data.forEach(row -> {
             for (String [] row : data) {
                 
@@ -429,25 +472,29 @@ private static MelissaFiles i;  // instance
                 if (!row[0].isBlank()) 
                 {
 
-                    // 504
-                    if (row[8] == "Yes")
-                        i.importRepo.saveStudentProperty(row[1], "is504", "1");
+                    ImportHelper.DebugCountdown();
 
-                    // isEsl
-                    if (row[2] == "Yes")
-                        i.importRepo.saveStudentProperty(row[1], "isEsl", "1");
+                    // TODO: Save these/
 
-                    // IsBilingual
-                    if (row[3] == "Yes")
-                        i.importRepo.saveStudentProperty(row[1], "isBilingual", "1");
+                    // // 504
+                    // if (row[8] == "Yes")
+                    //     i.importRepo.saveStudentProperty(row[1], "is504", "1");
 
-                    // IsSpecialEd
-                    if (row[4] == "Yes")
-                        i.importRepo.saveStudentProperty(row[1], "isSpecialEd", "1");
+                    // // isEsl
+                    // if (row[2] == "Yes")
+                    //     i.importRepo.saveStudentProperty(row[1], "isEsl", "1");
 
-                    // EntryIEP_Date
-                    if (!row[5].isEmpty())
-                        i.importRepo.saveStudentPropertyString(row[1], "entryIepDate", row[5]);
+                    // // IsBilingual
+                    // if (row[3] == "Yes")
+                    //     i.importRepo.saveStudentProperty(row[1], "isBilingual", "1");
+
+                    // // IsSpecialEd
+                    // if (row[4] == "Yes")
+                    //     i.importRepo.saveStudentProperty(row[1], "isSpecialEd", "1");
+
+                    // // EntryIEP_Date
+                    // if (!row[5].isEmpty())
+                    //     i.importRepo.saveStudentPropertyString(row[1], "entryIepDate", row[5]);
 
                     counter1++;
 

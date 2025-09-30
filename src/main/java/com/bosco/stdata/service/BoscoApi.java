@@ -6,9 +6,13 @@ import org.springframework.stereotype.Service;
 import com.bosco.stdata.config.AppConfig;
 import com.bosco.stdata.model.*;
 import com.bosco.stdata.repo.ImportRepo;
+import com.bosco.stdata.utils.ImportHelper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+
+import jakarta.el.ImportHandler;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -300,6 +304,28 @@ public class BoscoApi {
         return resNode;
     }
 
+
+    public JsonNode getUsers (int districtId, int pageNumber) {
+       
+
+        String token = authBosco();
+        // Now we test sending this:
+
+        
+        String getUrl = baseUrl + "users?page=" + pageNumber + "&size=" + PAGE_SIZE + "&organizationId=" + districtId;
+
+        JsonNode resNode = null;
+        try {
+            resNode = boscoClient.get(getUrl, token );
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+        return resNode;
+    }
+
     private String authBosco() {
         String token = boscoClient.getAccessToken(clientId, clientSecret, authUrl);
         return token;
@@ -372,9 +398,20 @@ public class BoscoApi {
             System.out.println("------------ NEW TEACHERS ----------------\n");
 
             List<Teacher> teachers = importRepo.teacherBoscoGetForExport(districId, "NEW");
+
+            //ImportHelper.DebugSpin(true);
+
+            ImportHelper.DebugCountdownSet(teachers.size());
+
+
             for (Teacher bu : teachers) {
 
                 newTeachers++;
+                //ImportHelper.DebugSpin(false);
+                ImportHelper.DebugCountdown();
+
+                bu.setAssignedSchools(importRepo.schoolsForTeacher(bu.getId()));
+
                 //boscoClient.postTeacher(baseUrl + "users", token, bu);
                 boscoClient.putTeacher(baseUrl + "users/upsertUser/{id}", token, bu);
             }
@@ -384,9 +421,19 @@ public class BoscoApi {
 
             System.out.println("------------ CHANGED TEACHERS ----------------\n");
             teachers = importRepo.teacherBoscoGetForExport(districId, "CHANGED");
+
+            //ImportHelper.DebugSpin(true);
+            ImportHelper.DebugCountdownSet(teachers.size());
+
             for (Teacher bu : teachers) {
 
                 changedTeachers++;
+                //ImportHelper.DebugSpin(false);
+
+                ImportHelper.DebugCountdown();
+
+                bu.setAssignedSchools(importRepo.schoolsForTeacher(bu.getId()));
+
                 //boscoClient.putTeacher(baseUrl + "users/{id}", token, bu);
                 boscoClient.putTeacher(baseUrl + "users/upsertUser/{id}", token, bu);
             }
@@ -399,6 +446,9 @@ public class BoscoApi {
             System.out.println("------------ NEW STUDENTS ----------------\n");
             List<Student> bss = importRepo.studentsBoscoForExport(districId, "NEW");
 
+            ImportHelper.DebugCountdownSet(bss.size());
+            //ImportHelper.DebugSpin(true);
+
             for (Student bs : bss) {
 
                 
@@ -408,6 +458,9 @@ public class BoscoApi {
                 // make this pretty json and log.
 
                 newStudents++;
+
+                ImportHelper.DebugCountdown();
+                //ImportHelper.DebugSpin(false);
                 //boscoClient.postStudent(baseUrl + "students", token, bs);
                 boscoClient.putStudent(baseUrl + "students/upsert/{id}", token, bs);
 
@@ -419,6 +472,9 @@ public class BoscoApi {
             System.out.println("------------ CHANGED STUDENTS ----------------\n");
             bss = importRepo.studentsBoscoForExport(districId, "CHANGED");
 
+            //ImportHelper.DebugSpin(true);
+            ImportHelper.DebugCountdownSet(bss.size());
+
             for (Student bs : bss) {
 
                 
@@ -429,6 +485,11 @@ public class BoscoApi {
                 // make this pretty json and log.
 
                 changedStudents++;
+
+                //ImportHelper.DebugSpin(false);
+
+                ImportHelper.DebugCountdown();
+
                 boscoClient.putStudent(baseUrl + "students/upsert/{id}", token, bs);
 
 
@@ -444,11 +505,15 @@ public class BoscoApi {
 
             System.out.println("------------ DELETED STUDENTS ----------------\n");
             bss = importRepo.studentsBoscoForExport(districId, "DELETE");
+
+            ImportHelper.DebugCountdownSet(bss.size());
              for (Student bs : bss) {
 
                 deletedStudents++;
                 //boscoClient.putTeacher(baseUrl + "users/{id}", token, bu);
                 boscoClient.deleteStudent(baseUrl + "students/{id}", token, bs.getId());
+
+                ImportHelper.DebugCountdown();
 
                 
             }
@@ -457,11 +522,15 @@ public class BoscoApi {
 
             System.out.println("------------ DELETED TEACHERS ----------------\n");
             teachers = importRepo.teacherBoscoGetForExport(districId, "DELETE");
+
+            ImportHelper.DebugCountdownSet(teachers.size());
             for (Teacher bu : teachers) {
 
                 deletedTeachers++;
                 //boscoClient.putTeacher(baseUrl + "users/{id}", token, bu);
                 boscoClient.deleteTeacher(baseUrl + "users/{id}", token, bu.getId());
+
+                ImportHelper.DebugCountdown();
 
                 
             }

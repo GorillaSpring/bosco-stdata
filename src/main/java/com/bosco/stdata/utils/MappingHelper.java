@@ -3,6 +3,7 @@ package com.bosco.stdata.utils;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import com.bosco.stdata.teaModel.BoscoProficiency;
 
@@ -24,7 +25,7 @@ public class MappingHelper {
         // this should work for ALL TEA files.celinaComboItemReader
         String schoolYear = 
         switch (adminDate) {
-            case "0525", "1525", "1625", "0425" -> "2024-2025";
+            case "0325", "0525", "1525", "1625", "0425" -> "2024-2025";
             case "0324", "0424", "1524", "0524", "1324", "1624" -> "2023-2024";
             case "0323", "0423", "1523", "0523", "1323", "1623" -> "2022-2023";
             default -> throw new Exception("Unknown Admin Date in TEA File: " + adminDate);
@@ -205,17 +206,25 @@ public class MappingHelper {
         
         // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy");
-         //try {
+         try {
             LocalDate date = LocalDate.parse(dateString, formatter);
             Month month = date.getMonth();
             if (month == Month.AUGUST || month == Month.SEPTEMBER || month == Month.OCTOBER || month == Month.NOVEMBER || month == Month.DECEMBER)
                 return date.getYear() + "-" + (date.getYear() + 1);
             else
                 return date.getYear() - 1 + "-" + date.getYear();
-        // } catch (DateTimeParseException e) {
-        //     System.err.println("Error parsing date: " + e.getMessage());
-        //     return "";
-        // }
+        } catch (DateTimeParseException e) {
+            // lets try different format.
+            formatter = DateTimeFormatter.ofPattern("M/d/yy");
+            LocalDate date = LocalDate.parse(dateString, formatter);
+            Month month = date.getMonth();
+            if (month == Month.AUGUST || month == Month.SEPTEMBER || month == Month.OCTOBER || month == Month.NOVEMBER || month == Month.DECEMBER)
+                return date.getYear() + "-" + (date.getYear() + 1);
+            else
+                return date.getYear() - 1 + "-" + date.getYear();
+
+
+         }
     }
 
     // CsvFiles - LoadDibels8

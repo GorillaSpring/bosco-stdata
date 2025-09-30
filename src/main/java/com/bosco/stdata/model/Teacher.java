@@ -1,5 +1,8 @@
 package com.bosco.stdata.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -17,6 +20,8 @@ public class Teacher {
 	private String role;
 	private String userId;
   
+
+	private List<String> assignedSchools = new ArrayList();
     
 
 }

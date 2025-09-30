@@ -324,6 +324,72 @@ public class ImportRepo {
 
     }
 
+    public String schoolSourceIdForStudentNumber(String studentNumber) {
+        String id = districtId + "." + studentNumber;
+         Object[] args = {
+            id
+
+        };
+
+
+        String sql = """
+                 select 
+                    s.schoolSourceId
+                from 
+                    student s
+                where 
+                    s.id = ?
+                """;
+
+
+
+        try {
+            String schoolSourceId = template.queryForObject(
+                    sql, 
+                    String.class, 
+                    args);
+
+            return schoolSourceId;
+
+        }
+        catch (Exception ex) {
+            return null;
+        }
+    }
+
+     public String schoolSourceIdForTeacherId(String teacherId) {
+         String id = districtId + "." + teacherId;
+         Object[] args = {
+            id
+
+        };
+
+
+        String sql = """
+                 select 
+                    t.schoolSourceId
+                from 
+                    teacher t
+                where 
+                    t.id = ?
+                """;
+
+
+        try {
+
+        String schoolSourceId = template.queryForObject(
+                sql, 
+                String.class, 
+                args);
+
+        return schoolSourceId;
+        }
+        catch (Exception ex) {
+            return null;
+        }
+    }
+
+
     public String studentNumberFromSourceId (String studentSourceId) {
 
 
@@ -732,19 +798,54 @@ public class ImportRepo {
 
 
     
-    public void boscoStudentAdd (String server, int forDistrictId, String id, String studentNumber) {
+    public void boscoStudentAdd (int forDistrictId, String id, String studentNumber) {
            Object[] args = {
-            server,
             forDistrictId,
             id,
             studentNumber
         };
 
-        String sql = "insert ignore into bosco_student (server, districtId, id, studentNumber) values (?, ?, ?, ?);";
+        String sql = "insert ignore into bosco_student (districtId, id, studentNumber) values (?, ?, ?);";
         int rows = template.update(sql, args);
 
 
     }
+
+    public void boscoStudentRemove (int forDistrictId, String id, String studentNumber ) {
+            Object[] args = {
+            forDistrictId,
+            id,
+            studentNumber
+        };
+
+        String sql = "delete from  bosco_student where districtId = ? and id = ? and studentNumber = ?;";
+        int rows = template.update(sql, args);
+    }
+
+     public void boscoUserAdd (int forDistrictId, String id, String role) {
+           Object[] args = {
+            forDistrictId,
+            id,
+            role
+        };
+
+        String sql = "insert ignore into bosco_user (districtId, id, role) values (?, ?, ?);";
+        int rows = template.update(sql, args);
+
+
+    }
+
+    public void boscoUserRemove (int forDistrictId, String id, String role ) {
+            Object[] args = {
+            forDistrictId,
+            id,
+            role
+        };
+
+        String sql = "delete from  bosco_user where districtId = ? and id = ? and role = ?;";
+        int rows = template.update(sql, args);
+    }
+
 
     
     public void logError (String error) {
@@ -1031,6 +1132,13 @@ public class ImportRepo {
             importStatus
         };
 
+
+        // bilingual : bool 
+        // esl
+        // specialEd
+        // section504
+        // iepDate  : string
+
         String sql = """
                 select 	                    
                     id,
@@ -1048,13 +1156,7 @@ public class ImportRepo {
                     s.blackOrAfricanAmerican,
                     s.nativeHawaiianOrOtherPacificIslander,
                     s.white,
-                    s.hispanicOrLatinoEthnicity,
-                    s.isEsl,
-                    s.is504,
-                    s.isBilingual,
-                    s.isSpecialEd,
-                    s.entryIepDate
-
+                    s.hispanicOrLatinoEthnicity as hispanicOrLatino
                 from 
                     student s                     
                     join school school on school.districtId = s.districtId and school.sourceId = s.schoolSourceId
@@ -1188,6 +1290,43 @@ public Student studentBoscoForExport (String id) {
     }
 
     
+    public List<String> schoolsForTeacher (String teacherId) {
+        
+        Object[] args = {
+            
+            teacherId
+        };
+
+
+        String NOsql = """
+        
+        select
+        	distinct  msc.ncesSchoolId
+        from
+            teacher t
+            join student_teacher st on st.teacherId = t.id
+            join student s on s.id = st.studentId
+            join map_school_code_nces_school_id msc on msc.districtId = t.districtId and msc.schoolCode = s.schoolSourceId
+        where
+            t.id = ? ;
+            """; 
+
+
+        String sql = """
+                select 
+                    msc.ncesSchoolId
+                from 
+                    teacher t
+                    join school sch on sch.districtId = t.districtId and sch.sourceId = t.schoolSourceId
+                    join map_school_code_nces_school_id msc on msc.districtId = t.districtId and msc.schoolCode = sch.schoolCode
+
+                where 
+                    t.id = ?;
+                """;
+
+        return template.queryForList(sql, String.class, args);
+
+    }
     
 
     public List<String> teacherIdsBoscoForStudent(String id) {
@@ -1356,18 +1495,18 @@ public Student studentBoscoForExport (String id) {
       
 
 
-    public void saveStudentProperty (String studentNumber, String dbFieldName, String value) {
-        String id = districtId + "." + studentNumber;
-        String sql = "update student set " + dbFieldName  + " = " + value + " where id = '"  + id + "';";
-        template.update(sql);
-    }
+    // public void saveStudentProperty (String studentNumber, String dbFieldName, String value) {
+    //     String id = districtId + "." + studentNumber;
+    //     String sql = "update student set " + dbFieldName  + " = " + value + " where id = '"  + id + "';";
+    //     template.update(sql);
+    // }
 
-    public void saveStudentPropertyString (String studentNumber, String dbFieldName, String value) {
-        String id = districtId + "." + studentNumber;
+    // public void saveStudentPropertyString (String studentNumber, String dbFieldName, String value) {
+    //     String id = districtId + "." + studentNumber;
 
-        String sql = "update student set " + dbFieldName  + " = '" + value + "' where id = '"  + id + "';";
-        template.update(sql);
-    }
+    //     String sql = "update student set " + dbFieldName  + " = '" + value + "' where id = '"  + id + "';";
+    //     template.update(sql);
+    // }
 
 
 
@@ -1380,10 +1519,8 @@ public Student studentBoscoForExport (String id) {
             Boolean blackOrAfricanAmerican, 
             Boolean nativeHawaiianOrOtherPacificIslander, 
             Boolean white,
-            Boolean hispanicOrLatinoEthnicity,
-            Boolean isEsl,
-            Boolean is504,
-            Boolean isBilingual) {
+            Boolean hispanicOrLatinoEthnicity
+            ) {
 
         String id = districtId + "." + studentNumber;
 
@@ -1391,6 +1528,7 @@ public Student studentBoscoForExport (String id) {
 
          Object[] args = {
 
+            id,
             dob,
             gender,
             americanIndianOrAlaskaNative,
@@ -1398,11 +1536,8 @@ public Student studentBoscoForExport (String id) {
             blackOrAfricanAmerican,
             nativeHawaiianOrOtherPacificIslander,
             white,
-            hispanicOrLatinoEthnicity,
-            isEsl,
-            is504,
-            isBilingual,
-            id
+            hispanicOrLatinoEthnicity
+            
 
         };
 
@@ -1411,23 +1546,7 @@ public Student studentBoscoForExport (String id) {
         //String sql = "call student_demographics_update (?,?,?,?,?,?,?,?,?,?)";
 
         String sql = """
-                update
-                    student
-                set
-                    dob = ?,
-                    gender =  ?,
-                    americanIndianOrAlaskaNative = ?,
-                    asian = ?,
-                    blackOrAfricanAmerican = ?,
-                    nativeHawaiianOrOtherPacificIslander = ?,
-                    white = ?,
-                    hispanicOrLatinoEthnicity = ?,
-                    isEsl = ?,
-                    is504 = ?,
-                    isBilingual = ?
-                where
-                    id = ?
-                    
+                call student_demographics_save (?,?,?,?,?,?,?,?,?);
                 """;
 
         int rows = template.update(sql, args);
@@ -1543,7 +1662,7 @@ public Student studentBoscoForExport (String id) {
     //#region Teachers
 
 
-    public void saveTeacher(String sourceId, String teacherId, String firstName, String lastName, String email) {
+    public void saveTeacher(String sourceId, String teacherId, String firstName, String lastName, String email, String schoolSourceId) {
         // System.out.println("Added");
 
         String id = districtId + "." + teacherId;
@@ -1557,14 +1676,15 @@ public Student studentBoscoForExport (String id) {
 
             firstName,
             lastName,
-            email
+            email,
+            schoolSourceId
 
         };
         
 
         String sql = """
 
-            call teacher_add (?, ?, ?, ?, ?, ?, ?);
+            call teacher_add (?, ?, ?, ?, ?, ?, ?, ?);
 
            
                 """;

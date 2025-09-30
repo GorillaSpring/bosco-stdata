@@ -178,8 +178,8 @@ public class TestFiles {
                     // ** THIS IS studentNumber now, NOT SOURCE ID.
                     // ** THIS DOES NOT UPDATE the import Status.
                     i.importRepo.saveStudentDemographics(
-                        row[1], dob, row[5], false, false, false, false, false, false,
-                        false, false, false
+                        row[1], dob, row[5], false, false, false, false, false, false
+                        
                     );
 
                     // 504
@@ -233,7 +233,7 @@ public class TestFiles {
 
                     // String sourceId, String teacherId, String firstName, String lastName, String email
                     i.importRepo.saveTeacher(
-                        row[0], row[1],  row[3], row[2], row[4]
+                        row[0], row[1],  row[3], row[2], row[4], ""
                     );
                     counter1++;
                 }

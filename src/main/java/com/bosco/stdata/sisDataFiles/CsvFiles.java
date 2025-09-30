@@ -103,8 +103,10 @@ public class CsvFiles {
                 if (useStudentSourceId) {
                     // System.out.println("Checking Student : " + studentId);
                     studentNumber = i.importRepo.studentNumberFromSourceId(studentId);
-                    if (studentNumber == null)
-                        System.out.println("  ---------------------------------  NULLL: " + studentId);
+
+                    // if the student is null, we just don't load.
+                    //if (studentNumber == null)
+                        // System.out.println("  ---------------------------------  NULLL: " + studentId);
                 }
                 else
                     studentNumber = studentId;

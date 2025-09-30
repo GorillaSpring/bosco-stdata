@@ -314,10 +314,24 @@ public class ClassLinkOneRosterApi {
                                 //Teacher t = new Teacher(userNode.get("sourcedId").asText(),userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail);
 
 
+                                String tschoolSourceId = "X";
+                                JsonNode tschoolNode = userNode.get("orgs");
+                                if (tschoolNode != null) {
+                                    if (tschoolNode.isArray()) {
+                                            if (tschoolNode.size() > 0) {
+                                                JsonNode tschoolElement = tschoolNode.get(0);
+                                                tschoolSourceId = tschoolElement.get("sourcedId").asText();
+                                            }
+
+                                    }
+                                }
+
                                 // String sourceid, String teacherId, String firstname, String lastname, String email
                                 // String sourceId, String teacherId, String firstName, String lastName, String email
                                 i.importRepo.saveTeacher(
-                                    userNode.get("sourcedId").asText(),userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail
+                                    userNode.get("sourcedId").asText(),userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), 
+                                    teacherEmail,
+                                    tschoolSourceId
                                 );
                                 teacherCount++;
                                 
@@ -433,8 +447,8 @@ public class ClassLinkOneRosterApi {
                                 Boolean.parseBoolean(demographicsNode.get("blackOrAfricanAmerican").asText()),
                                 Boolean.parseBoolean(demographicsNode.get("nativeHawaiianOrOtherPacificIslander").asText()),
                                 Boolean.parseBoolean(demographicsNode.get("white").asText()),
-                                Boolean.parseBoolean(demographicsNode.get("hispanicOrLatinoEthnicity").asText()),
-                                false, false, false
+                                Boolean.parseBoolean(demographicsNode.get("hispanicOrLatinoEthnicity").asText())
+                                
                             );
 
                             studentCount++;
