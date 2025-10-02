@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
--- Host: localhost    Database: import
+-- Host: localhost    Database: import_dev
 -- ------------------------------------------------------
 -- Server version	8.0.43
 
@@ -16,17 +16,20 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `log_error`
+-- Table structure for table `import`
 --
 
-DROP TABLE IF EXISTS `log_error`;
+DROP TABLE IF EXISTS `import`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `log_error` (
-  `importId` int NOT NULL,
-  `error` varchar(10000) NOT NULL,
-  `createdDateTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `import` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `districtId` int NOT NULL,
+  `importDefinitionId` varchar(50) NOT NULL,
+  `log` varchar(1000) NOT NULL,
+  `createdDateTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -38,4 +41,4 @@ CREATE TABLE `log_error` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-24  7:26:39
+-- Dump completed on 2025-10-02  9:30:44

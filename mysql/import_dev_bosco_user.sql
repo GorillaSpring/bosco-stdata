@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
--- Host: localhost    Database: import
+-- Host: localhost    Database: import_dev
 -- ------------------------------------------------------
 -- Server version	8.0.43
 
@@ -16,23 +16,17 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `import_definition`
+-- Table structure for table `bosco_user`
 --
 
-DROP TABLE IF EXISTS `import_definition`;
+DROP TABLE IF EXISTS `bosco_user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `import_definition` (
-  `id` varchar(50) NOT NULL,
-  `importType` varchar(50) DEFAULT NULL,
+CREATE TABLE `bosco_user` (
   `districtId` int NOT NULL,
-  `isStudentSource` tinyint NOT NULL DEFAULT '1',
-  `active` tinyint NOT NULL DEFAULT '0',
-  `forceLoad` tinyint NOT NULL DEFAULT '0',
-  `setNoEmails` tinyint NOT NULL DEFAULT '0',
-  `maxDeltaPercent` decimal(5,2) NOT NULL DEFAULT '20.00',
-  `lastRunDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  `id` varchar(45) NOT NULL,
+  `role` varchar(45) NOT NULL,
+  PRIMARY KEY (`districtId`,`id`,`role`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -45,4 +39,4 @@ CREATE TABLE `import_definition` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-24  7:26:39
+-- Dump completed on 2025-10-02  9:30:43

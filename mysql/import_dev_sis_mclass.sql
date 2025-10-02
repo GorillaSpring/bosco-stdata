@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
--- Host: localhost    Database: import
+-- Host: localhost    Database: import_dev
 -- ------------------------------------------------------
 -- Server version	8.0.43
 
@@ -16,38 +16,24 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `student`
+-- Table structure for table `sis_mclass`
 --
 
-DROP TABLE IF EXISTS `student`;
+DROP TABLE IF EXISTS `sis_mclass`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `student` (
-  `id` varchar(50) NOT NULL,
+CREATE TABLE `sis_mclass` (
   `districtId` int NOT NULL,
-  `importStatus` varchar(10) NOT NULL,
-  `sourceId` varchar(50) NOT NULL,
-  `studentNumber` varchar(50) NOT NULL,
-  `firstName` varchar(50) NOT NULL,
-  `lastName` varchar(50) NOT NULL,
-  `grade` varchar(5) NOT NULL DEFAULT '',
-  `dob` varchar(50) NOT NULL DEFAULT '',
-  `gender` varchar(50) NOT NULL DEFAULT '',
-  `schoolSourceId` varchar(50) NOT NULL DEFAULT '',
-  `americanIndianOrAlaskaNative` tinyint NOT NULL DEFAULT '0',
-  `asian` tinyint NOT NULL DEFAULT '0',
-  `blackOrAfricanAmerican` tinyint NOT NULL DEFAULT '0',
-  `nativeHawaiianOrOtherPacificIslander` tinyint NOT NULL DEFAULT '0',
-  `white` tinyint NOT NULL DEFAULT '0',
-  `hispanicOrLatinoEthnicity` tinyint NOT NULL DEFAULT '0',
-  `demographicRaceTwoOrMoreRaces` tinyint NOT NULL DEFAULT '0',
-  `isEsl` tinyint NOT NULL DEFAULT '0',
-  `is504` tinyint NOT NULL DEFAULT '0',
-  `isBilingual` tinyint NOT NULL DEFAULT '0',
-  `isSpecialEd` tinyint NOT NULL DEFAULT '0',
-  `entryIepDate` varchar(50) NOT NULL DEFAULT '',
-  `hasNewSisData` tinyint NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  `id` varchar(255) NOT NULL,
+  `schoolYear` varchar(50) NOT NULL,
+  `period` varchar(50) NOT NULL,
+  `subject` varchar(50) NOT NULL,
+  `proficiency` varchar(50) NOT NULL,
+  `proficiencyCode` varchar(5) NOT NULL DEFAULT '',
+  `score` int NOT NULL,
+  `csaCode` varchar(5) NOT NULL DEFAULT '',
+  `importStatus` varchar(10) NOT NULL DEFAULT 'OK',
+  PRIMARY KEY (`districtId`,`id`,`schoolYear`,`period`,`subject`,`proficiency`,`score`,`proficiencyCode`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -60,4 +46,4 @@ CREATE TABLE `student` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-24  7:26:39
+-- Dump completed on 2025-10-02  9:30:43

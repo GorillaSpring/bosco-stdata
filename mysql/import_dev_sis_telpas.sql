@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
--- Host: localhost    Database: import
+-- Host: localhost    Database: import_dev
 -- ------------------------------------------------------
 -- Server version	8.0.43
 
@@ -16,24 +16,24 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `sis_map`
+-- Table structure for table `sis_telpas`
 --
 
-DROP TABLE IF EXISTS `sis_map`;
+DROP TABLE IF EXISTS `sis_telpas`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `sis_map` (
+CREATE TABLE `sis_telpas` (
   `districtId` int NOT NULL,
-  `id` varchar(255) NOT NULL,
+  `id` varchar(45) NOT NULL,
   `schoolYear` varchar(50) NOT NULL,
-  `period` varchar(50) NOT NULL,
-  `subject` varchar(50) NOT NULL,
+  `grade` varchar(5) NOT NULL,
   `proficiency` varchar(50) NOT NULL,
-  `proficiencyCode` varchar(5) NOT NULL DEFAULT '',
-  `score` int NOT NULL,
-  `csaCode` varchar(5) NOT NULL DEFAULT '',
+  `listeningScore` int NOT NULL,
+  `speakingScore` int NOT NULL,
+  `readingScore` int NOT NULL,
+  `writingScore` int NOT NULL,
   `importStatus` varchar(10) NOT NULL DEFAULT 'OK',
-  PRIMARY KEY (`districtId`,`id`,`schoolYear`,`period`,`subject`,`proficiency`,`score`,`proficiencyCode`)
+  PRIMARY KEY (`districtId`,`id`,`schoolYear`,`grade`,`proficiency`,`listeningScore`,`speakingScore`,`readingScore`,`writingScore`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -46,4 +46,4 @@ CREATE TABLE `sis_map` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-24  7:26:38
+-- Dump completed on 2025-10-02  9:30:43

@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
--- Host: localhost    Database: import
+-- Host: localhost    Database: import_dev
 -- ------------------------------------------------------
 -- Server version	8.0.43
 
@@ -16,25 +16,15 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `temp_star_2024`
+-- Table structure for table `temp_log_tea`
 --
 
-DROP TABLE IF EXISTS `temp_star_2024`;
+DROP TABLE IF EXISTS `temp_log_tea`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `temp_star_2024` (
-  `testName` varchar(45) NOT NULL,
-  `studentId` varchar(45) DEFAULT NULL,
-  `adminDate` varchar(45) DEFAULT NULL,
-  `pliReadingLanguageArts` varchar(45) DEFAULT NULL,
-  `scoreReadingLanguageArts` varchar(45) DEFAULT NULL,
-  `pliMath` varchar(45) DEFAULT NULL,
-  `scoreMath` varchar(45) DEFAULT NULL,
-  `pliSocialStudies` varchar(45) DEFAULT NULL,
-  `scoreSocialStudies` varchar(45) DEFAULT NULL,
-  `pliScience` varchar(45) DEFAULT NULL,
-  `scoreScience` varchar(45) DEFAULT NULL,
-  `scoreAlgebra` varchar(45) DEFAULT NULL
+CREATE TABLE `temp_log_tea` (
+  `fileName` varchar(500) DEFAULT NULL,
+  `log` varchar(500) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -47,4 +37,4 @@ CREATE TABLE `temp_star_2024` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-24  7:26:38
+-- Dump completed on 2025-10-02  9:30:43

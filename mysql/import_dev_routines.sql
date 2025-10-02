@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
--- Host: localhost    Database: import
+-- Host: localhost    Database: import_dev
 -- ------------------------------------------------------
 -- Server version	8.0.43
 
@@ -16,8 +16,73 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Dumping routines for database 'import'
+-- Dumping routines for database 'import_dev'
 --
+/*!50003 DROP PROCEDURE IF EXISTS `bu_student_sped_add` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `bu_student_sped_add`(
+	p_districtId int,
+	p_studentSourceId varchar(50),
+    p_stateInstructionalSettingCode varchar(10),
+    p_stateChildCountFundCode varchar(10),
+    p_specialEducationEnrollmentTXID int,
+    p_startDate varchar(50),
+    p_endDate varchar(50),
+    p_multiplyDisabled tinyint,
+    p_entryComment varchar(500),
+    p_exitComment varchar(500)
+    )
+BEGIN
+
+	 declare isChanged int;
+    
+    if exists 
+		(
+			select 1 from student_sped
+			where 
+				districtId = p_districtId
+                and studentSourceId = p_studentSourceId
+                and stateInstructionalSettingCode = p_stateInstructionalSettingCode
+                and stateChildCountFundCode = p_stateChildCountFundCode
+                and specialEducationEnrollmentTXID = p_specialEducationEnrollmentTXID
+                and startDate = p_startDate
+                and endDate = p_endDate
+                and multiplyDisabled = p_multiplyDisabled
+                and entryComment = p_entryComment
+                and exitComment = p_exitComment
+		)
+	then
+		select 0 into isChanged;
+	else
+    
+		-- this is where we need to update the import student to changed.
+        
+        -- SO here we need to delete the record if it exists.
+        delete from student_sped where districtId = p_districtId and studentSourceId = p_studentSourceId;
+        
+        insert into student_sped (districtId, studentSourceId, stateInstructionalSettingCode, stateChildCountFundCode, specialEducationEnrollmentTXID, startDate, endDate, multiplyDisabled, entryComment, exitComment)
+		values (p_districtId, p_studentSourceId, p_stateInstructionalSettingCode, p_stateChildCountFundCode, p_specialEducationEnrollmentTXID, p_startDate, p_endDate, p_multiplyDisabled, p_entryComment, p_exitComment);
+		
+        select 1 into isChanged;
+            
+	end if;
+    
+    select isChanged;
+    
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `check_import_deltas` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -245,6 +310,9 @@ BEGIN
 		delete from student_teacher where districtId = p_districtId and importStatus = 'DELETE';
     
 		delete from guardian where districtId = p_districtId and importStatus = 'DELETE';
+        
+        -- Figure this out.
+        -- delete from sis_sped where districtId = p_districtId and importStatus = 'DELETE';
     
 	end if;
         
@@ -384,6 +452,10 @@ BEGIN
 			update guardian set importStatus = 'DELETE'  where districtId = p_districtId; 
 			
 			update student_teacher set importStatus = 'DELETE'  where districtId = p_districtId;
+            
+            -- THIS is TODO: we need to figure out the sis data for this.
+            -- for now, this is OK, but review.
+            update sis_sped set importStatus = 'DELETE'  where districtId = p_districtId;
 			-- do for other tables too, but maybe just Student and Teacher!
 			
 			delete from student_class where districtId = p_districtId;
@@ -459,6 +531,19 @@ BEGIN
 				s.districtId = p_districtId
 				and st.importStatus != "OK"
 				and s.importStatus = 'OK';
+        
+        /*
+			THis is not part of sis.  We do not update the sutdent based on this.
+			update
+				student s
+                join sis_sped ss on s.districtId = ss.districtId and s.id = ss.id
+			set
+				s.importStatus = 'CHANGED'
+			where
+				s.districtId = p_districtId
+				and ss.importStatus != "OK"
+				and s.importStatus = 'OK';
+          */      
 		end if;
         
 	-- if (p_isSisData > 0) then
@@ -727,6 +812,85 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `sis_sped_add` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sis_sped_add`(
+	p_districtId int,
+    p_id varchar(45),
+    p_specialEd tinyint,    
+    p_bilingual tinyint,
+    p_esl tinyint,
+    p_section504 tinyint,
+    p_iepStartDate varchar(45),
+    p_iepEndDate varchar(45)
+    )
+BEGIN
+    
+    if exists 
+		(
+			select 1 from sis_sped
+			where 
+				districtId = p_districtId
+                and id = p_id
+                and specialEd = p_specialEd
+                and bilingual = p_bilingual
+                and esl = p_esl
+                and section504 = p_section504
+                and iepStartDate = p_iepStartDate
+                and iepEndDate = p_iepEndDate                
+		)
+	then
+		update 
+			sis_sped
+		set
+			importStatus = 'OK'
+		where 
+			districtId = p_districtId
+            and id = p_id
+			and specialEd = p_specialEd
+			and bilingual = p_bilingual
+			and esl = p_esl
+			and section504 = p_section504
+			and iepStartDate = p_iepStartDate
+			and iepEndDate = p_iepEndDate
+                ;
+			
+    else 
+    
+		insert into sis_sped (districtId, id, specialEd, bilingual, esl, section504, iepStartDate, iepEndDate, importStatus)
+        values (p_districtId, p_id, p_specialEd, p_bilingual, p_esl, p_section504, p_iepStartDate, p_iepEndDate, 'NEW')
+        on duplicate key update
+			importStatus = 'CHANGED',			
+			specialEd = p_specialEd,
+            bilingual = p_bilingual,
+			esl = p_esl,
+			section504 = p_section504,
+			iepStartDate = p_iepStartDate,
+			iepEndDate = p_iepEndDate			
+            ;
+        
+            
+		
+            
+            
+	end if;
+    
+    
+    
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `sis_staar_add` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -924,7 +1088,7 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `student_sped_add` */;
+/*!50003 DROP PROCEDURE IF EXISTS `student_demographics_save` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -934,55 +1098,71 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `student_sped_add`(
-	p_districtId int,
-	p_studentSourceId varchar(50),
-    p_stateInstructionalSettingCode varchar(10),
-    p_stateChildCountFundCode varchar(10),
-    p_specialEducationEnrollmentTXID int,
-    p_startDate varchar(50),
-    p_endDate varchar(50),
-    p_multiplyDisabled tinyint,
-    p_entryComment varchar(500),
-    p_exitComment varchar(500)
-    )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `student_demographics_save`(
+    p_id varchar(45),
+    p_dob varchar(45),
+    p_gender varchar(5),
+    p_americanIndianOrAlaskaNative tinyint,
+    p_asian tinyint,
+    p_blackOrAfricanAmerican tinyint,
+    p_nativeHawaiianOrOtherPacificIslander tinyint,
+    p_white tinyint,
+    p_hispanicOrLatinoEthnicity tinyint
+    
+)
 BEGIN
 
-	 declare isChanged int;
+	-- This solution works fine with the case statement.
     
-    if exists 
+
+	-- so this will not INSERT.  It will only update.
+    -- it will change the status if need be.
+    
+	if not exists 
 		(
-			select 1 from student_sped
+			select 1 from student
 			where 
-				districtId = p_districtId
-                and studentSourceId = p_studentSourceId
-                and stateInstructionalSettingCode = p_stateInstructionalSettingCode
-                and stateChildCountFundCode = p_stateChildCountFundCode
-                and specialEducationEnrollmentTXID = p_specialEducationEnrollmentTXID
-                and startDate = p_startDate
-                and endDate = p_endDate
-                and multiplyDisabled = p_multiplyDisabled
-                and entryComment = p_entryComment
-                and exitComment = p_exitComment
-		)
-	then
-		select 0 into isChanged;
-	else
-    
-		-- this is where we need to update the import student to changed.
-        
-        -- SO here we need to delete the record if it exists.
-        delete from student_sped where districtId = p_districtId and studentSourceId = p_studentSourceId;
-        
-        insert into student_sped (districtId, studentSourceId, stateInstructionalSettingCode, stateChildCountFundCode, specialEducationEnrollmentTXID, startDate, endDate, multiplyDisabled, entryComment, exitComment)
-		values (p_districtId, p_studentSourceId, p_stateInstructionalSettingCode, p_stateChildCountFundCode, p_specialEducationEnrollmentTXID, p_startDate, p_endDate, p_multiplyDisabled, p_entryComment, p_exitComment);
+                id = p_id
+                and dob = p_dob
+                and gender = p_gender
+                and americanIndianOrAlaskaNative = p_americanIndianOrAlaskaNative
+                and asian = p_asian
+                and blackOrAfricanAmerican = p_blackOrAfricanAmerican
+                and nativeHawaiianOrOtherPacificIslander = p_nativeHawaiianOrOtherPacificIslander
+                and white = p_white
+                and hispanicOrLatinoEthnicity = p_hispanicOrLatinoEthnicity
 		
-        select 1 into isChanged;
+        )
+	then
+		-- it is different or does not exists.
+        -- we only update, we do not insert.
+        
+        -- we only want to update the importStatus for 'OK'
+        
+        update
+			student
+		set
+			dob = p_dob,
+            gender = p_gender,
+            americanIndianOrAlaskaNative = p_americanIndianOrAlaskaNative,
+			asian = p_asian,
+            blackOrAfricanAmerican = p_blackOrAfricanAmerican,
+            nativeHawaiianOrOtherPacificIslander = p_nativeHawaiianOrOtherPacificIslander,
+            white = p_white,
+            hispanicOrLatinoEthnicity = p_hispanicOrLatinoEthnicity,
+            importStatus = case
+				when importStatus = 'OK' then 'CHANGED' else importStatus
+			end
+		where
+			id = p_id
+    
+                ;
+			
             
 	end if;
     
-    select isChanged;
     
+
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1047,7 +1227,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `teacher_add`(
     p_teacherId varchar(50),
     p_firstName varchar(50),
     p_lastName varchar(50),
-    p_email varchar(255)
+    p_email varchar(255),
+    p_schoolSourceId varchar(45)
     )
 BEGIN
     
@@ -1062,6 +1243,7 @@ BEGIN
                 and firstName = p_firstName
                 and lastName = p_lastName
                 and email = p_email
+                and schoolSourceId = p_schoolSourceId
 		)
 	then
 		-- Found, exact match, so OK
@@ -1075,15 +1257,16 @@ BEGIN
 	else
 		-- Not found or Different
         
-        insert into teacher (id, districtId, importStatus, sourceId, teacherId, firstName, lastName, email)
-        values (p_id, p_districtId, 'NEW', p_sourceId, p_teacherId, p_firstName, p_lastName, p_email)
+        insert into teacher (id, districtId, sourceId, teacherId, firstName, lastName, email, schoolSourceId, importStatus)
+        values (p_id, p_districtId, p_sourceId, p_teacherId, p_firstName, p_lastName, p_email, p_schoolSourceId, 'NEW')
         on duplicate key update
 			importStatus = 'CHANGED',
 			sourceId = p_sourceId,
             teacherId = p_teacherId,
             firstName = p_firstName, 
             lastName = p_lastName, 
-            email = p_email 
+            email = p_email,
+            schoolSourceId = p_schoolSourceId
             
             ;
         
@@ -1203,6 +1386,7 @@ BEGIN
     delete from teacher_class where districtId = p_districtId;
     delete from student_teacher where districtId = p_districtId;
     delete from student_sped where districtId = p_districtId;
+    delete from teacher where districtId = p_districtId;
     
     delete from sis_grade where districtId = p_districtId;
     delete from sis_map where districtId = p_districtId;
@@ -1274,11 +1458,11 @@ BEGIN
 	truncate table log_info;
 	truncate table school;
 	truncate table student;
-	truncate table student_class;
 	truncate table student_teacher;
+	truncate table student_class;
+	truncate table teacher_class;
 	truncate table student;
 	truncate table teacher;
-	truncate table teacher_class;
     
     truncate table sis_grade;
     truncate table sis_discipline;
@@ -1288,7 +1472,7 @@ BEGIN
     
     truncate table sis_telpas;
     
-    truncate table student_sped;
+    truncate table sis_sped;
     
     -- for now, we dont do this.
     -- truncate table sis_student;
@@ -1316,4 +1500,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-24  7:26:40
+-- Dump completed on 2025-10-02  9:30:44
