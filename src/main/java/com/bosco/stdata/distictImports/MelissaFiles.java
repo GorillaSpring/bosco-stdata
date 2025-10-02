@@ -344,7 +344,7 @@ private static MelissaFiles i;  // instance
             // teacherId	classId
 
 
-            colNames = new String[]{"UserSourceID", "UserID", "CourseName", "CourseID"};
+            colNames = new String[]{"UserSourceID", "UserID", "CourseName", "CourseID", "CourseSectionID"};
             
             if (!ImportHelper.CheckColumnHeaders(fr, colNames))
                 throw new Exception("File : user_enrollments.csv does not match column specs" );
@@ -364,16 +364,11 @@ private static MelissaFiles i;  // instance
                     // skip 000000 teachers
                     if (!row[0].equals("000000")) {
 
+                        // We concatinate the CourseSectionID + CourseID.
 
-                        //System.out.println("Getting School Code for : " + row[1]);
 
-                        String teacherSchool = i.importRepo.schoolSourceIdForTeacherId(row[1]);
-
-                        if (teacherSchool != null) {
-
-                            i.importRepo.saveTeacherClass(row[0], teacherSchool + row[3]);
-                            counter1++;
-                        }
+                        i.importRepo.saveTeacherClass(row[0], row[4] + row[3]);
+                        counter1++;
                     }
 
                 }
@@ -394,7 +389,7 @@ private static MelissaFiles i;  // instance
 
             fr = data.removeFirst();
 
-            colNames = new String[]{"StudentSourceID", "StudentNumber", "CourseName", "CourseID"};
+            colNames = new String[]{"StudentSourceID", "StudentNumber", "CourseName", "CourseID", "CourseSectionID"};
             
             if (!ImportHelper.CheckColumnHeaders(fr, colNames))
                 throw new Exception("File : student_enrollments.csv does not match column specs" );
@@ -411,15 +406,11 @@ private static MelissaFiles i;  // instance
                 {
                     ImportHelper.DebugCountdown();
 
-                    String studentSchool = i.importRepo.schoolSourceIdForStudentNumber(row[1]);
 
-                    if (studentSchool != null) {
+                    // We concatinate the CourseSectionID + CourseID.
+                    i.importRepo.saveStudentClass(row[0], row[4] +  row[3]);
+                    counter1++;
 
-                        // TODO: Again, we need the school code.
-                        i.importRepo.saveStudentClass(row[0], studentSchool +  row[3]);
-                        counter1++;
-
-                    }
 
                 }
 

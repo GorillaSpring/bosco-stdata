@@ -17,8 +17,8 @@ import org.springframework.context.annotation.Configuration;
 
 import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.DibelsMClass;
-
-
+import com.bosco.stdata.teaModel.GradeFileMelissa;
+import com.bosco.stdata.teaModel.MapCourseNameCsaCode;
 import com.bosco.stdata.teaModel.Star2024;
 
 import com.bosco.stdata.teaModel.Star2024EOC;
@@ -46,12 +46,36 @@ public class TeaStaarFlatFileReader {
     
 // So lets try fror the csv.
 
+    @Bean
+    public FlatFileItemReader<MapCourseNameCsaCode> mapCourseNameCsaCodeReader(String filePath) {
+        return new FlatFileItemReaderBuilder<MapCourseNameCsaCode>()
+            .name("mapCourseNameCsaCodeReader")
+            .resource(new FileSystemResource(filePath)) // Path to your CSV file  Try FileSystemResource instead
+            .linesToSkip(1) // Skip header line if present
+            .delimited()
+            .names(new String[]{"districtId", "courseName", "csaCode"}) 
+            .targetType(MapCourseNameCsaCode.class) // Specify the target object type
+            .build();
+    }
+
+
+    @Bean
+    public FlatFileItemReader<GradeFileMelissa> gradeMelissaReader(String filePath) {
+        return new FlatFileItemReaderBuilder<GradeFileMelissa>()
+            .name("gradeMelissaReader")
+            .resource(new FileSystemResource(filePath)) // Path to your CSV file  Try FileSystemResource instead
+            .linesToSkip(1) // Skip header line if present
+            .delimited()
+            .names(new String[]{"studentSourceId", "studentNumber", "courseName", "courseId", "schoolYear", "term", "courseGrade", "changedDateTime"}) 
+            .targetType(GradeFileMelissa.class) // Specify the target object type
+            .build();
+    }
 
 
     @Bean
     public FlatFileItemReader<DibelsMClass> dibelesMClassReader(String filePath) {
         return new FlatFileItemReaderBuilder<DibelsMClass>()
-            .name("celinaComboItemReader")
+            .name("dibelesMClassReader")
             .resource(new FileSystemResource(filePath)) // Path to your CSV file  Try FileSystemResource instead
             .linesToSkip(1) // Skip header line if present
             .delimited()

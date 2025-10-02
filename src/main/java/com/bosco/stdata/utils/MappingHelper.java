@@ -36,6 +36,16 @@ public class MappingHelper {
 
     }
 
+    public static String SchoolYearFromYear (String year) throws Exception {
+        // this will make "2025" -> "2024-2025"
+
+        int intYear = Integer.parseInt(year);
+
+        return (intYear - 1) + "-" + year;
+
+
+    }
+
 
     // LoadStar, LoadStarEOC
     public static BoscoProficiency StaarProficiency (String teaPL) throws Exception {

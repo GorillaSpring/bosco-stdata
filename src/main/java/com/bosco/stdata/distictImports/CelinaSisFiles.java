@@ -119,6 +119,7 @@ public class CelinaSisFiles {
 
             CsvFiles.LoadComboStudentAssessment(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 MAP/MAP Data file Spring 2324.csv", true);
             CsvFiles.LoadComboStudentAssessment(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 MAP/MAP Data file Winter 2324.csv", true);
+            CsvFiles.LoadComboStudentAssessment(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 MAP/MAP Data file Fall 2324.csv", true);
 
 
                // 2023-2024 Assessment Files/2023-24 STAAR

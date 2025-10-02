@@ -9,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.bosco.stdata.config.AppConfig;
 import com.bosco.stdata.repo.ImportRepo;
+import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.DibelsMClass;
+import com.bosco.stdata.teaModel.GradeFileMelissa;
+import com.bosco.stdata.teaModel.MapCourseNameCsaCode;
 import com.bosco.stdata.utils.MappingHelper;
 import com.bosco.stdata.utils.TeaStaarFlatFileReader;
 
@@ -18,6 +21,8 @@ import jakarta.annotation.PostConstruct;
 
 @Component
 public class CsvFiles {
+
+    private final BoscoApi boscoApi;
 
     private final AppConfig appConfig;
     
@@ -29,8 +34,9 @@ public class CsvFiles {
     private static CsvFiles i;
 
 
-    CsvFiles(AppConfig appConfig) {
+    CsvFiles(AppConfig appConfig, BoscoApi boscoApi) {
         this.appConfig = appConfig;
+        this.boscoApi = boscoApi;
     }
 
 
@@ -41,6 +47,156 @@ public class CsvFiles {
         i = this;
     }
 
+
+    public static void LoadMapCourseNameCsaCode (String filePath) throws Exception {
+        TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
+
+        
+
+        FlatFileItemReader<MapCourseNameCsaCode> cr = tsfr.mapCourseNameCsaCodeReader(filePath);
+
+        cr.open(new ExecutionContext());
+
+        System.out.println(("-----------------------"));
+        System.out.println(("------ Loading Map CourseName to CsaCode ------"));
+        System.out.println (filePath);
+
+        int count = 0;
+        int total = 0;
+
+        
+        MapCourseNameCsaCode cc = cr.read();
+            //String schoolYear = "2024-2025";  // should be able to get this from TermName
+
+            //String termName = cc.getTermName();
+
+
+        while (cc != null) {
+
+            i.importRepo.setMapCourseCsaCode(cc.districtId, cc.couseName, cc.csaCode);
+
+            
+            cc = cr.read();
+        }
+
+
+        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
+        
+        System.out.println("  Total: " + total + "  - Imported : " + count);
+
+        System.out.println(("-----------------------"));
+    }
+    
+
+    public static void LoadGradesMelissa (int districtId, String filePath) throws Exception {
+        TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
+
+        
+
+        FlatFileItemReader<GradeFileMelissa> cr = tsfr.gradeMelissaReader(filePath);
+
+        cr.open(new ExecutionContext());
+
+        System.out.println(("-----------------------"));
+        System.out.println(("------ Loading Melissa Grades ------"));
+        System.out.println (filePath);
+
+        int count = 0;
+        int total = 0;
+
+        
+        GradeFileMelissa cc = cr.read();
+            //String schoolYear = "2024-2025";  // should be able to get this from TermName
+
+            //String termName = cc.getTermName();
+
+
+        while (cc != null) {
+
+            total++;
+
+            // we need
+            // public String studentSourceId;
+            // public String studentNumber;
+            // public String courseName;
+            // public String courseId;
+            // public String schoolYear;
+            // public String term;
+            // public String courseGrade;
+            // public String changedDateTime;  // don;'t need
+            
+
+
+            // i.importRepo.setMapCourseCsaCode(districtId, cc.getCourseName(), "");
+
+            
+            String scoreString = cc.getCourseGrade().replace("*", "");
+            
+
+
+            if (!scoreString.isEmpty()) {
+
+                // first see if it is something we load anyway
+
+                String csaCode = i.importRepo.csaCodeForCourseName(districtId, cc.courseName);
+
+
+                if (!csaCode.isBlank()) 
+                {
+                    Boolean scoreValid = true;
+                    int score = 0;
+
+                    try {
+
+                        // so the scoreString may not be an int.
+                        score = Integer.parseInt(scoreString);
+                    }
+                    catch (Exception ex) {
+                        scoreValid = false;
+                    }
+
+                    if (scoreValid) {
+
+                        String studentNumber = cc.getStudentNumber();
+                        String period = cc.getTerm();
+                        String subject = cc.getCourseName();
+                        String code = cc.getCourseId();
+
+                        // THIS NEEDS TO BE cacluated.
+                        String schoolYear = MappingHelper.SchoolYearFromYear(cc.getSchoolYear());
+
+                        
+
+                        //i.importRepo.
+
+                        // String studentNumber, String schoolYear, String period, String code, String subject, int score, String csaCode
+                        i.importRepo.sisGradeAdd (studentNumber, schoolYear, period, code, subject, score, csaCode);
+
+                        count++;
+                    }
+                    // else {
+                    //     System.out.println ("Invalid Score : " + scoreString);
+                    // }
+
+                }
+                    
+                
+            }
+            // else {
+            //     System.out.println ("Empty score");
+            // }
+
+
+            cc = cr.read();
+        }
+
+
+        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
+        
+        System.out.println("  Total: " + total + "  - Imported : " + count);
+
+        System.out.println(("-----------------------"));
+    }
     
     
 

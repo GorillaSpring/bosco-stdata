@@ -73,16 +73,31 @@ public class MelissaSisFiles {
 
 
           
+            // LETS load all this into dev / test / prod
 
-            // Checking mclass
-              //This mClass files.
-            //2022_2023_2024_2025 mClass
-            // CsvFiles.LoadDibels8(districtId, baseFileFolder + "2022_2023_2024_2025 mClass/dibels8_BM_2021-2022_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-56-59.csv", false);
-            // CsvFiles.LoadDibels8(districtId, baseFileFolder + "2022_2023_2024_2025 mClass/dibels8_BM_2022-2023_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-57-46.csv", false);
-            // CsvFiles.LoadDibels8(districtId, baseFileFolder + "2022_2023_2024_2025 mClass/dibels8_BM_2023-2024_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-58-45.csv", false);
-            // CsvFiles.LoadDibels8(districtId, baseFileFolder + "2022_2023_2024_2025 mClass/dibels8_BM_2024-2025_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-59-22.csv", false);
+            // dev : NOW
+
+            // THEN we can work on the gardes
+
+            // Do this to laod the map files when done.
+
+            //System.out.println("Loading map file");
+
+             //CsvFiles.LoadMapCourseNameCsaCode(baseFileFolder + "Melissa_map_courseName_csaCode.csv");
+
+            
 
 
+            // THESE SHOULD BE GOOD TO GO AFTER WE LOAD THE MAP FILE.
+
+            // System.out.println("grades_current_year");
+            // CsvFiles.LoadGradesMelissa(districtId, baseFileFolder + "grades_current_year.csv");
+
+            // System.out.println("grades_historical");
+
+            CsvFiles.LoadGradesMelissa(districtId, baseFileFolder + "grades_historical.csv");
+
+            
 
 
             // 2022

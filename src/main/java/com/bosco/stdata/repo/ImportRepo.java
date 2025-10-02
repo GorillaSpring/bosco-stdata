@@ -129,6 +129,26 @@ public class ImportRepo {
 
     //#endregion
 
+    public void setMapCourseCsaCode (int forDistrictId, String courseName, String csaCode) {
+        Object[] args = {
+            forDistrictId,
+            courseName, 
+            csaCode,
+            csaCode
+        };
+
+        String sql = """
+            insert into
+                map_course_csacode (districtId, courseName, csaCode)
+            values (?, ?, ?)
+            on duplicate key update
+                csaCode = ?
+                """;
+
+        int rows = template.update(sql, args);
+
+    }
+
 
    
     public List<SisGrades> sisGradesGet (String id) {
@@ -324,6 +344,7 @@ public class ImportRepo {
 
     }
 
+    // NOT USED AT THE MOMENT
     public String schoolSourceIdForStudentNumber(String studentNumber) {
         String id = districtId + "." + studentNumber;
          Object[] args = {
@@ -357,11 +378,11 @@ public class ImportRepo {
         }
     }
 
-     public String schoolSourceIdForTeacherId(String teacherId) {
-         String id = districtId + "." + teacherId;
-         Object[] args = {
+    // NOT USED AT THE MOMENT
+    public String schoolSourceIdForTeacherId(String teacherId) {
+        String id = districtId + "." + teacherId;
+        Object[] args = {
             id
-
         };
 
 
@@ -483,6 +504,29 @@ public class ImportRepo {
 
 
 
+    public String csaCodeForCourseName (int forDistrictId, String courseName) throws Exception {
+
+
+
+        Object[] args = {
+            forDistrictId,
+            courseName
+
+        };
+
+
+        String sql = """
+                select csaCode from map_course_csacode where districtId = ? and courseName = ?;
+                """;
+
+        String csaCode = template.queryForObject(
+                sql, 
+                String.class, 
+                args);
+
+        return csaCode;
+
+    }
 
     public void sisGradeAdd (String studentNumber, String schoolYear, String period, String code, String subject, int score, String csaCode) {
         
