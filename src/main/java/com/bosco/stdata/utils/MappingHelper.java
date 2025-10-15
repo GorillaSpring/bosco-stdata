@@ -316,109 +316,109 @@ public class MappingHelper {
         throw new Exception("Unknown GeneralCsaCode");
     }
 
-    public static String MapMclass_CsaCodeFromCourseName (String courseName) throws Exception {
-        // This will return "" for N/A - IE ignore
-        // It will return "NOT_FOUND"  if not found!
+    // public static String MapMclass_CsaCodeFromCourseName (String courseName) throws Exception {
+    //     // This will return "" for N/A - IE ignore
+    //     // It will return "NOT_FOUND"  if not found!
 
-         String csaCode = switch (courseName) {
-            case "English II MYP" -> "R";
-            case "Algebra II MYP" -> "M";
-            case "Algebra II" -> "M";
-            case "Algebra I" -> "M";
-            case "Chemistry MYP" -> "C";
-            case "US Government" -> "S";
-            case "US Hist Since Recon MYP (YL)" -> "S";
-            case "IB Lang A: Lang & Lit SL2" -> "R";
-            case "IB Math: AI SL2" -> "M";
-            case "IB Theory of Knowledge 12 (Sem)" -> "";   // This is a known DO NOT LOAD.
-            case "IB Theory of Knowledge 11 (Sem)" -> "";   // This is a known DO NOT LOAD.
-            case "IB Global Politics HL2" -> "S";
-            case "IB History of Americas HL2" -> "S";
-            case "IB History of Americas HL1" -> "S";
-            case "IB Lang A: Lang & Lit HL2" -> "R";
-            case "IB Lang A: Lang & Lit SL1" -> "R";
-            case "IB Environ Sys & Soc SL1" -> "S";
-            case "IB Global Politics Higher Level 1" -> "S";
-            case "IB Math: AI SL1" -> "M";
-            case "IB Biology Standard Level 1" -> "C";
-            case "IB Psychology HL1" -> "S";
-            case "Geometry MYP" -> "M";
-            case "IB Lang A: Lang & Lit HL1" -> "R";
-            case "Precalculus" -> "M";
-            case "English I MYP" -> "R";
-            case "Biology MYP" -> "C";
-            case "Biology" -> "C";
-            case "World History Studies MYP" -> "S";
-            case "Ind Study in Math I (YL)" -> "M";
-            case "English Lang Arts & Read, Grade 8 MYP" -> "R";
-            case "Algebra I MYP MS" -> "M";
-            case "Science, Grade 8 MYP" -> "C";
-            case "US History, Grade 8 MYP" -> "S";
-            case "English Lang Arts & Read, Grade 6 MYP" -> "R";
-            case "Math, Grade 6 MYP" -> "M";
-            case "Science, Grade 6 MYP" -> "C";
-            case "Algebra I MYP" -> "M";
-            case "Reading I" -> "R";
-            case "English Lang Arts & Read, Grade 7 MYP" -> "R";
-            case "English I", "English II" -> "R";
-            case "Math, Grade 8 MYP" -> "M";
-            case "Science, Grade 7 MYP" -> "C";
-            case "Math, Grade 7 MYP" -> "M";
-            case "Texas History, Grade 7 MYP" -> "S";
-            case "English Language Arts & Reading, Grade 3" -> "R";
-            case "Social Studies, Grade 3" -> "S";
-            case "Math, Grade 7" -> "M";
-            case "English Language Arts & Reading, Grade 5" -> "R";
-            case "Science, Grade 5" -> "C";
-            case "Social Studies, Grade 5" -> "S";
-            case "World History, Grade 6 MYP" -> "S";
-            case "English Language Arts & Reading, Grade 4" -> "R";
-            case "Science, Grade 4" -> "C";
-            case "Social Studies, Grade 4" -> "S";
-            case "Math, Grade 4" -> "M";
-            case "Math, Grade 3" -> "M";
-            case "Math, Grade 5", "Math, Grade 8" -> "M";
+    //      String csaCode = switch (courseName) {
+    //         case "English II MYP" -> "R";
+    //         case "Algebra II MYP" -> "M";
+    //         case "Algebra II" -> "M";
+    //         case "Algebra I" -> "M";
+    //         case "Chemistry MYP" -> "C";
+    //         case "US Government" -> "S";
+    //         case "US Hist Since Recon MYP (YL)" -> "S";
+    //         case "IB Lang A: Lang & Lit SL2" -> "R";
+    //         case "IB Math: AI SL2" -> "M";
+    //         case "IB Theory of Knowledge 12 (Sem)" -> "";   // This is a known DO NOT LOAD.
+    //         case "IB Theory of Knowledge 11 (Sem)" -> "";   // This is a known DO NOT LOAD.
+    //         case "IB Global Politics HL2" -> "S";
+    //         case "IB History of Americas HL2" -> "S";
+    //         case "IB History of Americas HL1" -> "S";
+    //         case "IB Lang A: Lang & Lit HL2" -> "R";
+    //         case "IB Lang A: Lang & Lit SL1" -> "R";
+    //         case "IB Environ Sys & Soc SL1" -> "S";
+    //         case "IB Global Politics Higher Level 1" -> "S";
+    //         case "IB Math: AI SL1" -> "M";
+    //         case "IB Biology Standard Level 1" -> "C";
+    //         case "IB Psychology HL1" -> "S";
+    //         case "Geometry MYP" -> "M";
+    //         case "IB Lang A: Lang & Lit HL1" -> "R";
+    //         case "Precalculus" -> "M";
+    //         case "English I MYP" -> "R";
+    //         case "Biology MYP" -> "C";
+    //         case "Biology" -> "C";
+    //         case "World History Studies MYP" -> "S";
+    //         case "Ind Study in Math I (YL)" -> "M";
+    //         case "English Lang Arts & Read, Grade 8 MYP" -> "R";
+    //         case "Algebra I MYP MS" -> "M";
+    //         case "Science, Grade 8 MYP" -> "C";
+    //         case "US History, Grade 8 MYP" -> "S";
+    //         case "English Lang Arts & Read, Grade 6 MYP" -> "R";
+    //         case "Math, Grade 6 MYP" -> "M";
+    //         case "Science, Grade 6 MYP" -> "C";
+    //         case "Algebra I MYP" -> "M";
+    //         case "Reading I" -> "R";
+    //         case "English Lang Arts & Read, Grade 7 MYP" -> "R";
+    //         case "English I", "English II" -> "R";
+    //         case "Math, Grade 8 MYP" -> "M";
+    //         case "Science, Grade 7 MYP" -> "C";
+    //         case "Math, Grade 7 MYP" -> "M";
+    //         case "Texas History, Grade 7 MYP" -> "S";
+    //         case "English Language Arts & Reading, Grade 3" -> "R";
+    //         case "Social Studies, Grade 3" -> "S";
+    //         case "Math, Grade 7" -> "M";
+    //         case "English Language Arts & Reading, Grade 5" -> "R";
+    //         case "Science, Grade 5" -> "C";
+    //         case "Social Studies, Grade 5" -> "S";
+    //         case "World History, Grade 6 MYP" -> "S";
+    //         case "English Language Arts & Reading, Grade 4" -> "R";
+    //         case "Science, Grade 4" -> "C";
+    //         case "Social Studies, Grade 4" -> "S";
+    //         case "Math, Grade 4" -> "M";
+    //         case "Math, Grade 3" -> "M";
+    //         case "Math, Grade 5", "Math, Grade 8" -> "M";
 
-            case "Geometry" -> "M";
+    //         case "Geometry" -> "M";
 
-            case "English III" -> "R";
-            case "Environmental Systems" -> "C";
-            case "World Geo Studies" -> "S";
-            case "English IV" -> "R";
-            case "Anatomy and Physiology" -> "C";
-            case "World Geo Studies MYP" -> "S";
-            case "English Language Arts & Reading, Grade 2" -> "R";
-            case "Math, Grade 2" -> "M";
-            case "Science, Grade 2" -> "C";
-            case "Social Studies, Grade 2" -> "S";
-            case "English Language Arts & Reading, KG" -> "R";
-            case "Math, Kindergarten" -> "M";
-            case "Science, Kindergarten" -> "C";
-            case "Social Studies, Kindergarten" -> "S";
-            case "English Language Arts & Reading, Grade 1" -> "R";
-            case "Math, Grade 1" -> "M";
-            case "Science, Grade 1" -> "C";
-            case "Social Studies, Grade 1" -> "S";
+    //         case "English III" -> "R";
+    //         case "Environmental Systems" -> "C";
+    //         case "World Geo Studies" -> "S";
+    //         case "English IV" -> "R";
+    //         case "Anatomy and Physiology" -> "C";
+    //         case "World Geo Studies MYP" -> "S";
+    //         case "English Language Arts & Reading, Grade 2" -> "R";
+    //         case "Math, Grade 2" -> "M";
+    //         case "Science, Grade 2" -> "C";
+    //         case "Social Studies, Grade 2" -> "S";
+    //         case "English Language Arts & Reading, KG" -> "R";
+    //         case "Math, Kindergarten" -> "M";
+    //         case "Science, Kindergarten" -> "C";
+    //         case "Social Studies, Kindergarten" -> "S";
+    //         case "English Language Arts & Reading, Grade 1" -> "R";
+    //         case "Math, Grade 1" -> "M";
+    //         case "Science, Grade 1" -> "C";
+    //         case "Social Studies, Grade 1" -> "S";
 
-            case "Physics" -> "C";
-            case "Science, Grade 3" -> "C";
+    //         case "Physics" -> "C";
+    //         case "Science, Grade 3" -> "C";
 
-            case "Chemistry" -> "C";
-            case "US Hist Since Recon" -> "S";
-            case "World Hist Studies" -> "S";
-            case "Geometry MYP MS" -> "M";
+    //         case "Chemistry" -> "C";
+    //         case "US Hist Since Recon" -> "S";
+    //         case "World Hist Studies" -> "S";
+    //         case "Geometry MYP MS" -> "M";
 
-            case "Personal Financial Lit & Econ (Sem)" -> "";
-
-
-
-             default -> throw new Exception("Unknown MapMclass_CsaCodeFromCourseName: " + courseName);
-        };
-
-        return csaCode;
+    //         case "Personal Financial Lit & Econ (Sem)" -> "";
 
 
-    }
+
+    //          default -> throw new Exception("Unknown MapMclass_CsaCodeFromCourseName: " + courseName);
+    //     };
+
+    //     return csaCode;
+
+
+    // }
 
    
 

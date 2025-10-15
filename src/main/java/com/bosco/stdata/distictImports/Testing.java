@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import org.apache.commons.text.WordUtils;
 //import org.springframework.batch.core.repository.persistence.ExecutionContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -29,6 +30,7 @@ import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.Star2024;
 import com.bosco.stdata.teaModel.Star2024EOC;
 import com.bosco.stdata.teaModel.Telpas2024;
+import com.bosco.stdata.utils.ImportHelper;
 import com.bosco.stdata.utils.TeaStaarFlatFileReader;
 
 import jakarta.annotation.PostConstruct;
@@ -77,7 +79,7 @@ public class Testing {
    
     
     
-  
+
 
     public static void Test(String importDefId) throws Exception {
 
@@ -86,33 +88,70 @@ public class Testing {
         
         System.out.println("Test Starting");
 
+
+        String testStr = "O'Brien";
+
+        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+
+        testStr = "O'BRIEN";
+        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+
+
+        testStr = "o'brien";
+        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+
+        testStr = "SMITH-JONES";
+
+        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+
+        testStr = "Smith-Jones";
+
+        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+
+
+        testStr = "smith-jones";
+
+        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+
+        testStr = "SMITH JONES";
+
+        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+
+
+        testStr = "smith jones";
+
+        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+
+         //CsvFiles.LoadFindUsers(  "C:\\db\\Docs\\Find_dups\\all_users.csv");
+
+
         // try to create a file reader
 
-         ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
+        //  ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
 
-          int districtId = importDef.getDistrictId();
+        //   int districtId = importDef.getDistrictId();
 
-        List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
+        // List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
 
 
-        System.out.println("  CALLLING ");
+        // System.out.println("  CALLLING ");
 
-        int newImportId = i.importRepo.prepImport(districtId, importDefId, isRoster, isSisData, "Roster  - Not sis");
+        // int newImportId = i.importRepo.prepImport(districtId, importDefId, isRoster, isSisData, "Roster  - Not sis");
 
-        System.out.println("We got id: " + newImportId);
+        // System.out.println("We got id: " + newImportId);
 
-        if (!importDef.getForceLoad() && isRoster) {
-            System.out.println("Checking Delta");
-            String checkDeltas = i.importRepo.checkImportDeltas(9999999, "TestFiles");
-            if (!checkDeltas.equals("OK")) {
-                throw new Exception("Check Import Delta failed: " + checkDeltas);
-            }
-            System.err.println("Check Delta OK");
-        }
-        else {
-            System.out.println("Force Import - no check");
-        }
+        // if (!importDef.getForceLoad() && isRoster) {
+        //     System.out.println("Checking Delta");
+        //     String checkDeltas = i.importRepo.checkImportDeltas(9999999, "TestFiles");
+        //     if (!checkDeltas.equals("OK")) {
+        //         throw new Exception("Check Import Delta failed: " + checkDeltas);
+        //     }
+        //     System.err.println("Check Delta OK");
+        // }
+        // else {
+        //     System.out.println("Force Import - no check");
+        // }
 
 
 
@@ -127,14 +166,5 @@ public class Testing {
     }
 
 
-    public static ImportResult Import(String importDefId) {
-        System.out.println("TESTING HERE");
-
-        ImportResult result = new ImportResult();
-
-        result.success = true;
-
-        return result;
-    }
-
+    
 }

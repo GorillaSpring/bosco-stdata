@@ -232,11 +232,18 @@ public class BoscoApi {
 
         Student bs = importRepo.studentBoscoForExport(id);
 
+
+    
+
         bs.setGuardians(importRepo.guardiansBoscoForStudent(id));
         bs.setTeacherIds(importRepo.teacherIdsBoscoForStudent(id));
 
         String res;
         try {
+
+            
+
+
             res = boscoClient.putStudent(postUrl, token, bs);
         } catch (Exception e) {
             // TODO Auto-generated catch block

@@ -238,12 +238,14 @@ public class ImportApi {
 
 
         while (!done) {
+
+            System.out.println("Getting users page: " + pageNumber);
             JsonNode resNode = boscoApi.getUsers(districtId, pageNumber);
 
             if (resNode.size() > 0) {
 
                 if (resNode.isArray()) {
-                    System.out.println("Getting users page: " + pageNumber);
+                    
             
                     ArrayNode arrayNode = (ArrayNode) resNode;
 
@@ -257,10 +259,10 @@ public class ImportApi {
 
                         if (Boolean.parseBoolean(boscoUserNode.get("active").asText())) {
 
-                            importRepo.boscoUserAdd(districtId, boscoUserNode.get("id").asText(), boscoUserNode.get("role").asText());
+                            importRepo.boscoUserAdd(districtId, boscoUserNode.get("id").asText(), boscoUserNode.get("role").asText(), boscoUserNode.get("email").asText());
                         }
                         else {
-                            importRepo.boscoUserRemove(districtId, boscoUserNode.get("id").asText(), boscoUserNode.get("role").asText());
+                            importRepo.boscoUserRemove(districtId, boscoUserNode.get("id").asText(), boscoUserNode.get("role").asText(), boscoUserNode.get("email").asText());
 
                         }
 

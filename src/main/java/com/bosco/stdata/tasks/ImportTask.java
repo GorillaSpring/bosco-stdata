@@ -11,6 +11,7 @@ import com.bosco.stdata.distictImports.CelinaSisFiles;
 import com.bosco.stdata.distictImports.ClassLinkOneRosterApi;
 import com.bosco.stdata.distictImports.MelissaFiles;
 import com.bosco.stdata.distictImports.MelissaSisFiles;
+import com.bosco.stdata.distictImports.PowerSchoolOneRosterApi;
 import com.bosco.stdata.distictImports.SkywardOneRosterApi;
 import com.bosco.stdata.distictImports.TestFiles;
 import com.bosco.stdata.distictImports.Testing;
@@ -121,6 +122,10 @@ public class ImportTask {
                         importResult = SkywardOneRosterApi.Import(importDefId);
                         importResults.add(importResult);
 
+                        break;
+                    case "PowerSchoolOneRosterApi":
+                        importResult = PowerSchoolOneRosterApi.Import(importDefId);
+                        importResults.add(importResult);
                         break;
                 
                     default:

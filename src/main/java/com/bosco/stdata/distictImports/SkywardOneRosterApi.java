@@ -317,44 +317,44 @@ public class SkywardOneRosterApi {
 
             filter = "status='active'/orgs?type='school'";
             filter = "status='active'";
-            data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
+            // data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
 
-            while ( data.size() > 0) {
+            // while ( data.size() > 0) {
                     
                 
 
-                if (data.isArray()) {
-                    ArrayNode arrayNode = (ArrayNode) data;
-                    for (JsonNode orgsNode: arrayNode) {
+            //     if (data.isArray()) {
+            //         ArrayNode arrayNode = (ArrayNode) data;
+            //         for (JsonNode orgsNode: arrayNode) {
 
-                        String sourceId = orgsNode.get("sourcedId").asText();
-                        String name = orgsNode.get("name").asText();
+            //             String sourceId = orgsNode.get("sourcedId").asText();
+            //             String name = orgsNode.get("name").asText();
 
-                        String identifier = orgsNode.get("identifier").asText();
-                        // 
+            //             String identifier = orgsNode.get("identifier").asText();
+            //             // 
 
-                        i.importRepo.saveSchool(sourceId, name, identifier);
-                        schoolCount++;
+            //             i.importRepo.saveSchool(sourceId, name, identifier);
+            //             schoolCount++;
 
                     
-                    }
+            //         }
                         
                     
-                }
-                else {
-                    System.out.println("Not Array");
-                }
+            //     }
+            //     else {
+            //         System.out.println("Not Array");
+            //     }
 
-                // next page
-                pageNumber++;
+            //     // next page
+            //     pageNumber++;
 
-                System.out.println("Getting Orgs page : " + pageNumber);
-                data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
+            //     System.out.println("Getting Orgs page : " + pageNumber);
+            //     data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
 
 
-            }
-            System.out.println ("Schools Imported: " + schoolCount);
-            i.importRepo.logInfo("Schools Imported: " + schoolCount);
+            // }
+            // System.out.println ("Schools Imported: " + schoolCount);
+            // i.importRepo.logInfo("Schools Imported: " + schoolCount);
 
 
             System.out.println("Getting USERS");
@@ -480,36 +480,38 @@ public class SkywardOneRosterApi {
                                 String teacherEmail = userNode.get("email").asText();
 
 
-                                 String tschoolSourceId = "X";
-                                JsonNode tschoolNode = userNode.get("orgs");
-                                if (tschoolNode != null) {
-                                    if (tschoolNode.isArray()) {
-                                            if (tschoolNode.size() > 0) {
-                                                JsonNode tschoolElement = tschoolNode.get(0);
-                                                tschoolSourceId = tschoolElement.get("sourcedId").asText();
-                                            }
+                                if (!teacherEmail.isBlank()) {
+                                    String tschoolSourceId = "X";
+                                    JsonNode tschoolNode = userNode.get("orgs");
+                                    if (tschoolNode != null) {
+                                        if (tschoolNode.isArray()) {
+                                                if (tschoolNode.size() > 0) {
+                                                    JsonNode tschoolElement = tschoolNode.get(0);
+                                                    tschoolSourceId = tschoolElement.get("sourcedId").asText();
+                                                }
 
+                                        }
                                     }
+
+                                    // We now have the teacher school in tschoolSourceId
+
+
+                                    if (setNoEmails && teacherEmail.length() >= 4) {
+                                        String trimedEmail = teacherEmail.substring(0, teacherEmail.length() - 4);
+                                        teacherEmail = trimedEmail + "_no.no";
+                                    }
+
+                                    // sourceid, teacherId, firstname, lastname,  email
+                                    //Teacher t = new Teacher(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail);
+
+                                    // String sourceid, String teacherId, String firstname, String lastname, String email
+                                    // String sourceId, String teacherId, String firstName, String lastName, String email
+                                    i.importRepo.saveTeacher(
+                                        userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), 
+                                        teacherEmail, tschoolSourceId
+                                    );
+                                    teacherCount++;
                                 }
-
-                                // We now have the teacher school in tschoolSourceId
-
-
-                                if (setNoEmails && teacherEmail.length() >= 4) {
-                                    String trimedEmail = teacherEmail.substring(0, teacherEmail.length() - 4);
-                                    teacherEmail = trimedEmail + "_no.no";
-                                }
-
-                                // sourceid, teacherId, firstname, lastname,  email
-                                //Teacher t = new Teacher(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail);
-
-                                // String sourceid, String teacherId, String firstname, String lastname, String email
-                                // String sourceId, String teacherId, String firstName, String lastName, String email
-                                i.importRepo.saveTeacher(
-                                    userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), 
-                                    teacherEmail, tschoolSourceId
-                                );
-                                teacherCount++;
                                 
                                 break;
                             default:

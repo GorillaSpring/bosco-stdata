@@ -103,32 +103,32 @@ private static MelissaFiles i;  // instance
 
 
             
-            System.out.println("Importing schools File");
+            // System.out.println("Importing schools File");
 
-            List<String[]> dataSchool = msp.readCsvFile( baseFileFolder + "schools.csv");
+            // List<String[]> dataSchool = msp.readCsvFile( baseFileFolder + "schools.csv");
 
-            int counterSchools1 = 0;
+            // int counterSchools1 = 0;
 
-            String [] colNamesSchools = {"SchoolCode", "SchoolName"};
+            // String [] colNamesSchools = {"SchoolCode", "SchoolName"};
 
 
             
-            String[] frSchools = dataSchool.removeFirst();
-            if (!ImportHelper.CheckColumnHeaders(frSchools, colNamesSchools))
-                throw new Exception("File : schools.csv does not match column specs" );
+            // String[] frSchools = dataSchool.removeFirst();
+            // if (!ImportHelper.CheckColumnHeaders(frSchools, colNamesSchools))
+            //     throw new Exception("File : schools.csv does not match column specs" );
 
           
-            for (String [] row : dataSchool) {
-                if (!row[0].isBlank()) 
-                {
-                    i.importRepo.saveSchool(row[0], row[1], row[0]);
-                    counterSchools1++;
-                }
+            // for (String [] row : dataSchool) {
+            //     if (!row[0].isBlank()) 
+            //     {
+            //         i.importRepo.saveSchool(row[0], row[1], row[0]);
+            //         counterSchools1++;
+            //     }
 
-            }
+            // }
 
 
-            i.importRepo.logInfo("Imported Schools : " + counterSchools1);
+            // i.importRepo.logInfo("Imported Schools : " + counterSchools1);
 
 
 
@@ -252,18 +252,20 @@ private static MelissaFiles i;  // instance
                     //Teacher t = new Teacher(row[0], row[1],  row[3], row[2], row[4]);
 
                     String email = row[4];
-                    if (setNoEmails && email.length() >= 4) {
-                        String trimedEmail = email.substring(0, email.length() - 4);
-                        email = trimedEmail + "_no.no";
+                    if (!email.isBlank()) {
+                        if (setNoEmails && email.length() >= 4) {
+                            String trimedEmail = email.substring(0, email.length() - 4);
+                            email = trimedEmail + "_no.no";
+                        }
+
+
+                        // String sourceid, String teacherId, String firstname, String lastname, String email
+                        // String sourceId, String teacherId, String firstName, String lastName, String email
+                        i.importRepo.saveTeacher(
+                            row[0], row[1],  row[3], row[2], email, row[5]
+                        );
+                        counter1++;
                     }
-
-
-                    // String sourceid, String teacherId, String firstname, String lastname, String email
-                    // String sourceId, String teacherId, String firstName, String lastName, String email
-                    i.importRepo.saveTeacher(
-                        row[0], row[1],  row[3], row[2], email, row[5]
-                    );
-                    counter1++;
                 }
         
             
@@ -319,10 +321,12 @@ private static MelissaFiles i;  // instance
                         email = trimedEmail + "_no.no";
                     }
 
+                    // So to make unique, we will use student + guardian for the sourceId
                     // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type
                     // String sourceId, String guardianId, String studentSourceId, String firstName, String lastName, String email, String type
                     i.importRepo.saveGuardian(
-                        row[0], row[2], row[1],  row[5], row[4], email, row[3]
+                        row[1] + "_" + row[2], 
+                        row[2], row[1],  row[5], row[4], email, row[3]
                     );
                     counter1++;
                 }

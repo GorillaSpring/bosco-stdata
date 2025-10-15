@@ -101,21 +101,33 @@ public class UpliftFiles {
 
             LocalDateTime startDateTime = LocalDateTime.now();
             
+            List<String[]> data;
+
+            String[] fr;
+
+
+            String [] colNames;
+
+
+            UserFileService msp = new UserFileService();
+
             System.out.println("Import  For District " + districtId);
 
-		    UserFileService msp = new UserFileService();
+
+             int counter1 = 0;
+             int counter2 = 0;
+
+
 
             // System.out.println("Importing campuses File");
 
-            // List<String[]> data = msp.readCsvFile( baseFileFolder + "campuses.csv");
-
-            // int counter1 = 0;
-            // int counter2 = 0;
-
-            // String[] fr = data.removeFirst();
+            // data = msp.readCsvFile( baseFileFolder + "campuses.csv");
 
 
-            // String [] colNames = {"schoolcode", "schoolname"};
+            // fr = data.removeFirst();
+
+
+            // colNames =  new String[]{"schoolcode", "schoolname"};
 
             // if (!ImportHelper.CheckColumnHeaders(fr, colNames))
             //     throw new Exception("File : campuses.csv does not match column specs" );
@@ -132,11 +144,11 @@ public class UpliftFiles {
             // }
 
 
-            //i.importRepo.logInfo("Imported Schools : " + counter1);
+            // i.importRepo.logInfo("Imported Schools : " + counter1);
 
             System.out.println("Importing Students File");
 
-            List<String[]> data = msp.readCsvFile( baseFileFolder + "students.csv");
+            data = msp.readCsvFile( baseFileFolder + "students.csv");
 
 
             // studentId                        0
@@ -155,15 +167,15 @@ public class UpliftFiles {
 
 
 
-            String[] fr = data.removeFirst();
-            String[] colNames = new String[]{"studentid", "lastname", "firstname", "dob", "gender", "schoolcode", "gradecode", "is504", "englishlanguagelearner", 
+            fr = data.removeFirst();
+            colNames = new String[]{"studentid", "lastname", "firstname", "dob", "gender", "schoolcode", "gradecode", "is504", "englishlanguagelearner", 
             "issped", 
             "guardiantype", "guardianfirstname", "guardianlastname", "guardianemail"};
 
             if (!ImportHelper.CheckColumnHeaders(fr, colNames))
                 throw new Exception("File : students.csv does not match column specs" );
 
-            int counter1 = 0;
+            counter1 = 0;
 
             // isSped is 9
             // guardiantype is now 10.
@@ -219,7 +231,7 @@ public class UpliftFiles {
                     // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type
 
                     // String sourceId, String guardianId, String studentSourceId, String firstName, String lastName, String email, String type
-                    i.importRepo.saveGuardian("Guardian_" + row[0], "G_" + row[0],  row[0],  row[11], row[12], email, row[10]);
+                    i.importRepo.saveGuardian("G_" + row[0], "G_" + row[0],  row[0],  row[11], row[12], email, row[10]);
 
                     
                     //i.importRepo.saveGuardian(g);
@@ -264,23 +276,25 @@ public class UpliftFiles {
 
                     String email = row[3];
 
-                    if (setNoEmails && email.length() >= 4) {
-                        String trimedEmail = email.substring(0, email.length() - 4);
-                        email = trimedEmail + "_no.no";
+                    if (!email.isBlank()) {
+                        if (setNoEmails && email.length() >= 4) {
+                            String trimedEmail = email.substring(0, email.length() - 4);
+                            email = trimedEmail + "_no.no";
+                        }
+
+                        
+                        // sourceid, teacherId, firstname, lastname,  email
+                        //Teacher t = new Teacher(row[0], row[0], row[2], row[1], row[3]);
+
+                        
+
+                        // String sourceid, String teacherId, String firstname, String lastname, String email
+                        // String sourceId, String teacherId, String firstName, String lastName, String email
+                        i.importRepo.saveTeacher(
+                            row[0], row[0], row[2], row[1], email, row[4]
+                        );
+                        counter1++;
                     }
-
-                    
-                    // sourceid, teacherId, firstname, lastname,  email
-                    //Teacher t = new Teacher(row[0], row[0], row[2], row[1], row[3]);
-
-                    
-
-                    // String sourceid, String teacherId, String firstname, String lastname, String email
-                    // String sourceId, String teacherId, String firstName, String lastName, String email
-                    i.importRepo.saveTeacher(
-                        row[0], row[0], row[2], row[1], email, row[4]
-                    );
-                    counter1++;
                 }
             };
 
@@ -364,7 +378,7 @@ public class UpliftFiles {
 
 
             counter1 = 0;
-            int counter2 = 0;
+            counter2 = 0;
             
             //data.forEach(row -> {
             for (String [] row : data) {
@@ -451,7 +465,9 @@ public class UpliftFiles {
                     // do not import if grade is blank.
                     if (!row[3].isBlank()) {
                         int score = Integer.parseInt (row[3]);
-                        String csaCode = MappingHelper.MapMclass_CsaCodeFromCourseName(row[2]);
+                        //String csaCode = MappingHelper.MapMclass_CsaCodeFromCourseName(row[2]);
+
+                        String csaCode = i.importRepo.csaCodeForCourseName(districtId, row[2]);
 
                         ///System.out.println("Got Code : " + csaCode);
 

@@ -2,6 +2,8 @@ package com.bosco.stdata.sisDataFiles;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -12,6 +14,8 @@ import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.DibelsMClass;
+import com.bosco.stdata.teaModel.FindUsers;
+import com.bosco.stdata.teaModel.GradeFileCelina;
 import com.bosco.stdata.teaModel.GradeFileMelissa;
 import com.bosco.stdata.teaModel.MapCourseNameCsaCode;
 import com.bosco.stdata.utils.MappingHelper;
@@ -45,6 +49,52 @@ public class CsvFiles {
     public void init() {
         System.out.println("TeaFiles - init()");
         i = this;
+    }
+
+    public static void LoadFindUsers (String filePath) throws Exception {
+        TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
+
+        
+
+        FlatFileItemReader<FindUsers> cr = tsfr.findUsers(filePath);
+
+        cr.open(new ExecutionContext());
+
+        System.out.println(("-----------------------"));
+        System.out.println(("------ LoadFindUsers ------"));
+        System.out.println (filePath);
+
+        int count = 0;
+        int total = 0;
+
+
+        List<String> emails = new ArrayList<>();
+        
+        FindUsers cc = cr.read();
+            //String schoolYear = "2024-2025";  // should be able to get this from TermName
+
+            //String termName = cc.getTermName();
+
+
+        while (cc != null) {
+
+            if (emails.contains(cc.email)) {
+                System.out.println("FOUND DUP: " + cc.id + " - " + cc.email);
+            }
+            else {
+                emails.add(cc.email);
+            }
+
+            
+            cc = cr.read();
+        }
+
+
+        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
+        
+        System.out.println("  Total: " + total + "  - Imported : " + count);
+
+        System.out.println(("-----------------------"));
     }
 
 
@@ -155,7 +205,7 @@ public class CsvFiles {
                         scoreValid = false;
                     }
 
-                    if (scoreValid) {
+                    if (scoreValid && (score > 0)) {
 
                         String studentNumber = cc.getStudentNumber();
                         String period = cc.getTerm();
@@ -197,6 +247,131 @@ public class CsvFiles {
 
         System.out.println(("-----------------------"));
     }
+
+    public static void LoadGradesCelina (int districtId, String filePath) throws Exception {
+        TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
+
+        
+
+        FlatFileItemReader<GradeFileCelina> cr = tsfr.gradeCelinaReader(filePath);
+
+        cr.open(new ExecutionContext());
+
+        System.out.println(("-----------------------"));
+        System.out.println(("------ Loading Celina Grades ------"));
+        System.out.println (filePath);
+
+        int count = 0;
+        int total = 0;
+
+        
+        GradeFileCelina cc = cr.read();
+            //String schoolYear = "2024-2025";  // should be able to get this from TermName
+
+            //String termName = cc.getTermName();
+
+
+        while (cc != null) {
+
+            total++;
+
+            // we need
+            // public String studentSourceId;
+            // public String studentNumber;
+            // public String courseName;
+            // public String courseId;
+            // public String schoolYear;
+            // public String term;
+            // public String courseGrade;
+            // public String changedDateTime;  // don;'t need
+            
+
+
+            // i.importRepo.setMapCourseCsaCode(districtId, cc.getCourseName(), "");
+
+            
+            String scoreString = cc.getCourseGrade().replace("*", "");
+            
+
+
+            if (!scoreString.isEmpty()) {
+
+                // first see if it is something we load anyway
+
+                // System.out.print("CHECKING Course: " + cc.courseName);
+
+                String csaCode = "";
+                
+
+                    csaCode = i.importRepo.csaCodeForCourseName(districtId, cc.courseName.replace(",", ""));
+                // }
+                // catch (Exception ex) {
+                //     System.out.println(cc.courseName);
+                // }
+
+
+                //System.out.println("  GOT: " + csaCode);
+
+
+                if (!csaCode.isBlank()) 
+                {
+                    Boolean scoreValid = true;
+                    int score = 0;
+
+                    try {
+
+                        // so the scoreString may not be an int.
+                        score = Integer.parseInt(scoreString);
+                    }
+                    catch (Exception ex) {
+                        scoreValid = false;
+                    }
+
+                    if (scoreValid) {
+
+                        String studentNumber = cc.getStudentNumber();
+                        String period = cc.getTerm();
+                        String subject = cc.getCourseName();
+                        String code = cc.getCourseId();
+
+                        //System.out.print("Getting : " + studentNumber);
+
+                        // THIS NEEDS TO BE cacluated.
+                        String schoolYear = MappingHelper.SchoolYearFromYear(cc.getSchoolYear());
+
+                        //System.out.println ("  Got : " + schoolYear);
+
+                        //i.importRepo.
+
+                        // String studentNumber, String schoolYear, String period, String code, String subject, int score, String csaCode
+                        i.importRepo.sisGradeAdd (studentNumber, schoolYear, period, code, subject, score, csaCode);
+
+                        count++;
+                    }
+                    // else {
+                    //     System.out.println ("Invalid Score : " + scoreString);
+                    // }
+
+                }
+                    
+                
+            }
+            // else {
+            //     System.out.println ("Empty score");
+            // }
+
+
+            cc = cr.read();
+        }
+
+
+        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
+        
+        System.out.println("  Total: " + total + "  - Imported : " + count);
+
+        System.out.println(("-----------------------"));
+    }
+    
     
     
 
@@ -439,13 +614,13 @@ public class CsvFiles {
                         
                     }
                 }
-                // else {
+                else {
 
 
-                //     System.out.println ("Student: " + lastName + ", " + firstName + ", " );
+                    System.out.println ("NOT FOUND Student: " + lastName + ", " + firstName + ", " + dob );
 
-                //     System.out.println("Empty DOB");
-                // }
+                    
+                }
             } // End completion status
 
           

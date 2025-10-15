@@ -17,6 +17,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.apache.commons.text.WordUtils;
+
 import com.bosco.stdata.model.ImportSetting;
 
 import java.text.ParseException;
@@ -84,6 +86,20 @@ public  class ImportHelper {
 
     }
 
+
+    public static String TitleCase(String str) {
+        return WordUtils.capitalizeFully(str, '\'', '-', ' ');
+    }
+  
+
+    public static String GenderFromSex (String sex) {
+        String sexLower = sex.toLowerCase();
+        if (sexLower.startsWith("m"))
+            return "M";
+        if (sexLower.startsWith("f"))
+            return "F";
+        return "O";
+    }
 
 
     public static String DateToStdFormat (String dateString) throws Exception {

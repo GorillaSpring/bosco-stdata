@@ -17,6 +17,7 @@ import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.utils.ClassLinkOneRoster;
 import com.bosco.stdata.utils.ClassLinkOneRosterResponse;
 import com.bosco.stdata.utils.ImportHelper;
+import com.bosco.stdata.utils.MappingHelper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -64,12 +65,16 @@ public class ClassLinkOneRosterApi {
         {
             ImportDefinition importDef = i.importRepo.getImportDefinition(importDefId);
 
+            Boolean setNoEmails = importDef.getSetNoEmails();
+
 
 
             List<ImportSetting> importSettings = i.importRepo.getImportSettings(importDefId);
 
-             districtId = importDef.getDistrictId();
+            districtId = importDef.getDistrictId();
             
+
+
                 
         //         //String baseFileFolder = "C:/test/uplift/" + subFolder + "/";
              clientId = ImportHelper.ValueForSetting(importSettings, "clientId");
@@ -130,6 +135,8 @@ public class ClassLinkOneRosterApi {
 
             int schoolCount = 0;
 
+            String requestUrl = "";
+
             //filter = "status='active'/orgs?type='school'";
 
 
@@ -145,7 +152,7 @@ public class ClassLinkOneRosterApi {
 
             // there will only be one page of schools.
 
-            // String requestUrl = apiBase + "ims/oneroster/v1p1/schools?filter=status%3D'active'&limit=" + PAGE_SIZE + "&offset=" + PAGE_SIZE * pageNumber + "&orderBy=asc";
+            // requestUrl = apiBase + "ims/oneroster/v1p1/schools?filter=status%3D'active'&limit=" + PAGE_SIZE + "&offset=" + PAGE_SIZE * pageNumber + "&orderBy=asc";
 
             // oneRosterRes = oneRoster.makeRosterRequest(requestUrl);
 
@@ -202,7 +209,11 @@ public class ClassLinkOneRosterApi {
             //String url = "https://springtownisd-tx-v2.rosterserver.com/ims/oneroster/v1p1/users?filter=status%3D'active'&limit=100&offset=0&orderBy=asc";
 
 
-            String requestUrl = apiBase + "ims/oneroster/v1p1/users?filter=status%3D'active'&limit=" + PAGE_SIZE + "&offset=" + PAGE_SIZE * pageNumber + "&orderBy=asc";
+            // SO, we are going to get students first to make sure we have the student Id loaded.
+
+
+            
+            requestUrl = apiBase + "ims/oneroster/v1p1/students?filter=status%3D'active'&limit=" + PAGE_SIZE + "&offset=" + PAGE_SIZE * pageNumber + "&orderBy=asc";
 
             oneRosterRes = oneRoster.makeRosterRequest(requestUrl);
 
@@ -278,6 +289,76 @@ public class ClassLinkOneRosterApi {
                                 studentCount++;
                                 break;
                         
+                            
+                            default:
+                                System.out.println("INVALID ROLE Found " + userNode.get("role").asText());
+                                break;
+                        }
+
+                    }
+                
+                }
+                else {
+                    System.out.println("Not Array");
+                }
+
+                // next page
+                pageNumber++;
+
+                requestUrl = apiBase + "ims/oneroster/v1p1/students?filter=status%3D'active'&limit=" + PAGE_SIZE + "&offset=" + PAGE_SIZE * pageNumber + "&orderBy=asc";
+
+                oneRosterRes = oneRoster.makeRosterRequest(requestUrl);
+
+                statusCode = oneRosterRes.getStatusCode();
+
+                System.out.println("Status is: " + statusCode);
+
+                response = oneRosterRes.getResponse();
+
+                rootNode = objectMapper.readTree(response);
+                data = rootNode.get("users");
+
+            }
+            i.importRepo.logInfo ("Saved Students: " + studentCount);
+
+            System.out.println("Saved Students: " + studentCount);
+
+
+            pageNumber = 0;
+            studentCount = 0;
+
+
+            requestUrl = apiBase + "ims/oneroster/v1p1/users?filter=status%3D'active'&limit=" + PAGE_SIZE + "&offset=" + PAGE_SIZE * pageNumber + "&orderBy=asc";
+
+            oneRosterRes = oneRoster.makeRosterRequest(requestUrl);
+
+            statusCode = oneRosterRes.getStatusCode();
+
+            System.out.println("Status is: " + statusCode);
+
+            response = oneRosterRes.getResponse();
+
+            rootNode = objectMapper.readTree(response);
+            data = rootNode.get("users");
+
+
+            //data = oneRosterService.fetchResourcePage( apiBase + "users", token, pageNumber);
+
+            while ( data.size() > 0) {
+
+                if (data.isArray()) {
+                    ArrayNode arrayNode = (ArrayNode) data;
+                    for (JsonNode userNode: arrayNode) {
+
+                        switch (userNode.get("role").asText()) {
+                            case "role":
+                                // just the header.
+                                break;
+                            case "student":
+                                // we ignore this because we got above!
+                                break;
+
+                        
                             case "parent":
                             case "guardian":
                                 // we only pull in if the email is not null or empty
@@ -290,6 +371,14 @@ public class ClassLinkOneRosterApi {
                                     if (agentNodes.isArray()) {
                                         for (JsonNode studentNode: agentNodes) {
                                             
+
+
+                                                
+                                            if (setNoEmails && email.length() >= 4) {
+                                                String trimedEmail = email.substring(0, email.length() - 4);
+                                                email = trimedEmail + "_no.no";
+                                            }
+
 
                                             String studentSourceId = studentNode.get("sourcedId").asText();
                                             //Guardian g = new Guardian(userNode.get("sourcedId").asText(), studentId, userNode.get("identifier").asText(), userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType);
@@ -310,30 +399,41 @@ public class ClassLinkOneRosterApi {
                             case "teacher":
 
                                 String teacherEmail = userNode.get("email").asText();
-                                // sourceid, teacherId, firstname, lastname,  email
-                                //Teacher t = new Teacher(userNode.get("sourcedId").asText(),userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail);
+
+                                if (!teacherEmail.isBlank()) {
+
+                                
+                                    // sourceid, teacherId, firstname, lastname,  email
+                                    //Teacher t = new Teacher(userNode.get("sourcedId").asText(),userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), teacherEmail);
 
 
-                                String tschoolSourceId = "X";
-                                JsonNode tschoolNode = userNode.get("orgs");
-                                if (tschoolNode != null) {
-                                    if (tschoolNode.isArray()) {
-                                            if (tschoolNode.size() > 0) {
-                                                JsonNode tschoolElement = tschoolNode.get(0);
-                                                tschoolSourceId = tschoolElement.get("sourcedId").asText();
-                                            }
-
+                                    if (setNoEmails && teacherEmail.length() >= 4) {
+                                        String trimedEmail = teacherEmail.substring(0, teacherEmail.length() - 4);
+                                        teacherEmail = trimedEmail + "_no.no";
                                     }
-                                }
 
-                                // String sourceid, String teacherId, String firstname, String lastname, String email
-                                // String sourceId, String teacherId, String firstName, String lastName, String email
-                                i.importRepo.saveTeacher(
-                                    userNode.get("sourcedId").asText(),userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), 
-                                    teacherEmail,
-                                    tschoolSourceId
-                                );
-                                teacherCount++;
+
+                                    String tschoolSourceId = "X";
+                                    JsonNode tschoolNode = userNode.get("orgs");
+                                    if (tschoolNode != null) {
+                                        if (tschoolNode.isArray()) {
+                                                if (tschoolNode.size() > 0) {
+                                                    JsonNode tschoolElement = tschoolNode.get(0);
+                                                    tschoolSourceId = tschoolElement.get("sourcedId").asText();
+                                                }
+
+                                        }
+                                    }
+
+                                    // String sourceid, String teacherId, String firstname, String lastname, String email
+                                    // String sourceId, String teacherId, String firstName, String lastName, String email
+                                    i.importRepo.saveTeacher(
+                                        userNode.get("sourcedId").asText(),userNode.get("identifier").asText(), userNode.get("givenName").asText(),  userNode.get("familyName").asText(), 
+                                        teacherEmail,
+                                        tschoolSourceId
+                                    );
+                                    teacherCount++;
+                                }
                                 
                                 break;
                             default:
@@ -365,9 +465,11 @@ public class ClassLinkOneRosterApi {
                 data = rootNode.get("users");
 
             }
-            i.importRepo.logInfo ("Saved Students: " + studentCount);
+            
             i.importRepo.logInfo ("Saved Guardians: " + guardianCount);
             i.importRepo.logInfo ("Saved Teachers: " + teacherCount);
+            System.out.println("Saved Guardians: " + guardianCount);
+            System.out.println("Saved Teachers: " + teacherCount);
 
         
             // now the demographics
@@ -417,6 +519,9 @@ public class ClassLinkOneRosterApi {
 
                         //if (sourceId.toLowerCase().contains("student")) {
 
+
+
+
                             String birthDate = demographicsNode.get("birthDate") == null ? "" : demographicsNode.get("birthDate").asText();
 
                             if (!birthDate.isEmpty()) {
@@ -438,10 +543,14 @@ public class ClassLinkOneRosterApi {
 
                             String studentNumber = i.importRepo.studentNumberFromSourceId(sourceId);
 
+
+                            String gender = ImportHelper.GenderFromSex(demographicsNode.get("sex").asText());
+
+
                             i.importRepo.saveStudentDemographics(
                                 studentNumber,
                                 birthDate,
-                                demographicsNode.get("sex").asText(),
+                                gender,
                                 Boolean.parseBoolean(demographicsNode.get("americanIndianOrAlaskaNative").asText()),
                                 Boolean.parseBoolean(demographicsNode.get("asian").asText()),
                                 Boolean.parseBoolean(demographicsNode.get("blackOrAfricanAmerican").asText()),
@@ -485,6 +594,7 @@ public class ClassLinkOneRosterApi {
 
             }
             i.importRepo.logInfo ("Demographics updated: " + studentCount);
+            System.out.println("Demographics updated: " + studentCount);
 
 
               // now the classes
@@ -528,6 +638,11 @@ public class ClassLinkOneRosterApi {
 
                         JsonNode classNode = enrollmentNode.get("class");
                         classSourceId = classNode.get("sourcedId").asText();
+
+                        String schoolSourceId = "";
+                        JsonNode schoolNode = enrollmentNode.get("school");
+                        schoolSourceId = schoolNode.get("sourcedId").asText();
+
 
                         JsonNode userNode = enrollmentNode.get("user");
                         userSourceId = userNode.get("sourcedId").asText();

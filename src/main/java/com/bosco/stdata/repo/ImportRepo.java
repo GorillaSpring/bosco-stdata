@@ -866,27 +866,29 @@ public class ImportRepo {
         int rows = template.update(sql, args);
     }
 
-     public void boscoUserAdd (int forDistrictId, String id, String role) {
+     public void boscoUserAdd (int forDistrictId, String id, String role, String email) {
            Object[] args = {
             forDistrictId,
             id,
-            role
+            role,
+            email
         };
 
-        String sql = "insert ignore into bosco_user (districtId, id, role) values (?, ?, ?);";
+        String sql = "insert ignore into bosco_user (districtId, id, role, email) values (?, ?, ?, ?);";
         int rows = template.update(sql, args);
 
 
     }
 
-    public void boscoUserRemove (int forDistrictId, String id, String role ) {
+    public void boscoUserRemove (int forDistrictId, String id, String role, String email ) {
             Object[] args = {
             forDistrictId,
             id,
-            role
+            role,
+            email
         };
 
-        String sql = "delete from  bosco_user where districtId = ? and id = ? and role = ?;";
+        String sql = "delete from  bosco_user where districtId = ? and id = ? and role = ? and email = ?;";
         int rows = template.update(sql, args);
     }
 
@@ -1240,14 +1242,14 @@ public Student studentBoscoForExport (String id) {
         };
 
         String sql = """
-                select 	                    
-                    s.id,
+               select 	                    
+                    id,
                     s.firstName,
                     s.lastName,
                     s.dob,
                     s.gender,
                     s.studentNumber as studentId,
-                    school.name as school,
+                    school.name as school,                    
                     ms.ncesSchoolId as schoolId,
                     s.districtId,
                     s.grade,
@@ -1256,17 +1258,13 @@ public Student studentBoscoForExport (String id) {
                     s.blackOrAfricanAmerican,
                     s.nativeHawaiianOrOtherPacificIslander,
                     s.white,
-                    s.hispanicOrLatinoEthnicity,
-                    s.isEsl,
-                    s.is504,
-                    s.isBilingual,
-                    s.isSpecialEd,
-                    s.entryIepDate
+                    s.hispanicOrLatinoEthnicity as hispanicOrLatino
+                    
                 from 
-                    student s 
+                    student s                     
                     join school school on school.districtId = s.districtId and school.sourceId = s.schoolSourceId
-                    join map_school_code_nces_school_id ms on ms.districtId = s.districtId and ms.schoolCode = school.schoolCode
-                where 
+                    join map_school_code_nces_school_id ms on ms.districtId = school.districtId and ms.schoolCode = school.schoolCode
+                where                     
                     s.id = ? 
                 """; //.formatted(districtId, districtId, importId, changedFlag);
 

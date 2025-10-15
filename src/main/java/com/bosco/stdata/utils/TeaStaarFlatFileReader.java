@@ -17,6 +17,8 @@ import org.springframework.context.annotation.Configuration;
 
 import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.DibelsMClass;
+import com.bosco.stdata.teaModel.FindUsers;
+import com.bosco.stdata.teaModel.GradeFileCelina;
 import com.bosco.stdata.teaModel.GradeFileMelissa;
 import com.bosco.stdata.teaModel.MapCourseNameCsaCode;
 import com.bosco.stdata.teaModel.Star2024;
@@ -46,6 +48,20 @@ public class TeaStaarFlatFileReader {
     
 // So lets try fror the csv.
 
+ @Bean
+    public FlatFileItemReader<FindUsers> findUsers(String filePath) {
+        return new FlatFileItemReaderBuilder<FindUsers>()
+            .name("findUsers")
+            .resource(new FileSystemResource(filePath)) // Path to your CSV file  Try FileSystemResource instead
+            .linesToSkip(1) // Skip header line if present
+            .delimited()
+            .names(new String[]{"id", "email"}) 
+            .targetType(FindUsers.class) // Specify the target object type
+            .build();
+    }
+
+
+
     @Bean
     public FlatFileItemReader<MapCourseNameCsaCode> mapCourseNameCsaCodeReader(String filePath) {
         return new FlatFileItemReaderBuilder<MapCourseNameCsaCode>()
@@ -65,12 +81,25 @@ public class TeaStaarFlatFileReader {
             .name("gradeMelissaReader")
             .resource(new FileSystemResource(filePath)) // Path to your CSV file  Try FileSystemResource instead
             .linesToSkip(1) // Skip header line if present
-            .delimited()
+            .delimited()            
             .names(new String[]{"studentSourceId", "studentNumber", "courseName", "courseId", "schoolYear", "term", "courseGrade", "changedDateTime"}) 
             .targetType(GradeFileMelissa.class) // Specify the target object type
             .build();
     }
 
+
+    @Bean
+    public FlatFileItemReader<GradeFileCelina> gradeCelinaReader(String filePath) {
+        return new FlatFileItemReaderBuilder<GradeFileCelina>()
+            .name("gradeCelinaReader")
+            .resource(new FileSystemResource(filePath)) // Path to your CSV file  Try FileSystemResource instead
+            .linesToSkip(1) // Skip header line if present
+            .delimited()
+            .delimiter("\t")
+            .names(new String[]{"studentSourceId", "studentNumber", "courseName", "courseId", "schoolYear", "term", "courseGrade"}) 
+            .targetType(GradeFileCelina.class) // Specify the target object type
+            .build();
+    }
 
     @Bean
     public FlatFileItemReader<DibelsMClass> dibelesMClassReader(String filePath) {
