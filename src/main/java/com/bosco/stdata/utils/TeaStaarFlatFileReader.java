@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.DibelsMClass;
+import com.bosco.stdata.teaModel.DisciplineFileCelina;
 import com.bosco.stdata.teaModel.FindUsers;
 import com.bosco.stdata.teaModel.GradeFileCelina;
 import com.bosco.stdata.teaModel.GradeFileMelissa;
@@ -87,6 +88,18 @@ public class TeaStaarFlatFileReader {
             .build();
     }
 
+    @Bean
+      public FlatFileItemReader<DisciplineFileCelina> disiplineCelinaReader(String filePath) {
+        return new FlatFileItemReaderBuilder<DisciplineFileCelina>()
+            .name("disiplineCelinaReader")
+            .resource(new FileSystemResource(filePath)) // Path to your CSV file  Try FileSystemResource instead
+            .linesToSkip(1) // Skip header line if present
+            .delimited()
+            
+            .names(new String[]{"studentSourceId", "studentNumber", "iSS", "oSS", "dAEP", "numericYear"}) 
+            .targetType(DisciplineFileCelina.class) // Specify the target object type
+            .build();
+    }
 
     @Bean
     public FlatFileItemReader<GradeFileCelina> gradeCelinaReader(String filePath) {

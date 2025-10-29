@@ -411,6 +411,39 @@ public class ImportRepo {
     }
 
 
+    public String gradeForStudentId (String studentId) {
+         Object[] args = {
+            studentId
+
+        };
+
+
+        String sql = """
+
+                select 
+                    s.grade
+                from 
+                    import_dev.student s
+                where 
+					s.id = ?
+
+                """;
+
+
+
+        try {
+            String studentGrade = template.queryForObject(
+                    sql, 
+                    String.class, 
+                    args);
+
+            return studentGrade;
+        }
+        catch (Exception ex) {
+            return "";
+        }
+    }
+
     public String studentNumberFromSourceId (String studentSourceId) {
 
 

@@ -670,7 +670,9 @@ public class UpliftFiles {
 
 
                     // TODO: THIS IS AN ISSUE TO DEAL WITH LATER
-                    String grade = "8"; 
+                    //String grade = "8"; 
+                    String grade = i.importRepo.gradeForStudentId(districtId + "." + row[0]);
+
                     // TODO: We need to lookup the grade for the student!
 
                     // String studentNumber, String issDays, String ossDays, String aepDays, String grade, String schoolYear

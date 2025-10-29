@@ -111,11 +111,11 @@ public class BoscoApi {
             dis.grade = sdh.grade;
             dis.counts = new SisDisciplineCounts();
             if (!sdh.issDays.trim().equals(""))
-                dis.counts.setISS(Integer.parseInt(sdh.issDays));
+                dis.counts.setISS(sdh.issDays);
             if (!sdh.ossDays.trim().equals(""))
-                dis.counts.setOSS(Integer.parseInt(sdh.ossDays));
+                dis.counts.setOSS(sdh.ossDays);
             if (!sdh.aepDays.trim().equals(""))
-                dis.counts.setDAEP(Integer.parseInt(sdh.aepDays));
+                dis.counts.setDAEP(sdh.aepDays);
 
 
 
@@ -416,6 +416,8 @@ public class BoscoApi {
                 newTeachers++;
                 //ImportHelper.DebugSpin(false);
                 ImportHelper.DebugCountdown();
+
+                // THIS IS OK it will return empty list if school not found!
 
                 bu.setAssignedSchools(importRepo.schoolsForTeacher(bu.getId()));
 

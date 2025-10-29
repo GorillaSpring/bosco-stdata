@@ -7,49 +7,49 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
  
 public class SisDisciplineCounts {
-    private int ISS = 0;
-    private int OSS = 0;
-    private int OR = 0;
-    private int CCV = 0;
-    private int DAEP = 0;
+    private String ISS = "0";
+    private String OSS = "0";
+    private String OR = "0";
+    private String CCV = "0";
+    private String DAEP = "0";
 
 
 
-    public int getISS() {
+    public String getISS() {
         return ISS;
     }
     @JsonProperty("ISS")
-    public void setISS(int iSS) {
+    public void setISS(String iSS) {
         ISS = iSS;
     }
     
     @JsonProperty("OSS")
-    public int getOSS() {
+    public String getOSS() {
         return OSS;
     }
-    public void setOSS(int oSS) {
+    public void setOSS(String oSS) {
         OSS = oSS;
     }
     @JsonProperty("OR")
-    public int getOR() {
+    public String getOR() {
         return OR;
     }
-    public void setOR(int oR) {
+    public void setOR(String oR) {
         OR = oR;
     }
 
     @JsonProperty("CCV")
-    public int getCCV() {
+    public String getCCV() {
         return CCV;
     }
-    public void setCCV(int cCV) {
+    public void setCCV(String cCV) {
         CCV = cCV;
     }
     @JsonProperty("DAEP")
-    public int getDAEP() {
+    public String getDAEP() {
         return DAEP;
     }
-    public void setDAEP(int dAEP) {
+    public void setDAEP(String dAEP) {
         DAEP = dAEP;
     }
 

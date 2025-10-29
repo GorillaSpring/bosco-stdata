@@ -14,6 +14,7 @@ import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.DibelsMClass;
+import com.bosco.stdata.teaModel.DisciplineFileCelina;
 import com.bosco.stdata.teaModel.FindUsers;
 import com.bosco.stdata.teaModel.GradeFileCelina;
 import com.bosco.stdata.teaModel.GradeFileMelissa;
@@ -247,6 +248,65 @@ public class CsvFiles {
 
         System.out.println(("-----------------------"));
     }
+
+    public static void LoadCelinaDiscipline (int districtId, String filePath) throws Exception {
+    
+        TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
+
+        
+
+        FlatFileItemReader<DisciplineFileCelina> cr = tsfr.disiplineCelinaReader(filePath);
+
+        cr.open(new ExecutionContext());
+
+        System.out.println(("-----------------------"));
+        System.out.println(("------ Loading Celina Discipline ------"));
+        System.out.println (filePath);
+
+        int count = 0;
+        int total = 0;
+
+        
+        DisciplineFileCelina cc = cr.read();
+            //String schoolYear = "2024-2025";  // should be able to get this from TermName
+
+            //String termName = cc.getTermName();
+
+
+        while (cc != null) {
+
+            total++;
+
+
+            
+            
+            String grade = i.importRepo.gradeForStudentId(districtId + "." + cc.studentNumber);
+
+            String schoolYear = MappingHelper.SchoolYearFromYear(cc.numericYear);
+            
+            
+            if (!grade.isEmpty()) {
+                i.importRepo.sisDiscipline(cc.studentNumber, cc.iSS, cc.oSS, cc.dAEP, grade, schoolYear);
+                count++;
+            }
+            else {
+                System.out.println("Did not find student : " + cc.studentNumber);
+            }
+
+
+            cc = cr.read();
+        }
+
+
+        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
+        
+        System.out.println("  Total: " + total + "  - Imported : " + count);
+
+        System.out.println(("-----------------------"));
+    
+    }
+
+
 
     public static void LoadGradesCelina (int districtId, String filePath) throws Exception {
         TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();

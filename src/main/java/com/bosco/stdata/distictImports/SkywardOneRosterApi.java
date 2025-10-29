@@ -305,8 +305,6 @@ public class SkywardOneRosterApi {
 
 
 
-            // First the orgs
-            System.out.println("Getting Schools");
 
             pageNumber = 0;
             studentCount = 0;
@@ -315,8 +313,14 @@ public class SkywardOneRosterApi {
 
             int schoolCount = 0;
 
+
+
             filter = "status='active'/orgs?type='school'";
             filter = "status='active'";
+
+                        // First the orgs
+//            System.out.println("Getting Schools");
+
             // data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/schools", filter, token, pageNumber);
 
             // while ( data.size() > 0) {
@@ -488,6 +492,17 @@ public class SkywardOneRosterApi {
                                                 if (tschoolNode.size() > 0) {
                                                     JsonNode tschoolElement = tschoolNode.get(0);
                                                     tschoolSourceId = tschoolElement.get("sourcedId").asText();
+
+                                                    // it is possiably this is the district Entity_1
+                                                    // if so, lets get the next one if it exists.
+
+                                                    if (tschoolSourceId.equals("Entity_1")) {
+                                                        if (tschoolNode.size() > 1) {
+                                                            tschoolElement = tschoolNode.get(1);
+                                                            tschoolSourceId = tschoolElement.get("sourcedId").asText();
+                                                        }
+                                                    }
+
                                                 }
 
                                         }

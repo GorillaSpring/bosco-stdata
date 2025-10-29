@@ -88,39 +88,53 @@ public class Testing {
         
         System.out.println("Test Starting");
 
+        i.boscoApi.sendImportToBosco(4813290);
 
-        String testStr = "O'Brien";
+        // List<String> assignedSchools;
 
-        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+        // String id = "4813290.001515";
 
-        testStr = "O'BRIEN";
-        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+        // id = "4813290.000097";
 
+        // assignedSchools = i.importRepo.schoolsForTeacher(id);
 
-        testStr = "o'brien";
-        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
-
-        testStr = "SMITH-JONES";
-
-        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
-
-        testStr = "Smith-Jones";
-
-        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+        // System.out.println("Assigned Schools");
+        // System.out.println(assignedSchools);
+        // System.out.println("---");
 
 
-        testStr = "smith-jones";
+        // String testStr = "O'Brien";
 
-        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+        // System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
 
-        testStr = "SMITH JONES";
+        // testStr = "O'BRIEN";
+        // System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
 
-        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+
+        // testStr = "o'brien";
+        // System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+
+        // testStr = "SMITH-JONES";
+
+        // System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+
+        // testStr = "Smith-Jones";
+
+        // System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
 
 
-        testStr = "smith jones";
+        // testStr = "smith-jones";
 
-        System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+        // System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+
+        // testStr = "SMITH JONES";
+
+        // System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
+
+
+        // testStr = "smith jones";
+
+        // System.out.println(testStr + " - " + ImportHelper.TitleCase(testStr)); 
 
          //CsvFiles.LoadFindUsers(  "C:\\db\\Docs\\Find_dups\\all_users.csv");
 
