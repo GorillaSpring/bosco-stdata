@@ -871,8 +871,60 @@ public class ImportRepo {
         return (isChanged > 0);
     }
 
+    public Boolean studentExists (String id) {
+        String sql = "select count(*) from student where id = '" + id + "';";
+
+        System.out.println(sql);
+
+        int foundCount = template.queryForObject(sql, Integer.class);
+
+        return (foundCount > 0);
+
+    }
+
+    public void markSisStudentClean(String id) {
+          Object[] args = {
+            id
+        };
 
 
+        
+        String sql = """
+            update sis_student set dirty = 0 where id = ?;
+                """;
+
+        int rows = template.update(sql, args);
+    }
+
+     public List<String> dirtyReferralsForDistrict (int districtId) {
+        
+
+
+        String sql = "select id from sis_student where id like ('" + districtId + ".%');";
+
+        return template.queryForList(sql, String.class);
+    }
+
+    public void sisReferralAdd (String id) {
+        Boolean dirty = true;
+        Object[] args = {
+            id,
+            dirty,
+            dirty
+        };
+
+
+        
+        String sql = """
+            insert into 
+                sis_student (id, dirty)
+            values (?, ?)
+            on duplicate key update
+                dirty = ?;
+                """;
+
+        int rows = template.update(sql, args);
+    }
 
     
     public void boscoStudentAdd (int forDistrictId, String id, String studentNumber) {

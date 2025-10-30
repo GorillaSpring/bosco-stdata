@@ -78,6 +78,14 @@ public class BoscoApi {
 
         System.out.println("District: " + params[0] + "  - Student : " + params[1]);
 
+
+        // first see if the student even exists in our local DB
+        if (!importRepo.studentExists(id)) {
+            System.out.println("DID NOT FIND STUDENT : " + id);
+            return "DID NOT FIND STUDENT : " + id;
+        }
+        
+
         int districId = Integer.parseInt(params[0]);
 
 
@@ -100,28 +108,29 @@ public class BoscoApi {
 
 
         // discipline is missing grade.
+        // Temp fix for Celina broken
 
-        List<SisDisciplineHelper> sisDisciplineHelpers = new ArrayList<>();
-        sisDisciplineHelpers = importRepo.sisDisciplinesGet(districId, id);
-        //** this we have to build classes from the results.
-        for (SisDisciplineHelper sdh : sisDisciplineHelpers) {
-            SisDiscipline dis = new SisDiscipline();
+        // List<SisDisciplineHelper> sisDisciplineHelpers = new ArrayList<>();
+        // sisDisciplineHelpers = importRepo.sisDisciplinesGet(districId, id);
+        // //** this we have to build classes from the results.
+        // for (SisDisciplineHelper sdh : sisDisciplineHelpers) {
+        //     SisDiscipline dis = new SisDiscipline();
             
-            dis.schoolYear = sdh.schoolYear;
-            dis.grade = sdh.grade;
-            dis.counts = new SisDisciplineCounts();
-            if (!sdh.issDays.trim().equals(""))
-                dis.counts.setISS(sdh.issDays);
-            if (!sdh.ossDays.trim().equals(""))
-                dis.counts.setOSS(sdh.ossDays);
-            if (!sdh.aepDays.trim().equals(""))
-                dis.counts.setDAEP(sdh.aepDays);
+        //     dis.schoolYear = sdh.schoolYear;
+        //     dis.grade = sdh.grade;
+        //     dis.counts = new SisDisciplineCounts();
+        //     if (!sdh.issDays.trim().equals(""))
+        //         dis.counts.setISS(sdh.issDays);
+        //     if (!sdh.ossDays.trim().equals(""))
+        //         dis.counts.setOSS(sdh.ossDays);
+        //     if (!sdh.aepDays.trim().equals(""))
+        //         dis.counts.setDAEP(sdh.aepDays);
 
 
 
-            //sd.academicRecords.discipline.records.add(dis);
-            sd.discipline.add(dis);
-        }
+        //     //sd.academicRecords.discipline.records.add(dis);
+        //     sd.discipline.add(dis);
+        // }
 
 
         String token = authBosco();
@@ -205,6 +214,35 @@ public class BoscoApi {
     }
 
 
+    public String getReferralsForDistrict (int districtId) {
+        String token = authBosco();
+
+        String getUrl = baseUrl + "sis-data/active-referrals/" + districtId;
+
+        String res = "";
+
+        try {
+            List<String> refs = boscoClient.getActiveReferralsForDistrict(getUrl, token);
+
+            res = "Got " + refs.size();
+
+            for (String ref : refs) {
+                System.out.println ("Active Ref: " + ref);
+                importRepo.sisReferralAdd(ref);
+                
+            }
+            
+
+        }
+        catch (Exception ex) {
+            res = ex.getMessage();
+
+        }
+
+        return res;
+
+        
+    }
 
     public String putStudentToBosco (String id) {
 
@@ -311,6 +349,8 @@ public class BoscoApi {
         return resNode;
     }
 
+
+    
 
     public JsonNode getUsers (int districtId, int pageNumber) {
        

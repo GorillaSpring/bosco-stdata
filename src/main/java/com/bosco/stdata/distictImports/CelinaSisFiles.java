@@ -69,6 +69,10 @@ public class CelinaSisFiles {
             result.districtId = districtId;
 
 
+
+            //CsvFiles.LoadComboStudentAssessment(districtId, baseFileFolder + "2025-2026/MAP Data file Fall 2526.csv", false);
+
+
              //CsvFiles.LoadMapCourseNameCsaCode(baseFileFolder + "Celina_map_courseName_csaCode.csv");
 
              // This is broken because back to comma seporated.
@@ -88,7 +92,6 @@ public class CelinaSisFiles {
              // ALL BELOW DONE
 
 
-            // CsvFiles.LoadComboStudentAssessment(districtId, baseFileFolder + "2025-2026/MAP Data file Fall 2526.csv", true);
 
 
 

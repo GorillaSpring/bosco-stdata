@@ -4,12 +4,15 @@ import com.bosco.stdata.model.SisStudentData;
 import com.bosco.stdata.model.Student;
 import com.bosco.stdata.model.Teacher;
 import com.fasterxml.jackson.databind.JsonNode;
+
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Base64;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 
@@ -109,6 +112,32 @@ public class BoscoClient {
         // Map.Entry<String, JsonNode> entry = responseBody.fields().next();
         // return entry.getValue();
     
+    public List<String> getActiveReferralsForDistrict(String url, String token) throws Exception {
+
+    //      ResponseEntity<JsonNode> response =
+    //            restTemplate.exchange(url, HttpMethod.GET, request, JsonNode.class);
+
+             HttpHeaders headers = new HttpHeaders();
+
+        
+        headers.setBearerAuth(token);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        
+
+        ResponseEntity<List<String>> response =
+            restTemplate.exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<List<String>>() {});
+
+        //System.err.println(response.getBody());
+
+        List<String> stringList = response.getBody();
+
+        return stringList;
+
+}
+
 
     public String postStudent (String url, String token, Student student) throws Exception {
           HttpHeaders headers = new HttpHeaders();

@@ -225,6 +225,7 @@ public class ImportApi {
     }
 
 
+
      private void getBoscoUsers (int districtId) {
 
         
@@ -291,7 +292,6 @@ public class ImportApi {
 
     }
     
-  
 
 
      @Operation(
@@ -426,6 +426,67 @@ public class ImportApi {
 
         
     }
+
+    
+
+   @Operation(
+            summary = "Get all Active Referrals from the District *** CHECK boscoInstance *** " ,
+            description = "This will allow us to send SIS data for all active Referrals.",
+            tags = {"Import Testing"}
+            )
+    @GetMapping("/import/active-referrals/{id}")
+    public String activeReferrals(@PathVariable int id) {
+
+
+         Thread taskThread = new Thread(() -> {
+            
+            var res = boscoApi.getReferralsForDistrict(id);
+            System.out.println(res);
+            
+        });
+
+
+        ImportHelper.importRunning = true;
+        //importRepo.setSystemStatus("Import", 1);
+        taskThread.start();
+
+        return "Getting Active Referrals " + boscoInstance;
+
+        
+    }
+
+    @Operation(
+            summary = "This will send SisData for all sis_students that are marked dirty in the district *** CHECK boscoInstance *** " ,
+            description = "This will send SisData for all sis_students that are marked dirty in the district *** CHECK boscoInstance ***.",
+            tags = {"Import Testing"}
+            )
+    @GetMapping("/import/sendDirtySisDataForDistrict/{districtId}")
+    public String sendDirtySisDataForDistrict(@PathVariable int districtId) {
+
+
+         Thread taskThread = new Thread(() -> {
+
+            // We get a list of them.
+            List<String> refIds = importRepo.dirtyReferralsForDistrict(districtId);
+            
+            for (String refId : refIds) {
+                boscoApi.postSisDataToBosco(refId);
+                importRepo.markSisStudentClean(refId);
+                
+            }
+            
+        });
+
+
+        ImportHelper.importRunning = true;
+        //importRepo.setSystemStatus("Import", 1);
+        taskThread.start();
+
+        return "Getting Active Referrals " + boscoInstance;
+
+        
+    }
+
 
 
     @Operation(
