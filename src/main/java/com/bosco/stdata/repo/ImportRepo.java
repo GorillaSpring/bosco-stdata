@@ -1752,6 +1752,7 @@ public Student studentBoscoForExport (String id) {
             p_type varchar(5)
          */
 
+         //System.out.println(firstName + " " + lastName);
  
         Object[] args = {
             districtId,

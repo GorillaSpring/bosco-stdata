@@ -88,6 +88,7 @@ public class StudentApi {
     @GetMapping("/student/getSisData/{id}")
     public SisStudentData getSisData(@PathVariable String id) {
 
+        // This should be the same as the post, but without sending it!
 
         System.out.println("Param: " + id);
         // id will be 66.838101615

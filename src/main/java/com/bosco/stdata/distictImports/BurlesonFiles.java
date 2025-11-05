@@ -20,14 +20,14 @@ import com.bosco.stdata.utils.ImportHelper;
 import jakarta.annotation.PostConstruct;
 
 @Component
-public class MelissaFiles {
+public class BurlesonFiles {
     @Autowired
     ImportRepo importRepo;
 
     @Autowired 
     BoscoApi boscoApi;
 
-    private static MelissaFiles i;  // instance
+    private static BurlesonFiles i;  // instance
 
     @PostConstruct
     public void init() {
@@ -61,7 +61,7 @@ public class MelissaFiles {
 
             String archiveFolder =  ImportHelper.ValueForSetting(importSettings, "archiveFolder");
 
-            int importId = i.importRepo.prepImport(districtId, importDefId, isRoster, isSisData,  "Melissa Roster Files " + baseFileFolder);
+            int importId = i.importRepo.prepImport(districtId, importDefId, isRoster, isSisData,  "Burleson Roster Files " + baseFileFolder);
             result.importId = importId;
             result.districtId = districtId;
             
@@ -84,7 +84,7 @@ public class MelissaFiles {
 
 
             // Before we start, lets make sure there are files in the baseFolder
-            String[] files = {"guardians.csv", "schools.csv", "student_enrollments.csv", "students.csv", "user_enrollments.csv", "users.csv", "educational_placement.csv"};
+            String[] files = {"guardians.csv", "schools.csv", "student_enrollment.csv", "students.csv", "user_enrollment.csv", "users.csv", "educational_placement.csv"};
             if (!ImportHelper.CheckFilesExist(baseFileFolder, files)) {
                 throw new FileNotFoundException("One or more import files missing!");
             }
@@ -132,6 +132,10 @@ public class MelissaFiles {
 
 
 
+            
+            Boolean skipThis = false;
+
+
 
 
             System.out.println("Importing Students File");
@@ -150,11 +154,15 @@ public class MelissaFiles {
             String [] colNames = new String[]{"StudentSourceID", "StudentNumber", "LastName", "FirstName", "DOB", "Gender", "SchoolCode", "GradeCode" , 
                             "IsBilingual", "IsHispanicLatino", "AmericanIndianOrAlaskaNative", "Asian", "BlackOrAfricanAmerican", "NativeHawaiianOtherPacificIslander", "White"};
             
+
+            int counter1 = 0;
+                            
+            if (!skipThis) {
+
             if (!ImportHelper.CheckColumnHeaders(fr, colNames))
                 throw new Exception("File : students.csv does not match column specs" );
 
 
-            int counter1 = 0;
 
             //data.forEach(row -> {
 
@@ -189,7 +197,7 @@ public class MelissaFiles {
                     // String sourceId, String studentNumber, String firstName, String lastName, String grade, String schoolSourceId
 
                     i.importRepo.saveStudent(
-                        row[0], row[1], row[3], row[2], row[7], row[6]
+                        row[1], row[1], row[3], row[2], row[7], row[6]
                     );
 
                     String dob = ImportHelper.DateToStdFormat(row[4]);
@@ -244,7 +252,7 @@ public class MelissaFiles {
             counter1 = 0;
             //data.forEach(row -> {
             for (String [] row : data) {
-                if (!row[0].isBlank()) 
+                if (!row[1].isBlank()) 
                 {
                     ImportHelper.DebugCountdown();
            
@@ -262,7 +270,7 @@ public class MelissaFiles {
                         // String sourceid, String teacherId, String firstname, String lastname, String email
                         // String sourceId, String teacherId, String firstName, String lastName, String email
                         i.importRepo.saveTeacher(
-                            row[0], row[1],  row[3], row[2], email, row[5]
+                            row[1], row[1],  row[3], row[2], email, row[5]
                         );
                         counter1++;
                     }
@@ -273,11 +281,11 @@ public class MelissaFiles {
 
             i.importRepo.logInfo("Imported users : " + counter1);
 
-
+        }
 
             System.out.println("Importing guardian File");
 
-            data = msp.readCsvFile( baseFileFolder + "guardians.csv");
+            data = msp.readCsvFileNonQuoted( baseFileFolder + "guardians.csv");
 
 
             fr = data.removeFirst();
@@ -285,7 +293,10 @@ public class MelissaFiles {
             // id	studentId	guardianId	type	lastName	firstName	email
 
         
-            colNames = new String[]{"StudentSourceID", "StudentNumber", "GuardianIdentifier", "GuardianType", "GuardianLastName", "GuardianFirstName", "GuardianEmail"};
+            colNames = new String[]{"StudentSourceID", "StudentNumber", "GuardianIdentifier", "GuardianType", "GuardianLastName", "GuardianFirstName", "GuardianEmail"
+        , "GuardianIdentifier", "GuardianType", "GuardianLastName", "GuardianFirstName", "GuardianEmail"
+        
+        };
             
             if (!ImportHelper.CheckColumnHeaders(fr, colNames))
                 throw new Exception("File : guardians.csv does not match column specs" );
@@ -293,11 +304,18 @@ public class MelissaFiles {
 
             // sourceId     0
             // studentId    1
+
             // guardianId   2
             // type         3
             // lastname     4
             // firstname    5
             // email        6
+
+            // guardianId   7
+            // type         8
+            // lastname     9
+            // firstname    10
+            // email        11
 
 
             ImportHelper.DebugCountdownSet(data.size());
@@ -309,6 +327,14 @@ public class MelissaFiles {
                 {
                     ImportHelper.DebugCountdown();
 
+
+                    if (row[2].equals("170024")) {
+                        System.out.println("Found trouble");
+                        System.out.println(row[4]);
+                        System.out.println(row[5]);
+                        System.out.println(row[6]);
+                        System.out.println(row[7]);
+                    }
                     // So for guardians, we may not have a unique source id in the spreadsheet.
                     // We don't actually need it.
                 
@@ -329,6 +355,30 @@ public class MelissaFiles {
                         row[2], row[1],  row[5], row[4], email, row[3]
                     );
                     counter1++;
+
+                    // now for the 2nd one
+
+                    if (!(row[7].isEmpty() || row[7].equals("0")))
+                    {
+                        email = row[11];
+                        if (setNoEmails && email.length() >= 4) {
+                            String trimedEmail = email.substring(0, email.length() - 4);
+                            email = trimedEmail + "_no.no";
+                        }
+
+                    
+                        // So to make unique, we will use student + guardian for the sourceId
+                        // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type
+                        // String sourceId, String guardianId, String studentSourceId, String firstName, String lastName, String email, String type
+
+
+
+                        i.importRepo.saveGuardian(
+                            row[1] + "_" + row[7], 
+                            row[7], row[1],  row[10], row[9], email, row[8]
+                        );
+                        counter1++;
+                    }
                 }
             
             };
@@ -338,7 +388,7 @@ public class MelissaFiles {
 
             System.out.println("Importing user_enrollments File");
 
-            data = msp.readCsvFile( baseFileFolder + "user_enrollments.csv");
+            data = msp.readCsvFile( baseFileFolder + "user_enrollment.csv");
 
             // teacherId
             // classId
@@ -348,10 +398,10 @@ public class MelissaFiles {
             // teacherId	classId
 
 
-            colNames = new String[]{"UserSourceID", "UserID", "CourseName", "CourseID", "CourseSectionID"};
+            colNames = new String[]{"UserSourceID", "UserID", "CourseName", "CourseID"};
             
             if (!ImportHelper.CheckColumnHeaders(fr, colNames))
-                throw new Exception("File : user_enrollments.csv does not match column specs" );
+                throw new Exception("File : user_enrollment.csv does not match column specs" );
 
 
 
@@ -366,12 +416,12 @@ public class MelissaFiles {
                 {
                     ImportHelper.DebugCountdown();
                     // skip 000000 teachers
-                    if (!row[0].equals("000000")) {
+                    if (!row[0].equals("0")) {
 
-                        // We concatinate the CourseSectionID + CourseID.
+                        // CourseID.
 
 
-                        i.importRepo.saveTeacherClass(row[0], row[4] + row[3]);
+                        i.importRepo.saveTeacherClass(row[1], row[3]);
                         counter1++;
                     }
 
@@ -386,17 +436,17 @@ public class MelissaFiles {
 
             System.out.println("Importing student_enrollments File");
 
-            data = msp.readCsvFile( baseFileFolder + "student_enrollments.csv");
+            data = msp.readCsvFile( baseFileFolder + "student_enrollment.csv");
 
             // studentId
             // classId
 
             fr = data.removeFirst();
 
-            colNames = new String[]{"StudentSourceID", "StudentNumber", "CourseName", "CourseID", "CourseSectionID"};
+            colNames = new String[]{"StudentSourceID", "StudentNumber", "CourseName", "CourseID"};
             
             if (!ImportHelper.CheckColumnHeaders(fr, colNames))
-                throw new Exception("File : student_enrollments.csv does not match column specs" );
+                throw new Exception("File : student_enrollment.csv does not match column specs" );
 
             counter1 = 0;
 
@@ -411,8 +461,8 @@ public class MelissaFiles {
                     ImportHelper.DebugCountdown();
 
 
-                    // We concatinate the CourseSectionID + CourseID.
-                    i.importRepo.saveStudentClass(row[0], row[4] +  row[3]);
+                    // CourseID.
+                    i.importRepo.saveStudentClass(row[1], row[3]);
                     counter1++;
 
 
@@ -436,7 +486,19 @@ public class MelissaFiles {
 
             fr = data.removeFirst();
 
-            colNames = new String[]{"StudentSourceID", "StudentNumber", "IsEsl", "IsBilingual", "IsSpecialEd", "EntryIEP_Date", "LastFIIE_Date", "ReEvaluationDueDate", "Is504", "AnnualARDDate", "Annual504_Date"};
+            colNames = new String[]{"StudentSourceID", "StudentNumber", "IsEsl", "IsBilingual", "IsSpecialEd", "EntryIEP_Date", "LastFIIE_Date", "ReEvaluationDueDate", "Is504",
+             "AnnualARDDate", "Annual504_Date",
+             "Autism","Deaf-Blindness","Deaf-HardOfHearing","EmotionalDisability","MultipleDisabilities","OrthopedicImpairment",
+             "OtherHealthImpairment","SpecificLearningDisability","SpeechLanguageImpairment","TraumaticBrainInjury","VisualImpairment",
+             "Non-CategoricalEarlyChildhood"
+        
+        };
+
+        // We only have dat for
+        // IsEsl
+        // IsBilingual
+        // IsSpecialEd
+        // Is504
 
             // NO DATA"
             // LastFIIE_Date
@@ -542,7 +604,7 @@ public class MelissaFiles {
             
 
 
-            
+            System.out.println("STOP");
 
 
             i.boscoApi.sendImportToBosco(districtId);

@@ -15,10 +15,10 @@ import com.bosco.stdata.config.AppConfig;
 
 import com.bosco.stdata.model.ImportDefinition;
 import com.bosco.stdata.model.ImportLog;
-import com.bosco.stdata.model.SisDiscipline;
-import com.bosco.stdata.model.SisDisciplineCounts;
-import com.bosco.stdata.model.SisDisciplineHelper;
-import com.bosco.stdata.model.SisStudentData;
+// import com.bosco.stdata.model.SisDiscipline;
+// import com.bosco.stdata.model.SisDisciplineCounts;
+// import com.bosco.stdata.model.SisDisciplineHelper;
+// import com.bosco.stdata.model.SisStudentData;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.service.EmailService;
@@ -500,61 +500,7 @@ public class ImportApi {
 
         boscoApi.postSisDataToBosco(id);
 
-        // System.out.println("Param: " + id);
-        // // id will be 66.838101615
-        // String [] params = id.split("\\.");
-
-        // //var x = params[0];
-
-        // System.out.println("District: " + params[0] + "  - Student : " + params[1]);
-
-        // int districId = Integer.parseInt(params[0]);
-
-
-        // SisStudentData sd = new SisStudentData();
-
-        
-        // sd.grades = importRepo.sisGradesGet(districId, id);
-        // // Grades is missing csacode;
-
-        // sd.map = importRepo.sisMapsGet(districId, id);
-        // // map is missing proficiencyCode and csacode
-        // sd.mclass = importRepo.sisMclassGet(districId, id);
-        // // mclass is missing proficiencyCode and csacode
-
-        // sd.staar = importRepo.sisStaarsGet(districId, id);
-        // // star is missing code, proficiencyCode and csacode
-
-        // sd.telpas = importRepo.sisTelpasGet(districId, id);
-        
-
-
-        // // discipline is missing grade.
-
-        // List<SisDisciplineHelper> sisDisciplineHelpers = new ArrayList<>();
-        // sisDisciplineHelpers = importRepo.sisDisciplinesGet(districId, id);
-        // //** this we have to build classes from the results.
-        // for (SisDisciplineHelper sdh : sisDisciplineHelpers) {
-        //     SisDiscipline dis = new SisDiscipline();
-            
-        //     dis.schoolYear = sdh.schoolYear;
-        //     dis.grade = sdh.grade;
-        //     dis.counts = new SisDisciplineCounts();
-        //     if (!sdh.issDays.trim().equals(""))
-        //         dis.counts.setISS(Integer.parseInt(sdh.issDays));
-        //     if (!sdh.ossDays.trim().equals(""))
-        //         dis.counts.setOSS(Integer.parseInt(sdh.ossDays));
-        //     if (!sdh.aepDays.trim().equals(""))
-        //         dis.counts.setDAEP(Integer.parseInt(sdh.aepDays));
-
-
-
-        //     //sd.academicRecords.discipline.records.add(dis);
-        //     sd.discipline.add(dis);
-        // }
-        
-        
-        // boscoApi.postSisDataToBosco(id, sd);
+       
 
 
 

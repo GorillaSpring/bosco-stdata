@@ -9,7 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 
 
@@ -23,6 +25,32 @@ public class UserFileService {
         //new FileReader(filePath)
         
         )) {
+            String[] nextRecord;
+            while ((nextRecord = csvReader.readNext()) != null) {
+                records.add(nextRecord);
+            }
+        } catch (IOException | CsvValidationException e) {
+            e.printStackTrace(); // Handle the exception appropriately
+        }
+        return records;
+    }
+
+
+     public List<String[]> readCsvFileNonQuoted(String filePath) {
+        List<String[]> records = new ArrayList<>();
+
+        com.opencsv.CSVParser parser = new CSVParserBuilder().withIgnoreQuotations(true).withSeparator(',').build();
+        try (CSVReader csvReader = new CSVReaderBuilder(
+            new BufferedReader(new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8))
+        //new FileReader(filePath)
+        
+
+
+        ).withCSVParser(parser).build();
+        
+        
+        ) {
+
             String[] nextRecord;
             while ((nextRecord = csvReader.readNext()) != null) {
                 records.add(nextRecord);

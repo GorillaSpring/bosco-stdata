@@ -110,27 +110,27 @@ public class BoscoApi {
         // discipline is missing grade.
         // Temp fix for Celina broken
 
-        // List<SisDisciplineHelper> sisDisciplineHelpers = new ArrayList<>();
-        // sisDisciplineHelpers = importRepo.sisDisciplinesGet(districId, id);
-        // //** this we have to build classes from the results.
-        // for (SisDisciplineHelper sdh : sisDisciplineHelpers) {
-        //     SisDiscipline dis = new SisDiscipline();
+        List<SisDisciplineHelper> sisDisciplineHelpers = new ArrayList<>();
+        sisDisciplineHelpers = importRepo.sisDisciplinesGet(districId, id);
+        //** this we have to build classes from the results.
+        for (SisDisciplineHelper sdh : sisDisciplineHelpers) {
+            SisDiscipline dis = new SisDiscipline();
             
-        //     dis.schoolYear = sdh.schoolYear;
-        //     dis.grade = sdh.grade;
-        //     dis.counts = new SisDisciplineCounts();
-        //     if (!sdh.issDays.trim().equals(""))
-        //         dis.counts.setISS(sdh.issDays);
-        //     if (!sdh.ossDays.trim().equals(""))
-        //         dis.counts.setOSS(sdh.ossDays);
-        //     if (!sdh.aepDays.trim().equals(""))
-        //         dis.counts.setDAEP(sdh.aepDays);
+            dis.schoolYear = sdh.schoolYear;
+            dis.grade = sdh.grade;
+            dis.counts = new SisDisciplineCounts();
+            if (!sdh.issDays.trim().equals(""))
+                dis.counts.setISS(sdh.issDays);
+            if (!sdh.ossDays.trim().equals(""))
+                dis.counts.setOSS(sdh.ossDays);
+            if (!sdh.aepDays.trim().equals(""))
+                dis.counts.setDAEP(sdh.aepDays);
 
 
 
-        //     //sd.academicRecords.discipline.records.add(dis);
-        //     sd.discipline.add(dis);
-        // }
+            //sd.academicRecords.discipline.records.add(dis);
+            sd.discipline.add(dis);
+        }
 
 
         String token = authBosco();

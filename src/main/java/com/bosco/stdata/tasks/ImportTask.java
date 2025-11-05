@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.bosco.stdata.distictImports.BurlesonFiles;
 //import com.bosco.stdata.distictImports.CelinaFiles;
 import com.bosco.stdata.distictImports.CelinaSisFiles;
 import com.bosco.stdata.distictImports.ClassLinkOneRosterApi;
@@ -146,6 +147,12 @@ public class ImportTask {
 
                                 case "MelissaFiles":
                                     importResult = MelissaFiles.Import(importDefId);
+                                    importResults.add(importResult);
+
+                                    break;
+
+                                case "BurlesonFiles":
+                                    importResult = BurlesonFiles.Import(importDefId);
                                     importResults.add(importResult);
 
                                     break;
