@@ -92,6 +92,22 @@ public  class ImportHelper {
     }
   
 
+
+    public static String GradeFromGradeCode (String gradeCode) {
+        String grade = 
+        switch(gradeCode) {
+            case "PS" -> "PK";   // This is from Bosco Power School   May be PK
+            case "KG" -> "K";   // This is from Bosco Power School   May be PK
+            case "-1" -> "EC";
+            case "-2" -> "PK";
+            case "0" -> "K";
+            default -> gradeCode;
+
+        };
+
+        return grade;
+    }
+
     public static String GenderFromSex (String sex) {
         String sexLower = sex.toLowerCase();
         if (sexLower.startsWith("m"))

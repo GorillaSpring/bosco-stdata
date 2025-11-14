@@ -365,7 +365,7 @@ public class PowerSchoolOneRosterApi {
                                 // ** So, there is orgs array.  Has "Entity_2"  this is the school.
 
 
-                            System.out.println(userNode.toPrettyString());
+                            //System.out.println(userNode.toPrettyString());
 
                                 String schoolSourceId = "X";
                                 JsonNode schoolNode = userNode.get("orgs");
@@ -443,6 +443,7 @@ public class PowerSchoolOneRosterApi {
                                                 
 
                                                 String studentId = studentNode.get("sourcedId").asText();
+                                                
                                                 //Guardian g = new Guardian(userNode.get("sourcedId").asText(), userNode.get("identifier").asText(), studentId, userNode.get("givenName").asText(), userNode.get("familyName").asText(), email, guardianType);
 
                                                 // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type
@@ -474,12 +475,12 @@ public class PowerSchoolOneRosterApi {
                                         teacherEmail = userNode.get("email").asText();
 
 
-                                        System.out.println(teacherEmail);
+                                        //System.out.println(teacherEmail);
                                     }
-                                    else {
-                                        //System.out.println("NO EMAIL");
-                                        System.out.println(userNode.toPrettyString());
-                                    }
+                                    // else {
+                                    //     //System.out.println("NO EMAIL");
+                                    //     System.out.println(userNode.toPrettyString());
+                                    // }
 
                                     if (!teacherEmail.isBlank()) {
 
@@ -497,10 +498,23 @@ public class PowerSchoolOneRosterApi {
 
                                         // We now have the teacher school in tschoolSourceId
 
+                                        // For Bosco Test district, all users have the same email.
 
-                                        if (setNoEmails && teacherEmail.length() >= 4) {
-                                            String trimedEmail = teacherEmail.substring(0, teacherEmail.length() - 4);
-                                            teacherEmail = trimedEmail + "_no.no";
+                                        // this should fix it.
+
+                                        if (districtId == 9999998) {
+                                            // this is the generic email they use, so we will crate our own.
+                                            if (teacherEmail.equals("staff@pssis.com")) {
+                                                teacherEmail = userNode.get("givenName").asText() + "." + userNode.get("familyName").asText() + "_" + userNode.get("identifier").asText()  + "@PST_no.no";
+                                            }
+                                        }
+                                        else {
+
+
+                                            if (setNoEmails && teacherEmail.length() >= 4) {
+                                                String trimedEmail = teacherEmail.substring(0, teacherEmail.length() - 4);
+                                                teacherEmail = trimedEmail + "_no.no";
+                                            }
                                         }
 
                                         // sourceid, teacherId, firstname, lastname,  email

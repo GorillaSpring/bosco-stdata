@@ -190,7 +190,7 @@ public class UpliftFiles {
                     Boolean isEsl = row[8].equals("Yes");
                     Boolean isSped = row[9].equals("Yes");
 
-                    String email = row[12];
+                    String email = row[13];
                     // To do if we need to scramble email , do it here.
                     if (setNoEmails && email.length() >= 4) {
                         String trimedEmail = email.substring(0, email.length() - 4);
@@ -203,7 +203,9 @@ public class UpliftFiles {
 
                     // String sourceId, String studentNumber, String firstName, String lastName, String grade, String schoolSourceId
 
-                    i.importRepo.saveStudent(row[0], row[0], row[2], row[1], row[6], row[5]);
+                    String grade = ImportHelper.GradeFromGradeCode(row[6]);
+
+                    i.importRepo.saveStudent(row[0], row[0], row[2], row[1], grade, row[5]);
 
                     //i.importRepo.saveStudent(s);
                     // studentNumber for row [0]

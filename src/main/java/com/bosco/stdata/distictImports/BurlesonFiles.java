@@ -16,6 +16,7 @@ import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.service.UserFileService;
 import com.bosco.stdata.utils.ImportHelper;
+import com.bosco.stdata.utils.MappingHelper;
 
 import jakarta.annotation.PostConstruct;
 
@@ -197,7 +198,7 @@ public class BurlesonFiles {
                     // String sourceId, String studentNumber, String firstName, String lastName, String grade, String schoolSourceId
 
                     i.importRepo.saveStudent(
-                        row[1], row[1], row[3], row[2], row[7], row[6]
+                        row[0], row[1], row[3], row[2], row[7], row[6]
                     );
 
                     String dob = ImportHelper.DateToStdFormat(row[4]);
@@ -270,7 +271,7 @@ public class BurlesonFiles {
                         // String sourceid, String teacherId, String firstname, String lastname, String email
                         // String sourceId, String teacherId, String firstName, String lastName, String email
                         i.importRepo.saveTeacher(
-                            row[1], row[1],  row[3], row[2], email, row[5]
+                            row[0], row[1],  row[3], row[2], email, row[5]
                         );
                         counter1++;
                     }
@@ -328,13 +329,7 @@ public class BurlesonFiles {
                     ImportHelper.DebugCountdown();
 
 
-                    if (row[2].equals("170024")) {
-                        System.out.println("Found trouble");
-                        System.out.println(row[4]);
-                        System.out.println(row[5]);
-                        System.out.println(row[6]);
-                        System.out.println(row[7]);
-                    }
+                   
                     // So for guardians, we may not have a unique source id in the spreadsheet.
                     // We don't actually need it.
                 
@@ -347,12 +342,15 @@ public class BurlesonFiles {
                         email = trimedEmail + "_no.no";
                     }
 
+
+                    String guardianType = MappingHelper.GuardianTypeFromTypeId(row[3]);
+
                     // So to make unique, we will use student + guardian for the sourceId
                     // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type
                     // String sourceId, String guardianId, String studentSourceId, String firstName, String lastName, String email, String type
                     i.importRepo.saveGuardian(
                         row[1] + "_" + row[2], 
-                        row[2], row[1],  row[5], row[4], email, row[3]
+                        row[2], row[0],  row[5], row[4], email, guardianType
                     );
                     counter1++;
 
@@ -371,11 +369,12 @@ public class BurlesonFiles {
                         // String sourceId, String guardianId, String studentId, String firstName, String lastName, String email, String type
                         // String sourceId, String guardianId, String studentSourceId, String firstName, String lastName, String email, String type
 
+                        guardianType = MappingHelper.GuardianTypeFromTypeId(row[8]);
 
 
                         i.importRepo.saveGuardian(
                             row[1] + "_" + row[7], 
-                            row[7], row[1],  row[10], row[9], email, row[8]
+                            row[7], row[0],  row[10], row[9], email, guardianType
                         );
                         counter1++;
                     }
@@ -415,13 +414,13 @@ public class BurlesonFiles {
                 if (!row[0].isBlank()) 
                 {
                     ImportHelper.DebugCountdown();
-                    // skip 000000 teachers
-                    if (!row[0].equals("0")) {
+                    // skip 0000000 teachers
+                    if (!row[0].equals("0000000")) {
 
                         // CourseID.
 
 
-                        i.importRepo.saveTeacherClass(row[1], row[3]);
+                        i.importRepo.saveTeacherClass(row[0], row[3]);
                         counter1++;
                     }
 
@@ -462,7 +461,7 @@ public class BurlesonFiles {
 
 
                     // CourseID.
-                    i.importRepo.saveStudentClass(row[1], row[3]);
+                    i.importRepo.saveStudentClass(row[0], row[3]);
                     counter1++;
 
 
@@ -477,91 +476,91 @@ public class BurlesonFiles {
 
 
 
-            System.out.println("Importing educational_placement File");
+        //     System.out.println("Importing educational_placement File");
 
-            data = msp.readCsvFile( baseFileFolder + "educational_placement.csv");
+        //     data = msp.readCsvFile( baseFileFolder + "educational_placement.csv");
 
-            // studentId
-            // classId
+        //     // studentId
+        //     // classId
 
-            fr = data.removeFirst();
+        //     fr = data.removeFirst();
 
-            colNames = new String[]{"StudentSourceID", "StudentNumber", "IsEsl", "IsBilingual", "IsSpecialEd", "EntryIEP_Date", "LastFIIE_Date", "ReEvaluationDueDate", "Is504",
-             "AnnualARDDate", "Annual504_Date",
-             "Autism","Deaf-Blindness","Deaf-HardOfHearing","EmotionalDisability","MultipleDisabilities","OrthopedicImpairment",
-             "OtherHealthImpairment","SpecificLearningDisability","SpeechLanguageImpairment","TraumaticBrainInjury","VisualImpairment",
-             "Non-CategoricalEarlyChildhood"
+        //     colNames = new String[]{"StudentSourceID", "StudentNumber", "IsEsl", "IsBilingual", "IsSpecialEd", "EntryIEP_Date", "LastFIIE_Date", "ReEvaluationDueDate", "Is504",
+        //      "AnnualARDDate", "Annual504_Date",
+        //      "Autism","Deaf-Blindness","Deaf-HardOfHearing","EmotionalDisability","MultipleDisabilities","OrthopedicImpairment",
+        //      "OtherHealthImpairment","SpecificLearningDisability","SpeechLanguageImpairment","TraumaticBrainInjury","VisualImpairment",
+        //      "Non-CategoricalEarlyChildhood"
         
-        };
+        // };
 
-        // We only have dat for
-        // IsEsl
-        // IsBilingual
-        // IsSpecialEd
-        // Is504
+        // // We only have dat for
+        // // IsEsl
+        // // IsBilingual
+        // // IsSpecialEd
+        // // Is504
 
-            // NO DATA"
-            // LastFIIE_Date
-            // ReEvaluationDueDate
-            // AnnualARDDate
-            // Annual504_Date
+        //     // NO DATA"
+        //     // LastFIIE_Date
+        //     // ReEvaluationDueDate
+        //     // AnnualARDDate
+        //     // Annual504_Date
 
-            // we have and need to deal with:
+        //     // we have and need to deal with:
 
-            // EntryIEP_Date   5   (may be "")
-            // 
-            // 
-
-            
-            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
-                throw new Exception("File : educational_placement.csv does not match column specs" );
-
-
-            counter1 = 0;
-
-            ImportHelper.DebugCountdownSet(data.size());
-
-
-            //data.forEach(row -> {
-            for (String [] row : data) {
-                
-                
-                if (!row[0].isBlank()) 
-                {
-
-                    ImportHelper.DebugCountdown();
-
-                    // TODO: Save these/
-
-                    // // 504
-                    // if (row[8] == "Yes")
-                    //     i.importRepo.saveStudentProperty(row[1], "is504", "1");
-
-                    // // isEsl
-                    // if (row[2] == "Yes")
-                    //     i.importRepo.saveStudentProperty(row[1], "isEsl", "1");
-
-                    // // IsBilingual
-                    // if (row[3] == "Yes")
-                    //     i.importRepo.saveStudentProperty(row[1], "isBilingual", "1");
-
-                    // // IsSpecialEd
-                    // if (row[4] == "Yes")
-                    //     i.importRepo.saveStudentProperty(row[1], "isSpecialEd", "1");
-
-                    // // EntryIEP_Date
-                    // if (!row[5].isEmpty())
-                    //     i.importRepo.saveStudentPropertyString(row[1], "entryIepDate", row[5]);
-
-                    counter1++;
-
-                }
+        //     // EntryIEP_Date   5   (may be "")
+        //     // 
+        //     // 
 
             
-            };
+        //     if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+        //         throw new Exception("File : educational_placement.csv does not match column specs" );
 
 
-            i.importRepo.logInfo("Imported educational_placement s : " + counter1);
+        //     counter1 = 0;
+
+        //     ImportHelper.DebugCountdownSet(data.size());
+
+
+        //     //data.forEach(row -> {
+        //     for (String [] row : data) {
+                
+                
+        //         if (!row[0].isBlank()) 
+        //         {
+
+        //             ImportHelper.DebugCountdown();
+
+        //             // TODO: Save these/
+
+        //             // // 504
+        //             // if (row[8] == "Yes")
+        //             //     i.importRepo.saveStudentProperty(row[1], "is504", "1");
+
+        //             // // isEsl
+        //             // if (row[2] == "Yes")
+        //             //     i.importRepo.saveStudentProperty(row[1], "isEsl", "1");
+
+        //             // // IsBilingual
+        //             // if (row[3] == "Yes")
+        //             //     i.importRepo.saveStudentProperty(row[1], "isBilingual", "1");
+
+        //             // // IsSpecialEd
+        //             // if (row[4] == "Yes")
+        //             //     i.importRepo.saveStudentProperty(row[1], "isSpecialEd", "1");
+
+        //             // // EntryIEP_Date
+        //             // if (!row[5].isEmpty())
+        //             //     i.importRepo.saveStudentPropertyString(row[1], "entryIepDate", row[5]);
+
+        //             counter1++;
+
+        //         }
+
+            
+        //     };
+
+
+        //     i.importRepo.logInfo("Imported educational_placement s : " + counter1);
             
 
               
@@ -604,7 +603,6 @@ public class BurlesonFiles {
             
 
 
-            System.out.println("STOP");
 
 
             i.boscoApi.sendImportToBosco(districtId);

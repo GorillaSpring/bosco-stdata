@@ -178,6 +178,9 @@ public class MelissaFiles {
                     // We get this in the educational_placement file too.
                     Boolean isBilingual = row[8].equals("Yes");
 
+
+                    String grade = ImportHelper.GradeFromGradeCode(row[7]);
+
                
                     //Student s = new Student(row[0], row[1], row[3], row[2], row[7], row[6]);
                     //Demographics d = new Demographics(row[0], row[4], row[5], false, false, false, false, false, false);
@@ -189,7 +192,7 @@ public class MelissaFiles {
                     // String sourceId, String studentNumber, String firstName, String lastName, String grade, String schoolSourceId
 
                     i.importRepo.saveStudent(
-                        row[0], row[1], row[3], row[2], row[7], row[6]
+                        row[0], row[1], row[3], row[2], grade, row[6]
                     );
 
                     String dob = ImportHelper.DateToStdFormat(row[4]);

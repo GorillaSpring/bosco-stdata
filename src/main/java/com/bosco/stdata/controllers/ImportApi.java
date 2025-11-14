@@ -58,19 +58,19 @@ public class ImportApi {
     }       // we only use this to get the students from bosco.
     
 
-    @Operation(
-            summary = "Testing Bosco POST StData Student to Bosco ",
-            description = "This will be removed soon.",
-            tags = {"Testing"}
-            )
+    // @Operation(
+    //         summary = "Testing Bosco POST StData Student to Bosco ",
+    //         description = "This will be removed soon.",
+    //         tags = {"Testing"}
+    //         )
 
-    @GetMapping("/import/boscoPostStudent/{id}")
-    public String bocoPostStudent(@PathVariable String id) {
+    // @GetMapping("/import/boscoPostStudent/{id}")
+    // public String bocoPostStudent(@PathVariable String id) {
 
-        String res = boscoApi.postStudentToBosco(id);
+    //     String res = boscoApi.postStudentToBosco(id);
 
-        return res;
-    }
+    //     return res;
+    // }
 
     
     @Operation(

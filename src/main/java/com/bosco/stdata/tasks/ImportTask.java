@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.bosco.stdata.distictImports.BurlesonFiles;
+import com.bosco.stdata.distictImports.BurlesonSisFiles;
 //import com.bosco.stdata.distictImports.CelinaFiles;
 import com.bosco.stdata.distictImports.CelinaSisFiles;
 import com.bosco.stdata.distictImports.ClassLinkOneRosterApi;
@@ -154,7 +155,10 @@ public class ImportTask {
                                 case "BurlesonFiles":
                                     importResult = BurlesonFiles.Import(importDefId);
                                     importResults.add(importResult);
-
+                                    break;
+                                case "BurlesonSisFiles":
+                                    importResult = BurlesonSisFiles.Import(importDefId);
+                                    importResults.add(importResult);
                                     break;
                                 case "Testing":
                                     // This is used for code testing, not import testing

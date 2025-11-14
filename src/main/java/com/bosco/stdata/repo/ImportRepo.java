@@ -874,7 +874,7 @@ public class ImportRepo {
     public Boolean studentExists (String id) {
         String sql = "select count(*) from student where id = '" + id + "';";
 
-        System.out.println(sql);
+        //System.out.println(sql);
 
         int foundCount = template.queryForObject(sql, Integer.class);
 

@@ -9,6 +9,13 @@ import com.bosco.stdata.teaModel.BoscoProficiency;
 
 public class MappingHelper {
 
+    public static String GuardianTypeFromTypeId (String typeId) {
+        if (typeId.equals("01"))
+            return "F";
+        if (typeId.equals("02"))
+            return "M";
+        return "O";
+    }
 
     public static String GuardianTypeFromString (String type) {
         if (type.startsWith("M"))
@@ -43,6 +50,21 @@ public class MappingHelper {
 
         return (intYear - 1) + "-" + year;
 
+
+    }
+
+    public static String PeroidFromSixWeeks (String swString) {
+        // 1SW => Six Weeks 1
+
+        if (swString.isBlank()) 
+            return ""; 
+
+        char firstChar = swString.charAt(0);
+
+        if (Character.isDigit(firstChar)) {
+            return "Six Week " + firstChar;
+        }
+        return swString;
 
     }
 

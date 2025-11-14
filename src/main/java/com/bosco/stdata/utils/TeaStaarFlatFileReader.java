@@ -19,8 +19,10 @@ import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.DibelsMClass;
 import com.bosco.stdata.teaModel.DisciplineFileCelina;
 import com.bosco.stdata.teaModel.FindUsers;
+import com.bosco.stdata.teaModel.GradeCurrentYearBurleson;
 import com.bosco.stdata.teaModel.GradeFileCelina;
 import com.bosco.stdata.teaModel.GradeFileMelissa;
+import com.bosco.stdata.teaModel.GradePriorYearBurleson;
 import com.bosco.stdata.teaModel.MapCourseNameCsaCode;
 import com.bosco.stdata.teaModel.Star2024;
 
@@ -49,7 +51,34 @@ public class TeaStaarFlatFileReader {
     
 // So lets try fror the csv.
 
- @Bean
+    @Bean
+    public FlatFileItemReader<GradeCurrentYearBurleson> gradeBurlesonCurrentYear(String filePath) {
+        return new FlatFileItemReaderBuilder<GradeCurrentYearBurleson>()
+            .name("gradeBurlesonCurrentYear")
+            .resource(new FileSystemResource(filePath)) // Path to your CSV file  Try FileSystemResource instead
+            .linesToSkip(1) // Skip header line if present
+            .delimited()            
+            .names(new String[]{"studentSourceId", "studentNumber", "courseName", "schoolYear", "courseGrade"}) 
+            .targetType(GradeCurrentYearBurleson.class) // Specify the target object type
+            .build();
+    }
+
+
+   @Bean
+    public FlatFileItemReader<GradePriorYearBurleson> gradeBurlesonPriodYear(String filePath) {
+        return new FlatFileItemReaderBuilder<GradePriorYearBurleson>()
+            .name("gradeBurlesonPriodYear")
+            .resource(new FileSystemResource(filePath)) // Path to your CSV file  Try FileSystemResource instead
+            .linesToSkip(1) // Skip header line if present
+            .delimited()            
+            .names(new String[]{"studentSourceId", "studentNumber", "courseName", "schoolYear", "courseGradeSemester1", "courseGradeSemester2", "courseGradeFinal"}) 
+            .targetType(GradePriorYearBurleson.class) // Specify the target object type
+            .build();
+    }
+
+
+
+    @Bean
     public FlatFileItemReader<FindUsers> findUsers(String filePath) {
         return new FlatFileItemReaderBuilder<FindUsers>()
             .name("findUsers")
