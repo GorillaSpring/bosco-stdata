@@ -130,6 +130,20 @@ public class TeaStaarFlatFileReader {
             .build();
     }
 
+
+    @Bean
+    public FlatFileItemReader<GradeFileCelina> gradeNbIsdReader(String filePath) {
+        return new FlatFileItemReaderBuilder<GradeFileCelina>()
+            .name("gradeNbIsdReader")
+            .resource(new FileSystemResource(filePath)) // Path to your CSV file  Try FileSystemResource instead
+            .linesToSkip(1) // Skip header line if present
+            .delimited()
+
+            .names(new String[]{"studentSourceId", "studentNumber", "courseName", "courseId", "schoolYear", "term", "courseGrade"}) 
+            .targetType(GradeFileCelina.class) // Specify the target object type
+            .build();
+    }
+
     @Bean
     public FlatFileItemReader<GradeFileCelina> gradeCelinaReader(String filePath) {
         return new FlatFileItemReaderBuilder<GradeFileCelina>()

@@ -648,7 +648,7 @@ public class PowerSchoolOneRosterApi {
       
 
             // THIS DOES NOT WORK
-            /*
+            
               if (!useSkywardSpEd) {
 
                 System.out.println("Getting Student Demographics");
@@ -658,7 +658,7 @@ public class PowerSchoolOneRosterApi {
 
 
                 filter = "status='active'";
-                data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/demographics", filter, token, pageNumber);
+                data = i.skywardOneRosterService.fetchResourcePageWithFilter1000( apiBase + "ims/oneroster/v1p1/demographics", filter, token, pageNumber);
 
                 while ( data.size() > 0) {
                         
@@ -731,7 +731,7 @@ public class PowerSchoolOneRosterApi {
                     pageNumber++;
 
                     System.out.println("Getting Demographics page : " + pageNumber);
-                    data = i.skywardOneRosterService.fetchResourcePageWithFilter( apiBase + "ims/oneroster/v1p1/demographics", filter, token, pageNumber);
+                    data = i.skywardOneRosterService.fetchResourcePageWithFilter1000( apiBase + "ims/oneroster/v1p1/demographics", filter, token, pageNumber);
 
 
                 }
@@ -739,7 +739,7 @@ public class PowerSchoolOneRosterApi {
 
             }
 
-            */
+            
             
 
             i.importRepo.prepSendBosco(districtId, importDefId, isRoster, isSisData);

@@ -5,6 +5,10 @@ public class ApiResult {
     public Boolean success;
     public String errorMessage;
     public String resultId;
+    public Boolean warning;
+    public String message;  // used for warning or success as needed.
+
+    
     public Boolean getSuccess() {
         return success;
     }
@@ -22,6 +26,18 @@ public class ApiResult {
     }
     public void setResultId(String resultId) {
         this.resultId = resultId;
+    }
+    public Boolean getWarning() {
+        return warning;
+    }
+    public void setWarning(Boolean warning) {
+        this.warning = warning;
+    }
+    public String getMessage() {
+        return message;
+    }
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     

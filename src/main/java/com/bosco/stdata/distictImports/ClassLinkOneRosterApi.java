@@ -140,58 +140,62 @@ public class ClassLinkOneRosterApi {
             //filter = "status='active'/orgs?type='school'";
 
 
-// https://springtownisd-tx-v2.rosterserver.com/ims/oneroster/v1p1/schools?filter=status%3D'active'&limit=1000&offset=0&orderBy=asc
-
-
             ClassLinkOneRosterResponse oneRosterRes;
 
-            //Srring urlNotEncoded = "https://springtownisd-tx-v2.rosterserver.com/ims/oneroster/v1p1/schools?filter=status='active'&limit=1000&offset=0&orderBy=asc"
 
-            //String testUrl = "https://springtownisd-tx-v2.rosterserver.com/ims/oneroster/v1p1/schools?filter=status%3D'active'&limit=1000&offset=0&orderBy=asc";
-
+            Boolean skipSchools = false;
 
             // there will only be one page of schools.
 
-            // requestUrl = apiBase + "ims/oneroster/v1p1/schools?filter=status%3D'active'&limit=" + PAGE_SIZE + "&offset=" + PAGE_SIZE * pageNumber + "&orderBy=asc";
+            if (!skipSchools) {
+                requestUrl = apiBase + "ims/oneroster/v1p1/schools?filter=status%3D'active'&limit=" + PAGE_SIZE + "&offset=" + PAGE_SIZE * pageNumber + "&orderBy=asc";
 
-            // oneRosterRes = oneRoster.makeRosterRequest(requestUrl);
+                oneRosterRes = oneRoster.makeRosterRequest(requestUrl);
 
-            // statusCode = oneRosterRes.getStatusCode();
+                statusCode = oneRosterRes.getStatusCode();
 
-            // System.out.println("Status is: " + statusCode);
-            
-
-            // response = oneRosterRes.getResponse();
-
-            // rootNode = objectMapper.readTree(response);
-            // data = rootNode.get("orgs");
-            
-
-            // if (data.isArray()) {
-            //     ArrayNode arrayNode = (ArrayNode) data;
-            //     for (JsonNode orgsNode: arrayNode) {
-
-            //         String sourceId = orgsNode.get("sourcedId").asText();
-            //         String name = orgsNode.get("name").asText();
-            //         String identifier = orgsNode.get("identifier").asText();
-
-            //         //System.out.println("School : " + sourceId + " - " + name);
-
-            //         i.importRepo.saveSchool(sourceId, name, identifier);
-            //         schoolCount++;
-
+                System.out.println("Status is: " + statusCode);
                 
-            //     }
+
+                response = oneRosterRes.getResponse();
+
+                rootNode = objectMapper.readTree(response);
+                data = rootNode.get("orgs");
+                
+
+                if (data.isArray()) {
+                    ArrayNode arrayNode = (ArrayNode) data;
+                    for (JsonNode orgsNode: arrayNode) {
+
+                        String sourceId = orgsNode.get("sourcedId").asText();
+                        String name = orgsNode.get("name").asText();
+
+
+                        String identifier = orgsNode.get("identifier").asText();
+
+                        if (identifier.isEmpty())
+                            identifier = sourceId;
+
+                        //System.out.println("School : " + sourceId + " - " + name);
+
+                        // for NBISD, the idenitfier is balnk, so we will just use the sourceID
+
+                        i.importRepo.saveSchool(sourceId, name, identifier);
+                        schoolCount++;
+
                     
-                
-            // }
-            // else {
-            //     System.out.println("Not Array");
-            // }
+                    }
+                        
+                    
+                }
+                else {
+                    System.out.println("Not Array");
+                }
 
-            // System.out.println ("Schools Imported: " + schoolCount);
-            // i.importRepo.logInfo("Schools Imported: " + schoolCount);
+                System.out.println ("Schools Imported: " + schoolCount);
+                i.importRepo.logInfo("Schools Imported: " + schoolCount);
 
+            }
 
             
             System.out.println("Getting USERS");
@@ -362,6 +366,12 @@ public class ClassLinkOneRosterApi {
                             case "parent":
                             case "guardian":
                                 // we only pull in if the email is not null or empty
+
+                                // if (userNode.get("role").asText().equals("guardian")) {
+                                //     System.out.println("Got Guardian");
+                                //     System.out.println(userNode.toPrettyString());
+                                // }
+
                                 String email = userNode.get("email").asText();
                                 String guardianType = "U";
                                 if (email != null && !email.isEmpty()) {
@@ -473,7 +483,7 @@ public class ClassLinkOneRosterApi {
 
         
             // now the demographics
-
+        
 
             System.out.println("Getting Student Demographics");
 
@@ -505,6 +515,51 @@ public class ClassLinkOneRosterApi {
                     for (JsonNode demographicsNode: arrayNode) {
 
                         String sourceId = demographicsNode.get("sourcedId").asText();
+
+
+                        //System.err.println(demographicsNode.toPrettyString());
+
+           
+
+
+                        // This is JUST for NewBraunfelsClasslinkOneRosterApi.  Put in district Id if
+
+                        if (districtId == 4832370) {
+
+
+                            JsonNode metadataNode = demographicsNode.get("metadata");
+
+                            String Guardian1FullName = metadataNode.get("Guardian1FullName").asText();
+                            String Guardian1Email = metadataNode.get("Guardian1Email").asText();
+                            String Guardian2FullName = metadataNode.get("Guardian2FullName").asText();
+                            String Guardian2Email = metadataNode.get("Guardian2Email").asText();
+
+                            String[] guardianNames;
+
+                            if (!Guardian1FullName.isEmpty()) {
+                                guardianNames = Guardian1FullName.split(" ");
+
+                                i.importRepo.saveGuardian(sourceId + "_g1", sourceId + "_g1", sourceId, guardianNames[0], guardianNames[1], Guardian1Email, "U");
+                            }
+
+                            if (!Guardian2FullName.isEmpty()) {
+                                guardianNames = Guardian2FullName.split(" ");
+
+                                i.importRepo.saveGuardian(sourceId + "_g2", sourceId + "_g2", sourceId, guardianNames[0], guardianNames[1], Guardian2Email, "U");
+
+                            }
+
+                        }
+
+                        // String sourceId, String guardianId, String studentSourceId, String firstName, String lastName, String email, String type
+                        //i.importRepo.saveGuardian(sourceId, Guardian2FullName, sourceId, importDefId, response, Guardian2Email, requestUrl);
+
+                                    
+
+                        //GET HERE
+
+                            // For burleson, the guarian info is in meta data, we should pass in a flag to get it.
+                            // check springtown.
 
                         //System.out.println(sourceId);
 

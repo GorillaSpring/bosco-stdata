@@ -40,4 +40,20 @@ public class SkywardOneRosterService {
     
   }
 
+  
+  public JsonNode fetchResourcePageWithFilter1000(String apiUrl, String filter, String token, int page) throws Exception {
+    
+    String pagination = "?offset=" + page * 1000 + "&limit=" + 1000;
+
+    //String tfilter = "&filter=role='guardian'";
+
+    JsonNode data = skywardClient.get(apiUrl + pagination + "&filter=" + filter, token);
+    //JsonNode data = skywardClient.get(apiUrl + pagination + tfilter , token);
+
+    return data;
+
+
+    
+  }
+
 }

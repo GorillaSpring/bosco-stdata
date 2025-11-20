@@ -227,7 +227,7 @@ public class BoscoClient {
         return res;
     }
 
-    public ApiResult deleteStudent2 (String url, String token, String studentId) throws Exception {
+    public ApiResult deleteStudent2 (String url, String token, String studentId) {
         HttpHeaders headers = new HttpHeaders();
 
         // this will need to be worked on.
@@ -254,18 +254,25 @@ public class BoscoClient {
         );
 
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
+
+            ApiResult res = responseEntity.getBody();
+
+            return res;
+
             // System.out.println("Student deleted successfully!");
             // String result = responseEntity.getBody();
             // System.out.println("Student Deleted response: " + result);
             // System.out.println("Response Headers: " + responseEntity.getHeaders());
         } else {
             //stem.out.println("Failed to Delete Student. Status code: " + responseEntity.getStatusCode());
-            throw new Exception("Failed to DELETE Student. Status code: " + responseEntity.getStatusCode());
+            ApiResult res = new ApiResult ();
+            res.errorMessage = responseEntity.getStatusCode() + "";
+            res.success = false;
+
+            return res;
+
         }
 
-        ApiResult res = responseEntity.getBody();
-
-        return res;
 
     }
 

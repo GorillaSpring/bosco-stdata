@@ -81,7 +81,7 @@ public class BoscoApi {
 
         // first see if the student even exists in our local DB
         if (!importRepo.studentExists(id)) {
-            System.out.println("DID NOT FIND STUDENT : " + id);
+            System.out.println("DID NOT FIND STUDENT in import DB : " + id);
             return "DID NOT FIND STUDENT : " + id;
         }
         
@@ -225,17 +225,20 @@ public class BoscoApi {
     // }
 
 
-    public String getReferralsForDistrict (int districtId) {
+    public ApiResult getReferralsForDistrict (int districtId) {
         String token = authBosco();
 
         String getUrl = baseUrl + "sis-data/active-referrals/" + districtId;
 
-        String res = "";
+        ApiResult res = new ApiResult();
+
+        
 
         try {
             List<String> refs = boscoClient.getActiveReferralsForDistrict(getUrl, token);
 
-            res = "Got " + refs.size();
+            res.success = true;
+            res.message =  "Got " + refs.size();
 
             for (String ref : refs) {
                 System.out.println ("Active Ref: " + ref);
@@ -246,7 +249,8 @@ public class BoscoApi {
 
         }
         catch (Exception ex) {
-            res = ex.getMessage();
+            res.success = false;
+            res.errorMessage = ex.getMessage();
 
         }
 
@@ -305,18 +309,16 @@ public class BoscoApi {
     public String deleteStudentToBosco (String id) {
         String token = authBosco();
         
-        String postUrl = baseUrl + "students/{id}";
+        ApiResult res = boscoClient.deleteStudent2(baseUrl + "students/{id}", token, id);
 
-        String res;
-        try {
-            res = boscoClient.deleteStudent(postUrl, token, id);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-             res = e.getMessage();
+
+        if (res.success) {
+            return "DELETED";
         }
-
+        else {
+            return "ERROR: " + res.errorMessage;
+        }
       
-        return res;
     }
 
     public JsonNode getStudent (String id) {

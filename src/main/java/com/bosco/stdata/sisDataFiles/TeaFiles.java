@@ -53,7 +53,7 @@ public class TeaFiles {
 
 
     // Star ONLY
-    public static void LoadStar(int districtId, String filePath) throws Exception {
+    public static void LoadStaarAndStaarAlt(int districtId, String filePath) throws Exception {
 
 
 
@@ -215,7 +215,7 @@ public class TeaFiles {
 
 
     // Star EOC and EOC Alt
-    public static void LoadStarEOC(int districtId, String filePath) throws Exception {
+    public static void LoadStarEOCAndEOCAlt(int districtId, String filePath) throws Exception {
 
         // this works for both EOC and EOC Alt (2024-2025)
 

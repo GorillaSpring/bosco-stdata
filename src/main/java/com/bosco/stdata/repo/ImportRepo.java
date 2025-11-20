@@ -900,7 +900,7 @@ public class ImportRepo {
         
 
 
-        String sql = "select id from sis_student where id like ('" + districtId + ".%');";
+        String sql = "select id from sis_student where id like ('" + districtId + ".%') and dirty=1";
 
         return template.queryForList(sql, String.class);
     }
@@ -909,18 +909,15 @@ public class ImportRepo {
         Boolean dirty = true;
         Object[] args = {
             id,
-            dirty,
             dirty
         };
 
 
         
         String sql = """
-            insert into 
+            insert ignore into 
                 sis_student (id, dirty)
-            values (?, ?)
-            on duplicate key update
-                dirty = ?;
+            values (?, ?);
                 """;
 
         int rows = template.update(sql, args);

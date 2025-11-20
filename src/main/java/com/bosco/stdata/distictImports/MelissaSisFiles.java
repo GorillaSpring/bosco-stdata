@@ -109,19 +109,19 @@ public class MelissaSisFiles {
 
             // 2022
 
-            TeaFiles.LoadStar(districtId, baseFileFolder + "2022/SF_0523_3-8_043908_MELISSA ISD_V01.txt");
-            TeaFiles.LoadStar(districtId, baseFileFolder + "2022/SF_0423_3-8ALT_043908_MELISSA ISD_V01.txt");
+            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2022/SF_0523_3-8_043908_MELISSA ISD_V01.txt");
+            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2022/SF_0423_3-8ALT_043908_MELISSA ISD_V01.txt");
             TeaFiles.LoadTelpas(districtId, baseFileFolder + "2022/SP_0323_TELPAS_043908_MELISSA ISD_V01.txt");
             TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "2022/SF_0323_TELPASALT_043908_MELISSA ISD_V01.txt");
 
             
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2022/SF_1323_EOC_043908_MELISSA ISD_V01.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2022/SF_1323_EOC_043908_MELISSA ISD_V01.txt");
 
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2022/SF_1523_EOC_043908_MELISSA ISD_V01_August5 file.txt");
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2022/SF_1523_EOCALT_043908_MELISSA ISD_V01.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2022/SF_1523_EOC_043908_MELISSA ISD_V01_August5 file.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2022/SF_1523_EOCALT_043908_MELISSA ISD_V01.txt");
 
             // //  ** Loaded 0 students!
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2022/SP_1623_EOC_043908_MELISSA ISD_V01.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2022/SP_1623_EOC_043908_MELISSA ISD_V01.txt");
 
 
 
@@ -131,15 +131,15 @@ public class MelissaSisFiles {
 
 
             // 2023
-            TeaFiles.LoadStar(districtId, baseFileFolder + "2023/SF_0424_3-8ALT_043908_MELISSA ISD_V01.txt");
-            TeaFiles.LoadStar(districtId, baseFileFolder + "2023/SF_0524_3-8_043908_MELISSA ISD_V01.txt");
+            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2023/SF_0424_3-8ALT_043908_MELISSA ISD_V01.txt");
+            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2023/SF_0524_3-8_043908_MELISSA ISD_V01.txt");
 
 
 
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2023/SF_1324_EOC_043908_MELISSA ISD_V02.txt");
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2023/SF_1524_EOC_043908_MELISSA ISD_V01.txt");
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2023/SF_1524_EOCALT_043908_MELISSA ISD_V01.txt");
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2023/SF_1624_EOC_043908_MELISSA ISD_V01.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2023/SF_1324_EOC_043908_MELISSA ISD_V02.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2023/SF_1524_EOC_043908_MELISSA ISD_V01.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2023/SF_1524_EOCALT_043908_MELISSA ISD_V01.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2023/SF_1624_EOC_043908_MELISSA ISD_V01.txt");
 
             TeaFiles.LoadTelpas(districtId, baseFileFolder + "2023/SF_0324_TELPAS_043908_MELISSA ISD_V01.txt");
 
@@ -147,9 +147,9 @@ public class MelissaSisFiles {
 
 
             // 2024
-            TeaFiles.LoadStar(districtId, baseFileFolder + "2024/SF_0525_3-8_043908_MELISSA ISD_V03.txt");
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2024/SF_1525_EOC_043908_MELISSA ISD_V02.txt");
-            TeaFiles.LoadStarEOC(districtId, baseFileFolder + "2024/SP_1625_EOC_043908_MELISSA ISD_V01.txt");
+            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2024/SF_0525_3-8_043908_MELISSA ISD_V03.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2024/SF_1525_EOC_043908_MELISSA ISD_V02.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2024/SP_1625_EOC_043908_MELISSA ISD_V01.txt");
 
 
             //This mClass files.

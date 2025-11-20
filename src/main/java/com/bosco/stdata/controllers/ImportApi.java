@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import com.bosco.stdata.config.AppConfig;
-
+import com.bosco.stdata.model.ApiResult;
 import com.bosco.stdata.model.ImportDefinition;
 import com.bosco.stdata.model.ImportLog;
 // import com.bosco.stdata.model.SisDiscipline;
@@ -95,6 +95,8 @@ public class ImportApi {
 
     @GetMapping("/import/boscoDeleteStudent/{id}")
     public String bocoDeleteStudent(@PathVariable String id) {
+
+        
 
         String res = boscoApi.deleteStudentToBosco(id);
 
@@ -428,6 +430,47 @@ public class ImportApi {
     }
 
     
+    @Operation(
+            summary = "Get all Active Referrals from the District AND Send Dirty Sis Data. *** CHECK boscoInstance *** " ,
+            description = "This will allow us to send SIS data for all active Referrals.",
+            tags = {"Import Testing"}
+            )
+    @GetMapping("/import/getAndUpdateActiveReferrals/{districtId}")
+    public String getAndUpdateActiveReferrals(@PathVariable int districtId) {
+
+
+         Thread taskThread = new Thread(() -> {
+            
+            var res = boscoApi.getReferralsForDistrict(districtId);
+
+            if (res.success) {
+            
+
+                List<String> refIds = importRepo.dirtyReferralsForDistrict(districtId);
+
+                System.out.println("Dirty Referrals in " + districtId + " : " + refIds.size());
+
+                for (String refId : refIds) {
+                    boscoApi.postSisDataToBosco(refId);
+                    importRepo.markSisStudentClean(refId);
+                    
+                }
+            }
+            else {
+                System.out.println("Get Active Referrals failed : " + res.errorMessage);
+            }
+            
+        });
+
+
+        ImportHelper.importRunning = true;
+        //importRepo.setSystemStatus("Import", 1);
+        taskThread.start();
+
+        return "Getting Active Referrals And Sending dirty data " + boscoInstance;
+
+        
+    }
 
    @Operation(
             summary = "Get all Active Referrals from the District *** CHECK boscoInstance *** " ,
@@ -441,7 +484,12 @@ public class ImportApi {
          Thread taskThread = new Thread(() -> {
             
             var res = boscoApi.getReferralsForDistrict(id);
-            System.out.println(res);
+            if (res.success) {
+                System.out.println("Got Active Referrals");
+            }
+            else {
+               System.out.println("Get Active Referrals failed : " + res.errorMessage);
+            }
             
         });
 
@@ -468,6 +516,8 @@ public class ImportApi {
 
             // We get a list of them.
             List<String> refIds = importRepo.dirtyReferralsForDistrict(districtId);
+
+            
             
             for (String refId : refIds) {
                 boscoApi.postSisDataToBosco(refId);
