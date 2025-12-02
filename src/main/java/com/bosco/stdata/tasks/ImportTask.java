@@ -16,6 +16,7 @@ import com.bosco.stdata.distictImports.MelissaSisFiles;
 import com.bosco.stdata.distictImports.NewBraunfelsSisFiles;
 import com.bosco.stdata.distictImports.PowerSchoolOneRosterApi;
 import com.bosco.stdata.distictImports.SkywardOneRosterApi;
+import com.bosco.stdata.distictImports.SpringtownSisFiles;
 import com.bosco.stdata.distictImports.TestFiles;
 import com.bosco.stdata.distictImports.Testing;
 import com.bosco.stdata.distictImports.UpliftFiles;
@@ -137,6 +138,10 @@ public class ImportTask {
                     default:
 
                             switch (importDefId) {
+                                case "SpringtownSisFiles":
+                                    importResult = SpringtownSisFiles.Import(importDefId);
+                                    importResults.add(importResult);
+                                    break;
                                 case "NewBraunfelsSisFiles":
 
                                     importResult = NewBraunfelsSisFiles.Import(importDefId);

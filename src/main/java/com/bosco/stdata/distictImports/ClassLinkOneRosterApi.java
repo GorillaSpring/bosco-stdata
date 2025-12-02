@@ -407,6 +407,7 @@ public class ClassLinkOneRosterApi {
                                 }
                                 break;
                             case "teacher":
+                            case "administrator":    // lets try to get the admin.
 
                                 String teacherEmail = userNode.get("email").asText();
 
@@ -422,6 +423,10 @@ public class ClassLinkOneRosterApi {
                                         teacherEmail = trimedEmail + "_no.no";
                                     }
 
+
+                                    if (userNode.get("role").asText().equals("administrator")) {
+                                        System.out.println ("Found Admin");
+                                    }
 
                                     String tschoolSourceId = "X";
                                     JsonNode tschoolNode = userNode.get("orgs");

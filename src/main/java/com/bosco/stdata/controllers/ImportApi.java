@@ -416,7 +416,7 @@ public class ImportApi {
             });
 
 
-            ImportHelper.importRunning = true;
+            
             //importRepo.setSystemStatus("Import", 1);
             taskThread.start();
 

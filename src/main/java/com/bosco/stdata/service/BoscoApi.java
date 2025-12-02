@@ -168,27 +168,27 @@ public class BoscoApi {
     }
 
 
-    public String xpostSisDataToBosco (String id, SisStudentData sd) {
-        String token = authBosco();
+    // public String xpostSisDataToBosco (String id, SisStudentData sd) {
+    //     String token = authBosco();
 
-        String postUrl = baseUrlSisData + "sis-data/{id}/import-sis-data";
+    //     String postUrl = baseUrlSisData + "sis-data/{id}/import-sis-data";
 
            
-        String res;
-        try {
+    //     String res;
+    //     try {
 
-            res = boscoClient.postSisData(postUrl, token, id, sd);
+    //         res = boscoClient.postSisData(postUrl, token, id, sd);
 
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
+    //     } catch (Exception e) {
+    //         // TODO Auto-generated catch block
 
-            System.out.println(e.getMessage());
+    //         System.out.println(e.getMessage());
 
-            res = e.getMessage();
-        }
+    //         res = e.getMessage();
+    //     }
 
-           return res;
-    }
+    //        return res;
+    // }
 
 
 
@@ -297,10 +297,21 @@ public class BoscoApi {
             
 
 
-            res = boscoClient.putStudent(postUrl, token, bs);
+            ApiResult result = boscoClient.putStudent(postUrl, token, bs);
+
+            if (result.success) {
+                if (result.warning) {
+                    res = "Warning: " + result.message;
+                }
+                else 
+                    res = "GOOD";
+            }
+            else {
+                res = "ERROR: " + result.errorMessage;
+            }
         } catch (Exception e) {
             // TODO Auto-generated catch block
-            res = e.getMessage();
+            res = "EXCEPTION: " + e.getMessage();
         }
 
         return res;
@@ -309,7 +320,7 @@ public class BoscoApi {
     public String deleteStudentToBosco (String id) {
         String token = authBosco();
         
-        ApiResult res = boscoClient.deleteStudent2(baseUrl + "students/{id}", token, id);
+        ApiResult res = boscoClient.deleteStudent(baseUrl + "students/{id}", token, id);
 
 
         if (res.success) {
@@ -432,9 +443,12 @@ public class BoscoApi {
 
 
 
-        Boolean useOld = true;
-        if (boscoInstance.equals("local"))
-            useOld = false;
+        Boolean useOld = false;
+
+        // PROD still uses the old API's
+
+        // if (boscoInstance.equals("prod"))
+        //     useOld = true;
 
         // when test rolls in do this
         // if (boscoInstance != "prod")
@@ -497,18 +511,18 @@ public class BoscoApi {
 
 
 
-                if (useOld) {
-                    boscoClient.putTeacher(baseUrl + "users/upsertUser/{id}", token, bu);
-                }
+                // if (useOld) {
+                //     boscoClient.putTeacherOLD(baseUrl + "users/upsertUser/{id}", token, bu);
+                // }
 
-                else {
-                    ApiResult res = boscoClient.putTeacher2(baseUrl + "users/upsertUser/{id}", token, bu);
+                // else {
+                    ApiResult res = boscoClient.putTeacher(baseUrl + "users/upsertUser/{id}", token, bu);
                     if (!res.success) {
                         importRepo.logError(res.errorMessage);
                         System.out.println("ERRROR: " + res.errorMessage);
 
                     }
-                }
+                //}
 
             }
 
@@ -530,18 +544,18 @@ public class BoscoApi {
 
                 bu.setAssignedSchools(importRepo.schoolsForTeacher(bu.getId()));
 
-                if (useOld) {
-                    boscoClient.putTeacher(baseUrl + "users/upsertUser/{id}", token, bu);
-                }
+                // if (useOld) {
+                //     boscoClient.putTeacherOLD(baseUrl + "users/upsertUser/{id}", token, bu);
+                // }
 
-                else {
-                    ApiResult res = boscoClient.putTeacher2(baseUrl + "users/upsertUser/{id}", token, bu);
+                // else {
+                    ApiResult res = boscoClient.putTeacher(baseUrl + "users/upsertUser/{id}", token, bu);
                     if (!res.success) {
                         importRepo.logError(res.errorMessage);
                         System.out.println("ERRROR: " + res.errorMessage);
 
                     }
-                }
+                //}
 
             }
 
@@ -571,18 +585,18 @@ public class BoscoApi {
                 //boscoClient.postStudent(baseUrl + "students", token, bs);
                 
 
-                if (useOld) {
-                    boscoClient.putStudent(baseUrl + "students/upsert/{id}", token, bs);
-                }
+                // if (useOld) {
+                //     boscoClient.putStudentOLD(baseUrl + "students/upsert/{id}", token, bs);
+                // }
 
-                else {
-                    ApiResult res = boscoClient.putStudent2(baseUrl + "students/upsert/{id}", token, bs);
+                // else {
+                    ApiResult res = boscoClient.putStudent(baseUrl + "students/upsert/{id}", token, bs);
                     if (!res.success) {
                         importRepo.logError(res.errorMessage);
                         System.out.println("ERRROR: " + res.errorMessage);
 
                     }
-                }
+                //}
 
 
             }
@@ -612,18 +626,18 @@ public class BoscoApi {
 
                 
 
-                if (useOld) {
-                    boscoClient.putStudent(baseUrl + "students/upsert/{id}", token, bs);
-                }
+                // if (useOld) {
+                //     boscoClient.putStudentOLD(baseUrl + "students/upsert/{id}", token, bs);
+                // }
 
-                else {
-                    ApiResult res = boscoClient.putStudent2(baseUrl + "students/upsert/{id}", token, bs);
+                // else {
+                    ApiResult res = boscoClient.putStudent(baseUrl + "students/upsert/{id}", token, bs);
                     if (!res.success) {
                         importRepo.logError(res.errorMessage);
                         System.out.println("ERRROR: " + res.errorMessage);
 
                     }
-                }
+                //}
 
 
             }
@@ -645,18 +659,19 @@ public class BoscoApi {
                 deletedStudents++;
                 
 
-                 if (useOld) {
-                     boscoClient.deleteStudent(baseUrl + "students/{id}", token, bs.getId());
-                }
+                //  if (useOld) {
+                    
+                //      boscoClient.deleteStudentOLD(baseUrl + "students/{id}", token, bs.getId());
+                // }
 
-                else {
-                    ApiResult res = boscoClient.deleteStudent2(baseUrl + "students/{id}", token, bs.getId());
+                // else {
+                    ApiResult res = boscoClient.deleteStudent(baseUrl + "students/{id}", token, bs.getId());
                     if (!res.success) {
                         importRepo.logError(res.errorMessage);
                         System.out.println("ERRROR: " + res.errorMessage);
 
                     }
-                }
+                //}
 
                 ImportHelper.DebugCountdown();
 
@@ -673,18 +688,18 @@ public class BoscoApi {
 
                 deletedTeachers++;
 
-                if (useOld) {
-                     boscoClient.deleteTeacher(baseUrl + "users/{id}", token, bu.getId());
-                }
+                // if (useOld) {
+                //      boscoClient.deleteTeacherOLD(baseUrl + "users/{id}", token, bu.getId());
+                // }
 
-                else {
-                    ApiResult res = boscoClient.deleteTeacher2(baseUrl + "users/{id}", token, bu.getId());
+                // else {
+                    ApiResult res = boscoClient.deleteTeacher(baseUrl + "users/{id}", token, bu.getId());
                     if (!res.success) {
                         importRepo.logError(res.errorMessage);
                         System.out.println("ERRROR: " + res.errorMessage);
 
                     }
-                }
+                //}
                
 
                 ImportHelper.DebugCountdown();

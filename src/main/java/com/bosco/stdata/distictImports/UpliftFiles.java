@@ -469,7 +469,17 @@ public class UpliftFiles {
                         int score = Integer.parseInt (row[3]);
                         //String csaCode = MappingHelper.MapMclass_CsaCodeFromCourseName(row[2]);
 
-                        String csaCode = i.importRepo.csaCodeForCourseName(districtId, row[2]);
+                        String csaCode = "NOT_FOUND";
+
+                        try {
+
+                         csaCode = i.importRepo.csaCodeForCourseName(districtId, row[2]);
+
+                        }
+                        catch (Exception ex) {
+                            csaCode = "NOT_FOUND";
+
+                        }
 
                         ///System.out.println("Got Code : " + csaCode);
 

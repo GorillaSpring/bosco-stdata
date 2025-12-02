@@ -975,6 +975,48 @@ public class ImportRepo {
     }
 
 
+
+    public Boolean logFileExists (String fileName) {
+        String sql = "select count(*) from log_file where districtId=" + districtId + " and fileName = '" + fileName + "';";
+
+        //System.out.println(sql);
+
+        int foundCount = template.queryForObject(sql, Integer.class);
+
+        return (foundCount > 0);
+
+    }
+
+      public void logFile(String fileName, String type, String schoolYear, Boolean reload, String note ) {
+        //System.out.println("Added");
+
+        Object[] args = {
+            districtId,
+            fileName,
+            type,
+            schoolYear,
+            reload,
+            note,
+            note
+        };
+
+
+        
+        String sql = """
+            insert into
+                log_file (districtId, fileName, type, schoolYear, reload, note)
+            values (?, ?, ?, ?, ?, ?)
+            on duplicate key update
+                lastLoadedDate = CURRENT_TIMESTAMP,
+                note = ?
+                """;
+
+        int rows = template.update(sql, args);
+
+        //System.out.println(rows + " rows affected");
+        
+    }
+
     
     public void logError (String error) {
  

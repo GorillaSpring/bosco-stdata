@@ -1,5 +1,6 @@
 package com.bosco.stdata.sisDataFiles;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Component;
 import com.bosco.stdata.config.AppConfig;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
+import com.bosco.stdata.service.BoscoClient;
+import com.bosco.stdata.service.UserFileService;
 import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.DibelsMClass;
 import com.bosco.stdata.teaModel.DisciplineFileCelina;
@@ -29,6 +32,8 @@ import jakarta.annotation.PostConstruct;
 @Component
 public class CsvFiles {
 
+    private final BoscoClient boscoClient;
+
     private final BoscoApi boscoApi;
 
     private final AppConfig appConfig;
@@ -41,9 +46,10 @@ public class CsvFiles {
     private static CsvFiles i;
 
 
-    CsvFiles(AppConfig appConfig, BoscoApi boscoApi) {
+    CsvFiles(AppConfig appConfig, BoscoApi boscoApi, BoscoClient boscoClient) {
         this.appConfig = appConfig;
         this.boscoApi = boscoApi;
+        this.boscoClient = boscoClient;
     }
 
 
@@ -114,6 +120,7 @@ public class CsvFiles {
         System.out.println(("------ Loading Map CourseName to CsaCode ------"));
         System.out.println (filePath);
 
+        
         int count = 0;
         int total = 0;
 
@@ -142,6 +149,13 @@ public class CsvFiles {
     
 
     public static void LoadGradesPriorBurleson (int districtId, String filePath) throws Exception {
+
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("Grades - Filename: " + fileName); // Output: Filename: myFile.txt
+
+        String schoolYear = "N/A";
+
         TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
 
         
@@ -196,6 +210,7 @@ public class CsvFiles {
             
             String csaCode = "";
 
+            //System.out.println("Checking: " + cc.courseName);
             csaCode = i.importRepo.csaCodeForCourseName(districtId, cc.courseName);
 
 
@@ -204,7 +219,7 @@ public class CsvFiles {
             
             if (!csaCode.isBlank())  
             {
-                String schoolYear = MappingHelper.SchoolYearFromYear(cc.schoolYear);
+                schoolYear = MappingHelper.SchoolYearFromYear(cc.schoolYear);
 
                 if (!cc.courseGradeSemester1.isBlank()) {
 
@@ -288,6 +303,7 @@ public class CsvFiles {
             cc = cr.read();
         }
 
+        i.importRepo.logFile(fileName, "Grades", schoolYear, true, "Total: " + total + "  - Imported : " + count);
 
         i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
         
@@ -297,6 +313,13 @@ public class CsvFiles {
     }
     
     public static void LoadGradesCurrentBurleson (int districtId, String filePath) throws Exception {
+
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("Grades - Filename: " + fileName); // Output: Filename: myFile.txt
+
+        String schoolYear = "N/A";
+
         TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
 
         
@@ -364,7 +387,7 @@ public class CsvFiles {
                     // 1SW:[100]2SW:[99]
 
                     csaCode = i.importRepo.csaCodeForCourseName(districtId, cc.courseName);
-                    String schoolYear = MappingHelper.SchoolYearFromYear(cc.schoolYear);
+                    schoolYear = MappingHelper.SchoolYearFromYear(cc.schoolYear);
 
                     String [] grades = courseGrade.split("]");
 
@@ -474,6 +497,7 @@ public class CsvFiles {
         }
 
 
+        i.importRepo.logFile(fileName, "Grades", schoolYear, true, "Total: " + total + "  - Imported : " + count);
         i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
         
         System.out.println("  Total: " + total + "  - Imported : " + count);
@@ -484,6 +508,14 @@ public class CsvFiles {
     
 
     public static void LoadGradesMelissa (int districtId, String filePath) throws Exception {
+
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("Grades - Filename: " + fileName); // Output: Filename: myFile.txt
+
+        String schoolYear = "N/A";
+
+
         TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
 
         
@@ -558,7 +590,7 @@ public class CsvFiles {
                         String code = cc.getCourseId();
 
                         // THIS NEEDS TO BE cacluated.
-                        String schoolYear = MappingHelper.SchoolYearFromYear(cc.getSchoolYear());
+                        schoolYear = MappingHelper.SchoolYearFromYear(cc.getSchoolYear());
 
                         
 
@@ -585,6 +617,7 @@ public class CsvFiles {
             cc = cr.read();
         }
 
+        i.importRepo.logFile(fileName, "Grades", schoolYear, true, "Total: " + total + "  - Imported : " + count);
 
         i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
         
@@ -595,6 +628,13 @@ public class CsvFiles {
 
     public static void LoadCelinaDiscipline (int districtId, String filePath) throws Exception {
     
+
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("Discipline - Filename: " + fileName); // Output: Filename: myFile.txt
+        String schoolYear = "N/A";
+
+
         TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
 
         
@@ -626,7 +666,7 @@ public class CsvFiles {
             
             String grade = i.importRepo.gradeForStudentId(districtId + "." + cc.studentNumber);
 
-            String schoolYear = MappingHelper.SchoolYearFromYear(cc.numericYear);
+            schoolYear = MappingHelper.SchoolYearFromYear(cc.numericYear);
             
             
             if (!grade.isEmpty()) {
@@ -642,6 +682,7 @@ public class CsvFiles {
         }
 
 
+        i.importRepo.logFile(fileName, "Discipline", schoolYear, true, "Total: " + total + "  - Imported : " + count);
         i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
         
         System.out.println("  Total: " + total + "  - Imported : " + count);
@@ -654,6 +695,14 @@ public class CsvFiles {
     
 
     public static void LoadGradesNbIsd (int districtId, String filePath) throws Exception {
+
+
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("Grades - Filename: " + fileName); // Output: Filename: myFile.txt
+
+
+
         TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
 
         
@@ -665,6 +714,9 @@ public class CsvFiles {
         System.out.println(("-----------------------"));
         System.out.println(("------ Loading NBISD Grades ------"));
         System.out.println (filePath);
+
+        String schoolYear = "N/A";
+
 
         int count = 0;
         int total = 0;
@@ -710,9 +762,17 @@ public class CsvFiles {
 
                 String csaCode = "";
                 
+                try {
 
                     //csaCode = i.importRepo.csaCodeForCourseName(districtId, cc.courseName.replace(",", ""));
                     csaCode = i.importRepo.csaCodeForCourseName(districtId, cc.courseName);
+                }
+                catch (Exception ex) {
+
+                    i.importRepo.setMapCourseCsaCode(districtId, cc.courseName, "X");
+
+                    System.out.println ("Missing Course : " + cc.courseName);
+                }
                     
                 // }
                 // catch (Exception ex) {
@@ -749,7 +809,7 @@ public class CsvFiles {
 
                         // THIS NEEDS TO BE cacluated.
                         //String schoolYear = MappingHelper.SchoolYearFromYear(cc.getSchoolYear());
-                        String schoolYear = cc.getSchoolYear();
+                        schoolYear = cc.getSchoolYear();
 
                         //System.out.println ("  Got : " + schoolYear);
 
@@ -777,6 +837,7 @@ public class CsvFiles {
             cc = cr.read();
         }
 
+        i.importRepo.logFile(fileName, "Grades", schoolYear, true, "Total: " + total + "  - Imported : " + count);
 
         i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
         
@@ -789,6 +850,14 @@ public class CsvFiles {
 
 
     public static void LoadGradesCelina (int districtId, String filePath) throws Exception {
+
+
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("Grades - Filename: " + fileName); // Output: Filename: myFile.txt
+
+        String schoolYear = "N/A";
+
         TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
 
         
@@ -878,7 +947,7 @@ public class CsvFiles {
                         //System.out.print("Getting : " + studentNumber);
 
                         // THIS NEEDS TO BE cacluated.
-                        String schoolYear = MappingHelper.SchoolYearFromYear(cc.getSchoolYear());
+                        schoolYear = MappingHelper.SchoolYearFromYear(cc.getSchoolYear());
 
                         //System.out.println ("  Got : " + schoolYear);
 
@@ -906,6 +975,7 @@ public class CsvFiles {
             cc = cr.read();
         }
 
+        i.importRepo.logFile(fileName, "Grades", schoolYear, true, "Total: " + total + "  - Imported : " + count);
 
         i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
         
@@ -917,7 +987,19 @@ public class CsvFiles {
     
     
 
-    public static void LoadComboStudentAssessment (int districtId, String filePath, Boolean useStudentSourceId) throws Exception  {
+    public static void LoadMapComboStudentAssessment (int districtId, String filePath, Boolean useStudentSourceId) throws Exception  {
+
+
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("Map - Filename: " + fileName); // Output: Filename: myFile.txt
+
+        if (i.importRepo.logFileExists(fileName)) {
+            System.out.println("   --- Already Imported ");
+            return;
+        }
+
+        String schoolYear = "N/A";
 
         TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
 
@@ -1007,7 +1089,7 @@ public class CsvFiles {
                         String proficiency = MappingHelper.MapProficiency(cc.getAchievementQuintile());
                         String proficiencyCode = MappingHelper.MapProficiencyCode(cc.getAchievementQuintile());
 
-                        String schoolYear = MappingHelper.SchoolYearFromDate(cc.getTestStartDate());
+                        schoolYear = MappingHelper.SchoolYearFromDate(cc.getTestStartDate());
 
                         String csaCode = MappingHelper.MapCsaCode(course);
 
@@ -1038,6 +1120,9 @@ public class CsvFiles {
         }
 
 
+        i.importRepo.logFile (fileName, "Map", schoolYear, false, "Total: " + total + "  - Imported : " + count);
+
+
         i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
         
         System.out.println("  Total: " + total + "  - Imported : " + count);
@@ -1047,8 +1132,295 @@ public class CsvFiles {
     }
 
 
+    // Want Period
+    // School Year col or Date col.
+    // proficiency
+    // student number.
 
-     public static void LoadDibels8 (int districtId, String filePath, Boolean useFileStudentId) throws Exception  {
+    public static Boolean GenericMClass_Validate(int districtId, String filePath, int periodCol, int schoolYearCol, int dateCol, int proficiencyCol, int scoreCol, int studentNumberCol ) {
+        
+
+        int rowsRead = 0;
+        int rowsLoaded = 0;
+
+        System.out.println("----------------- START -------------");
+        System.out.println(filePath);
+
+        try {
+            UserFileService msp = new UserFileService();
+
+            List<String[]> data;
+
+            String[] fr;
+
+            data = msp.readCsvFile(filePath);
+
+            fr = data.removeFirst();
+
+            System.out.println("Starting Data");
+
+            Boolean rowValid = true;
+
+            for (String [] row : data) {
+
+                rowsRead++;
+                rowValid = true;
+                String benchmarkPeriod = row[periodCol].trim();
+                String schoolYear = "";
+                if (schoolYearCol == -1) {
+                    // get from date
+                    //System.out.println("Checking Data: " + row[dateCol]);
+
+                    if (row[dateCol].isEmpty())
+                        rowValid = false;
+                    else
+                        schoolYear =  MappingHelper.SchoolYearFromDate(row[dateCol]);
+                }
+                else {
+                    schoolYear = row[schoolYearCol];
+                }
+                String proficiency = row[proficiencyCol];
+
+                if (proficiency.isEmpty())
+                    rowValid = false;
+
+                String studentNumber = row[studentNumberCol];
+
+                String stringScore = row[scoreCol];
+
+                if (stringScore.isEmpty()) {
+                    System.out.println ("Empty Score " + studentNumber);
+
+                    rowValid = false;
+                }
+
+
+                // now we can validate.
+
+                
+                if (rowValid) {
+
+                    // first make sure the student exists
+                    Boolean studentExists = i.importRepo.studentExists(districtId + "." + studentNumber);
+
+                    if (studentExists) {
+
+
+
+                        int intScore = 0;
+
+                        try {
+                            intScore = Integer.parseInt(stringScore);
+                        }
+                        catch (Exception ex) {
+                            // Bad Score
+                            System.out.println("BAD SCORE : " + stringScore + " - " + studentNumber);
+                            intScore =0;
+                        }
+
+                        //System.out.println("ROW: " + benchmarkPeriod + " : " + schoolYear + " : " + proficiency + " : " + studentNumber);
+
+
+                        
+                        if (intScore > 0) {
+
+                            String period = MappingHelper.Dibels8_period(benchmarkPeriod);
+
+
+                            String subject = "Reading";  // constant
+                            String csaCode = "R";   // constant
+
+                                
+                            String proficiencyCode = MappingHelper.MClass_proficiencyCode (proficiency);
+
+                            rowsLoaded++;
+
+                            // make sure the student exists
+
+                            //i.importRepo.sisMclassAdd(studentNumber, schoolYear, period, subject, proficiency, proficiencyCode, intScore, csaCode);
+
+                        }
+                    }
+                    // else - Student does not exist
+                }
+                else {
+                    System.out.println ("Invalid Row " + studentNumber);
+                
+                }
+
+
+
+            }
+
+            System.out.println( "   ROWS: " + rowsRead + "  Loaded: " + rowsLoaded);
+
+            System.out.println("----------------- END -------------");
+
+            return true;
+
+        }
+        catch (Exception ex) {
+            System.out.println("----------------- FAILED -------------");
+
+            System.out.println(filePath);
+            System.out.println("FAILD VALIDATE : ");
+            System.out.println(ex.getMessage());
+            return false;
+        }
+
+
+        // now see if we can get data from the rows.boscoClient
+
+        
+    }
+
+    public static Boolean GenericMClass_Load(int districtId, String filePath, int periodCol, int schoolYearCol, int dateCol, int proficiencyCol, int scoreCol, int studentNumberCol ) {
+        
+        System.out.println(filePath);
+
+        int rowsRead = 0;
+        int rowsLoaded = 0;
+        String schoolYear = "";
+
+        try {
+            UserFileService msp = new UserFileService();
+
+            List<String[]> data;
+
+            String[] fr;
+
+            data = msp.readCsvFile(filePath);
+
+            fr = data.removeFirst();
+
+
+            Boolean rowValid = true;
+
+            for (String [] row : data) {
+
+                rowsRead++;
+                rowValid = true;
+                String benchmarkPeriod = row[periodCol].trim();
+                schoolYear = "";
+                if (schoolYearCol == -1) {
+                    // get from date
+                    //System.out.println("Checking Data: " + row[dateCol]);
+
+                    if (row[dateCol].isEmpty())
+                        rowValid = false;
+                    else
+                        schoolYear =  MappingHelper.SchoolYearFromDate(row[dateCol]);
+                }
+                else {
+                    schoolYear = row[schoolYearCol];
+                }
+                String proficiency = row[proficiencyCol];
+
+                if (proficiency.isEmpty())
+                    rowValid = false;
+
+                String studentNumber = row[studentNumberCol];
+
+                String stringScore = row[scoreCol];
+
+                if (stringScore.isEmpty()) {
+                    //System.out.println ("Empty Score " + studentNumber);
+
+                    rowValid = false;
+                }
+
+
+                // now we can validate.
+
+                
+                if (rowValid) {
+
+                    // first make sure the student exists
+                    Boolean studentExists = i.importRepo.studentExists(districtId + "." + studentNumber);
+
+                    if (studentExists) {
+
+
+
+                        int intScore = 0;
+
+                        try {
+                            intScore = Integer.parseInt(stringScore);
+                        }
+                        catch (Exception ex) {
+                            // Bad Score
+                            //System.out.println("BAD SCORE : " + stringScore + " - " + studentNumber);
+                            intScore =0;
+                        }
+
+                        //System.out.println("ROW: " + benchmarkPeriod + " : " + schoolYear + " : " + proficiency + " : " + studentNumber);
+
+
+                        
+                        if (intScore > 0) {
+
+                            String period = MappingHelper.Dibels8_period(benchmarkPeriod);
+
+
+                            String subject = "Reading";  // constant
+                            String csaCode = "R";   // constant
+
+                                
+                            String proficiencyCode = MappingHelper.MClass_proficiencyCode (proficiency);
+
+                            // make sure the student exists
+
+                            rowsLoaded++;
+                            i.importRepo.sisMclassAdd(studentNumber, schoolYear, period, subject, proficiency, proficiencyCode, intScore, csaCode);
+
+                        }
+                    }
+                    // else - Student does not exist
+                }
+                // else {
+                //     System.out.println ("Invalid Row " + studentNumber);
+                
+                // }
+
+
+
+            }
+
+            
+            File file = new File(filePath);
+            String fileName = file.getName();
+
+            i.importRepo.logFile(fileName, "MClass", schoolYear, true, "Total : " + rowsRead + "  Loaded: " + rowsLoaded);
+
+            return true;
+
+        }
+        catch (Exception ex) {
+            System.out.println("----------------- FAILED -------------");
+
+            System.out.println(filePath);
+            System.out.println("FAILD VALIDATE : ");
+            System.out.println(ex.getMessage());
+            return false;
+        }
+
+
+        // now see if we can get data from the rows.boscoClient
+
+        
+    }
+
+
+    // studentNumber, schoolYear, period, subject, proficiency, proficiencyCode, score, csaCode
+
+     public static void LoadMClassDibels8 (int districtId, String filePath, Boolean useFileStudentId) throws Exception  {
+
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("MClass - Filename: " + fileName); // Output: Filename: myFile.txt
+
+
+        String schoolYear = "N/A";
 
         TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
 
@@ -1107,6 +1479,7 @@ public class CsvFiles {
                     // the patter must be yyyy-MM-dd
                     // that is it already.
 
+                    
                     // System.out.println ("Student: " + lastName + ", " + firstName + ", [" + dob + "] " + newDob + " - " + ld.toString() );
 
                     String studentNumber = i.importRepo.studentNumberFromDemographics(districtId, firstName, lastName, dob);
@@ -1117,7 +1490,7 @@ public class CsvFiles {
                         //System.out.println("       --- "  + studentNumber);
 
 
-                        String schoolYear = cc.getSchoolYear();         /// shoudl be correct.
+                        schoolYear = cc.getSchoolYear();         /// shoudl be correct.
 
                         String benchmarkPeriod = cc.getBenchmarkPeriod();   // Map this " BOY or Fall" -> Fall
 
@@ -1170,6 +1543,8 @@ public class CsvFiles {
             cc = cr.read();
         }
 
+
+        i.importRepo.logFile (fileName, "Map", schoolYear, false, "Total: " + total + " - completed: " + totalCompleted +  "  - Imported : " + count);
 
         i.importRepo.logTea(filePath, "  Total: " + total + " - completed: " + totalCompleted +  "  - Imported : " + count);
         

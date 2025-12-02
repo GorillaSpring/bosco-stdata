@@ -1,4 +1,5 @@
 package com.bosco.stdata.distictImports;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,8 +19,7 @@ import com.bosco.stdata.utils.ImportHelper;
 import jakarta.annotation.PostConstruct;
 
 @Component
-public class BurlesonSisFiles {
-
+public class SpringtownSisFiles {
     private final AppConfig appConfig;
     @Autowired
     ImportRepo importRepo;
@@ -27,15 +27,15 @@ public class BurlesonSisFiles {
     @Autowired 
     BoscoApi boscoApi;
 
-    private static BurlesonSisFiles i;
+    private static SpringtownSisFiles i;
 
-    BurlesonSisFiles(AppConfig appConfig) {
+    SpringtownSisFiles(AppConfig appConfig) {
         this.appConfig = appConfig;
     }  // instance
 
     @PostConstruct
     public void init() {
-        System.out.println("BurlesonSisFiles - init()");
+        System.out.println("SpringtownSisFiles - init()");
         i = this;
     }
 
@@ -63,64 +63,22 @@ public class BurlesonSisFiles {
 
             String archiveFolder =  ImportHelper.ValueForSetting(importSettings, "archiveFolder");
 
-            int importId = i.importRepo.prepImport(districtId, importDefId, isRoster,isSisData,  "Burleson Sis files " + baseFileFolder);
+            int importId = i.importRepo.prepImport(districtId, importDefId, isRoster,isSisData,  "Springtown Sis files " + baseFileFolder);
 
              LocalDateTime startDateTime = LocalDateTime.now();
 
             result.importId = importId;
             result.districtId = districtId;
 
-
-            // Run in TEST, PROD, and DEV.
-            //CsvFiles.LoadMapCourseNameCsaCode(baseFileFolder + "Burleson_map_courseName_csaCode.csv");
-
-            // THIS IS Everything as of Nov 26.
+// LOADED IN DEV, TEST, PROD
+            //CsvFiles.LoadMapCourseNameCsaCode(baseFileFolder + "springtown_course_csaCode-UpdatedML.csv");
 
 
+            // BOSCOK12 - Grades
 
-            CsvFiles.LoadGradesPriorBurleson(districtId, baseFileFolder + "WORKING/grades_prior_year.csv");
-
-            // grades_current_year
-            CsvFiles.LoadGradesCurrentBurleson(districtId, baseFileFolder + "WORKING/grades_current_year.csv");
-            
-
-
-
-
-
+            CsvFiles.LoadGradesNbIsd(districtId, baseFileFolder + "BOSCOK12 - Grades.csv");
 
           
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "2026/Final Combo File - Fall 2025.csv", false);
-
-   
-
-
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "PAST/SF_0523_3-8_126902_BURLESON ISD_V01.txt");
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "PAST/SF_0524_3-8_126902_BURLESON ISD_V01.txt");
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "PAST/SF_0525_3-8_126902_BURLESON ISD_V03.txt");
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "PAST/SP_0424_3-8ALT_126902_BURLESON ISD_V01.txt");
-
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SF_1524_EOC_126902_BURLESON ISD_V01.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SF_1525_EOC_126902_BURLESON ISD_V02.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SF_1525_EOCALT_126902_BURLESON ISD_V01.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SP_1523_EOC_126902_BURLESON ISD_V01.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SP_1523_EOCALT_126902_BURLESON ISD_V01.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SP_1524_EOCALT_126902_BURLESON ISD_V01.txt");
-
-
-            TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "PAST/0323_TELPASALT_126902_BURLESON ISD_V01.txt");
-            TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "PAST/SF_0324_TELPASALT_126902_BURLESON ISD_V01.txt");
-            TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "PAST/SF_0325_TELPASALT_126902_BURLESON ISD_V01.txt");
-
-            TeaFiles.LoadTelpas(districtId, baseFileFolder + "PAST/SF_0324_TELPAS_126902_BURLESON ISD_V01.txt");
-            TeaFiles.LoadTelpas(districtId, baseFileFolder + "PAST/SP_0323_TELPAS_126902_BURLESON ISD_V01.txt");
-            TeaFiles.LoadTelpas(districtId, baseFileFolder + "PAST/SP_0325_TELPAS_126902_BURLESON ISD_V01.txt");
-
-            
-  
-  
-
-
 
 
 

@@ -184,7 +184,7 @@ public class BoscoClient {
 
 
 // NEW ONES
-     public ApiResult putStudent2 (String url, String token, Student student) throws Exception {
+     public ApiResult putStudent (String url, String token, Student student) throws Exception {
           HttpHeaders headers = new HttpHeaders();
 
 
@@ -227,7 +227,7 @@ public class BoscoClient {
         return res;
     }
 
-    public ApiResult deleteStudent2 (String url, String token, String studentId) {
+    public ApiResult deleteStudent (String url, String token, String studentId) {
         HttpHeaders headers = new HttpHeaders();
 
         // this will need to be worked on.
@@ -276,85 +276,85 @@ public class BoscoClient {
 
     }
 
-    public String putStudent (String url, String token, Student student) throws Exception {
-          HttpHeaders headers = new HttpHeaders();
+    // public String putStudentOLD (String url, String token, Student student) throws Exception {
+    //       HttpHeaders headers = new HttpHeaders();
 
 
-          // This will get the same student back.
+    //       // This will get the same student back.
         
-        headers.setBearerAuth(token);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+    //     headers.setBearerAuth(token);
+    //     headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-           // 3. Create an HttpEntity combining the request body and headers
+    //        // 3. Create an HttpEntity combining the request body and headers
 
-        HttpEntity<Student> requestEntity = new HttpEntity<>(student, headers);
+    //     HttpEntity<Student> requestEntity = new HttpEntity<>(student, headers);
 
         
-        String studentId = student.getId();
+    //     String studentId = student.getId();
 
-        // Perform the PUT request using exchange()
-        // The third argument is the request entity, and the fourth is the expected response type
-        ResponseEntity<Student> responseEntity = restTemplate.exchange(
-            url,
-            HttpMethod.PUT,
-            requestEntity,
-            Student.class, // The class representing the expected response body
-            student.getId() // Example URI variable for the {id} placeholder
-        );
+    //     // Perform the PUT request using exchange()
+    //     // The third argument is the request entity, and the fourth is the expected response type
+    //     ResponseEntity<Student> responseEntity = restTemplate.exchange(
+    //         url,
+    //         HttpMethod.PUT,
+    //         requestEntity,
+    //         Student.class, // The class representing the expected response body
+    //         student.getId() // Example URI variable for the {id} placeholder
+    //     );
 
-         if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            // System.out.println("Student updated  successfully!");
-            // Student updatedStudent = responseEntity.getBody();
-            // System.out.println("Updated Student: " + updatedStudent.getFirstName());
-            // System.out.println("Response Headers: " + responseEntity.getHeaders());
-        } else {
-            //System.out.println("Failed to update student. Status code: " + responseEntity.getStatusCode());
-            throw new Exception("Failed to Update Student. Status code: " + responseEntity.getStatusCode());
-        }
+    //      if (responseEntity.getStatusCode().is2xxSuccessful()) {
+    //         // System.out.println("Student updated  successfully!");
+    //         // Student updatedStudent = responseEntity.getBody();
+    //         // System.out.println("Updated Student: " + updatedStudent.getFirstName());
+    //         // System.out.println("Response Headers: " + responseEntity.getHeaders());
+    //     } else {
+    //         //System.out.println("Failed to update student. Status code: " + responseEntity.getStatusCode());
+    //         throw new Exception("Failed to Update Student. Status code: " + responseEntity.getStatusCode());
+    //     }
 
-        return "OK";
-    }
-
-
-     public String deleteStudent (String url, String token, String studentId) throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-
-        // this will need to be worked on.
+    //     return "OK";
+    // }
 
 
-          // This will get the same student back.`
+    //  public String deleteStudentOLD (String url, String token, String studentId) throws Exception {
+    //     HttpHeaders headers = new HttpHeaders();
+
+    //     // this will need to be worked on.
+
+
+    //       // This will get the same student back.`
         
-        headers.setBearerAuth(token);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+    //     headers.setBearerAuth(token);
+    //     headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-           // 3. Create an HttpEntity combining the request body and headers
+    //        // 3. Create an HttpEntity combining the request body and headers
 
-        //HttpEntity<Student> requestEntity = new HttpEntity<>(student, headers);
-        HttpEntity<Void> request = new HttpEntity<>(headers);
+    //     //HttpEntity<Student> requestEntity = new HttpEntity<>(student, headers);
+    //     HttpEntity<Void> request = new HttpEntity<>(headers);
 
 
-           // Use the exchange method for DELETE with headers
-        ResponseEntity<String> responseEntity = restTemplate.exchange(
-            url,
-            HttpMethod.DELETE,
-            request,
-            String.class,
-            studentId // URI variable for the ID
-        );
+    //        // Use the exchange method for DELETE with headers
+    //     ResponseEntity<String> responseEntity = restTemplate.exchange(
+    //         url,
+    //         HttpMethod.DELETE,
+    //         request,
+    //         String.class,
+    //         studentId // URI variable for the ID
+    //     );
 
-        if (responseEntity.getStatusCode() == HttpStatus.NO_CONTENT) {
-            // System.out.println("Student deleted successfully!");
-            // String result = responseEntity.getBody();
-            // System.out.println("Student Deleted response: " + result);
-            // System.out.println("Response Headers: " + responseEntity.getHeaders());
-        } else {
-            //stem.out.println("Failed to Delete Student. Status code: " + responseEntity.getStatusCode());
-            throw new Exception("Failed to DELETE Student. Status code: " + responseEntity.getStatusCode());
-        }
+    //     if (responseEntity.getStatusCode() == HttpStatus.NO_CONTENT) {
+    //         // System.out.println("Student deleted successfully!");
+    //         // String result = responseEntity.getBody();
+    //         // System.out.println("Student Deleted response: " + result);
+    //         // System.out.println("Response Headers: " + responseEntity.getHeaders());
+    //     } else {
+    //         //stem.out.println("Failed to Delete Student. Status code: " + responseEntity.getStatusCode());
+    //         throw new Exception("Failed to DELETE Student. Status code: " + responseEntity.getStatusCode());
+    //     }
 
-        return "OK";
+    //     return "OK";
 
-    }
+    // }
 
 //     public String postTeacher (String url, String token, Teacher teacher) throws Exception {
           
@@ -397,7 +397,7 @@ public class BoscoClient {
 
 
 
-    public ApiResult putTeacher2 (String url, String token, Teacher teacher) throws Exception {
+    public ApiResult putTeacher (String url, String token, Teacher teacher) throws Exception {
           HttpHeaders headers = new HttpHeaders();
 
 
@@ -440,7 +440,7 @@ public class BoscoClient {
         //return "OK";
     }
 
-    public ApiResult deleteTeacher2 (String url, String token, String teacherId) throws Exception {
+    public ApiResult deleteTeacher (String url, String token, String teacherId) throws Exception {
         HttpHeaders headers = new HttpHeaders();
 
         // this will need to be worked on.
@@ -482,83 +482,83 @@ public class BoscoClient {
 
     }
 
-    public String putTeacher (String url, String token, Teacher teacher) throws Exception {
-          HttpHeaders headers = new HttpHeaders();
+    // public String putTeacherOLD (String url, String token, Teacher teacher) throws Exception {
+    //       HttpHeaders headers = new HttpHeaders();
 
 
-          // This will get the same student back.
+    //       // This will get the same student back.
         
-        headers.setBearerAuth(token);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+    //     headers.setBearerAuth(token);
+    //     headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-           // 3. Create an HttpEntity combining the request body and headers
+    //        // 3. Create an HttpEntity combining the request body and headers
 
-        HttpEntity<Teacher> requestEntity = new HttpEntity<>(teacher, headers);
+    //     HttpEntity<Teacher> requestEntity = new HttpEntity<>(teacher, headers);
 
         
 
-        // Perform the PUT request using exchange()
-        // The third argument is the request entity, and the fourth is the expected response type
-        ResponseEntity<Teacher> responseEntity = restTemplate.exchange(
-            url,
-            HttpMethod.PUT,
-            requestEntity,
-            Teacher.class, // The class representing the expected response body
-            teacher.getId() // Example URI variable for the {id} placeholder
-        );
+    //     // Perform the PUT request using exchange()
+    //     // The third argument is the request entity, and the fourth is the expected response type
+    //     ResponseEntity<Teacher> responseEntity = restTemplate.exchange(
+    //         url,
+    //         HttpMethod.PUT,
+    //         requestEntity,
+    //         Teacher.class, // The class representing the expected response body
+    //         teacher.getId() // Example URI variable for the {id} placeholder
+    //     );
 
-         if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            // System.out.println("Teacher updated  successfully!");
-            // Teacher updatedTeacher = responseEntity.getBody();
-            // System.out.println("Updated Teacher: " + updatedTeacher.getFirstName());
-            // System.out.println("Response Headers: " + responseEntity.getHeaders());
-        } else {
-            //System.out.println("Failed to update teacher. Status code: " + responseEntity.getStatusCode());
-            throw new Exception("Failed to update Teacher. Status code: " + responseEntity.getStatusCode());
-        }
+    //      if (responseEntity.getStatusCode().is2xxSuccessful()) {
+    //         // System.out.println("Teacher updated  successfully!");
+    //         // Teacher updatedTeacher = responseEntity.getBody();
+    //         // System.out.println("Updated Teacher: " + updatedTeacher.getFirstName());
+    //         // System.out.println("Response Headers: " + responseEntity.getHeaders());
+    //     } else {
+    //         //System.out.println("Failed to update teacher. Status code: " + responseEntity.getStatusCode());
+    //         throw new Exception("Failed to update Teacher. Status code: " + responseEntity.getStatusCode());
+    //     }
 
-        return "OK";
-    }
+    //     return "OK";
+    // }
 
-    public String deleteTeacher (String url, String token, String teacherId) throws Exception {
-        HttpHeaders headers = new HttpHeaders();
+    // public String deleteTeacherOLD (String url, String token, String teacherId) throws Exception {
+    //     HttpHeaders headers = new HttpHeaders();
 
-        // this will need to be worked on.
+    //     // this will need to be worked on.
 
 
-          // This will get the same student back.
+    //       // This will get the same student back.
         
-        headers.setBearerAuth(token);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+    //     headers.setBearerAuth(token);
+    //     headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-           // 3. Create an HttpEntity combining the request body and headers
+    //        // 3. Create an HttpEntity combining the request body and headers
 
-        //HttpEntity<Student> requestEntity = new HttpEntity<>(student, headers);
-        HttpEntity<Void> request = new HttpEntity<>(headers);
+    //     //HttpEntity<Student> requestEntity = new HttpEntity<>(student, headers);
+    //     HttpEntity<Void> request = new HttpEntity<>(headers);
 
 
-           // Use the exchange method for DELETE with headers
-        ResponseEntity<String> responseEntity = restTemplate.exchange(
-            url,
-            HttpMethod.DELETE,
-            request,
-            String.class,
-            teacherId // URI variable for the ID
-        );
+    //        // Use the exchange method for DELETE with headers
+    //     ResponseEntity<String> responseEntity = restTemplate.exchange(
+    //         url,
+    //         HttpMethod.DELETE,
+    //         request,
+    //         String.class,
+    //         teacherId // URI variable for the ID
+    //     );
 
-        if (responseEntity.getStatusCode() == HttpStatus.NO_CONTENT) {
-            // System.out.println("Teacher deleted successfully!");
-            // String result = responseEntity.getBody();
-            // System.out.println("Teacher Deleted response: " + result);
-            // System.out.println("Response Headers: " + responseEntity.getHeaders());
-        } else {
-            throw new Exception("Failed to DELETE Teacher. Status code: " + responseEntity.getStatusCode());
-            //System.out.println("Failed to DELETE Teacher. Status code: " + responseEntity.getStatusCode());
-        }
+    //     if (responseEntity.getStatusCode() == HttpStatus.NO_CONTENT) {
+    //         // System.out.println("Teacher deleted successfully!");
+    //         // String result = responseEntity.getBody();
+    //         // System.out.println("Teacher Deleted response: " + result);
+    //         // System.out.println("Response Headers: " + responseEntity.getHeaders());
+    //     } else {
+    //         throw new Exception("Failed to DELETE Teacher. Status code: " + responseEntity.getStatusCode());
+    //         //System.out.println("Failed to DELETE Teacher. Status code: " + responseEntity.getStatusCode());
+    //     }
 
-        return "OK";
+    //     return "OK";
 
-    }
+    // }
 
 
     

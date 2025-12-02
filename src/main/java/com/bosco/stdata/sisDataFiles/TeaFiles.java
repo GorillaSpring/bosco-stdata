@@ -1,5 +1,7 @@
 package com.bosco.stdata.sisDataFiles;
 
+import java.io.File;
+
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +59,15 @@ public class TeaFiles {
 
 
 
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("Staar - Filename: " + fileName); // Output: Filename: myFile.txt
+
+        if (i.importRepo.logFileExists(fileName)) {
+            System.out.println("   --- Already Imported ");
+            return;
+        }
+
 
         //For ALT the pli's are
 
@@ -90,6 +101,7 @@ public class TeaFiles {
 
         String schoolYear = MappingHelper.SchoolYearFromAdminDate(t.getAdminDate());
 
+       
 
         while (t != null) {
 
@@ -206,6 +218,7 @@ public class TeaFiles {
         }
             
 
+         i.importRepo.logFile (fileName, "Staar", schoolYear, false, "Total: " + total + "  - Imported : " + count);
         i.importRepo.logTea(filePath, "School Year: " + schoolYear + "  - Total: " + total + "  - Imported : " + count);
 
         System.out.println(" -- Read " + count + "  Students");
@@ -216,6 +229,16 @@ public class TeaFiles {
 
     // Star EOC and EOC Alt
     public static void LoadStarEOCAndEOCAlt(int districtId, String filePath) throws Exception {
+
+
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("Staar EOC - Filename: " + fileName); // Output: Filename: myFile.txt
+
+         if (i.importRepo.logFileExists(fileName)) {
+            System.out.println("   --- Already Imported ");
+            return;
+        }
 
         // this works for both EOC and EOC Alt (2024-2025)
 
@@ -352,6 +375,8 @@ public class TeaFiles {
         
         System.out.println(" -- Read " + count + "  Students");
 
+        i.importRepo.logFile (fileName, "Staar EOC", schoolYear, false, "Total: " + total + "  - Imported : " + count);
+
         i.importRepo.logTea(filePath, "School Year: " + schoolYear + "  - Total: " + total + "  - Imported : " + count);
 
         System.out.println(("-----------------------"));
@@ -363,7 +388,16 @@ public class TeaFiles {
     // Telpas Only
     public static void LoadTelpas (int districtId, String filePath) throws Exception {
     
-        
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("Telpas - Filename: " + fileName); // Output: Filename: myFile.txt
+
+        if (i.importRepo.logFileExists(fileName)) {
+            System.out.println("   --- Already Imported ");
+            return;
+        }
+
+
         TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
 
         FlatFileItemReader<Telpas2024> s24 = tsfr.telpas2024Reader(filePath);
@@ -381,6 +415,8 @@ public class TeaFiles {
 
         String schoolYear = MappingHelper.SchoolYearFromAdminDate(t.getAdminDate());
 
+
+        
         
 
 
@@ -472,6 +508,7 @@ public class TeaFiles {
         }
             
 
+        i.importRepo.logFile (fileName, "Telpas", schoolYear, false, "Total: " + total + "  - Imported : " + count);
         i.importRepo.logTea(filePath, "School Year: " + schoolYear + "  - Total: " + total + "  - Imported : " + count);
       
 
@@ -484,7 +521,17 @@ public class TeaFiles {
     // Telpas Alt
     public static void LoadTelpasAlt (int districtId, String filePath) throws Exception {
     
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("Telpas Alt - Filename: " + fileName); // Output: Filename: myFile.txt
+
         
+        if (i.importRepo.logFileExists(fileName)) {
+            System.out.println("   --- Already Imported ");
+            return;
+        }
+
+
         TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
 
         FlatFileItemReader<Telpas2024> s24 = tsfr.telpasAltReader(filePath);
@@ -503,7 +550,7 @@ public class TeaFiles {
 
         String schoolYear = MappingHelper.SchoolYearFromAdminDate(t.getAdminDate());
 
-
+        
 
         while (t != null) {
 
@@ -588,7 +635,7 @@ public class TeaFiles {
         }
             
 
-            
+        i.importRepo.logFile (fileName, "Telpas ALT", schoolYear, false, "Total: " + total + "  - Imported : " + count);
         i.importRepo.logTea(filePath, "School Year: " + schoolYear + "  - Total: " + total + "  - Imported : " + count);
 
         System.out.println(" -- Read " + count + "  Students");
