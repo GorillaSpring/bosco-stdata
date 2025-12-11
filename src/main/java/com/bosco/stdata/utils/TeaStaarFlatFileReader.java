@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.DibelsMClass;
 import com.bosco.stdata.teaModel.DisciplineFileCelina;
+import com.bosco.stdata.teaModel.DisciplineLedger;
 import com.bosco.stdata.teaModel.FindUsers;
 import com.bosco.stdata.teaModel.GradeCurrentYearBurleson;
 import com.bosco.stdata.teaModel.GradeFileCelina;
@@ -50,6 +51,35 @@ public class TeaStaarFlatFileReader {
     
     
 // So lets try fror the csv.
+
+
+    @Bean
+    public FlatFileItemReader<GradeFileMelissa> disciplineReader(String filePath) {
+        return new FlatFileItemReaderBuilder<GradeFileMelissa>()
+            .name("gradeMelissaReader")
+            .resource(new FileSystemResource(filePath)) // Path to your CSV file  Try FileSystemResource instead
+            .linesToSkip(1) // Skip header line if present
+            .delimited()            
+            .names(new String[]{"studentSourceId", "studentNumber", "courseName", "courseId", "schoolYear", "term", "courseGrade", "changedDateTime"}) 
+            .targetType(GradeFileMelissa.class) // Specify the target object type
+            .build();
+    }
+
+
+
+    @Bean
+    public FlatFileItemReader<DisciplineLedger> disciplineLedgerReader(String filePath) {
+        return new FlatFileItemReaderBuilder<DisciplineLedger>()
+            .name("disciplineLedgerReader")
+            .resource(new FileSystemResource(filePath)) // Path to your CSV file  Try FileSystemResource instead
+            .linesToSkip(1) // Skip header line if present
+            .delimited()
+            .names(new String[]{"studentSourceID","studentNumber","action","days","schoolYear"}) 
+            .targetType(DisciplineLedger.class) // Specify the target object type
+            .build();
+    }
+
+
 
     @Bean
     public FlatFileItemReader<GradeCurrentYearBurleson> gradeBurlesonCurrentYear(String filePath) {

@@ -108,7 +108,6 @@ public class TeaFiles {
             total++;
             //System.out.println(t);
 
-            //i.importRepo.logTeaStar2024(testName, t);
 
             if (t.getStudentId().isEmpty()) {
                 System.out.println("Blank Student Id found");
@@ -159,7 +158,6 @@ public class TeaFiles {
                         
                         i.importRepo.sisStaarAdd(studentId, schoolYear, subject, code, grade, bp.proficiency, bp.proficiencyCode, csaCode);
 
-                        //i.importRepo.logTea(testName, "StudentID: " + studentId + " - SchoolYear: 2024-2025 - Subject: Math -   Code:???  - Grade: " + grade + " - Proficiency: " + bp.proficiency + "  (" + bp.proficiencyCode + ")  - CsaCode: " + csaCode);
 
                     }
                 }
@@ -180,7 +178,6 @@ public class TeaFiles {
                         
                         i.importRepo.sisStaarAdd(studentId, schoolYear, subject, code, grade, bp.proficiency, bp.proficiencyCode, csaCode);
 
-                        //i.importRepo.logTea(testName, "StudentID: " + studentId + " - SchoolYear: 2024-2025 - Subject: Social Studies -   Code:???  - Grade: " + grade + " - Proficiency: " + bp.proficiency + "  (" + bp.proficiencyCode + ")  - CsaCode: " + csaCode);
                     }
                 }
 
@@ -204,7 +201,6 @@ public class TeaFiles {
 
 
 
-                        //i.importRepo.logTea(testName, "StudentID: " + studentId + " - SchoolYear: 2024-2025 - Subject: Science : -   Code:???  - Grade: " + grade + " - Proficiency: " + bp.proficiency + "  (" + bp.proficiencyCode + ")  - CsaCode: " + csaCode);
                     }
                 }
 
@@ -219,7 +215,7 @@ public class TeaFiles {
             
 
          i.importRepo.logFile (fileName, "Staar", schoolYear, false, "Total: " + total + "  - Imported : " + count);
-        i.importRepo.logTea(filePath, "School Year: " + schoolYear + "  - Total: " + total + "  - Imported : " + count);
+        
 
         System.out.println(" -- Read " + count + "  Students");
 
@@ -276,7 +272,7 @@ public class TeaFiles {
             total++;
             //System.out.println(t);
 
-            //i.importRepo.logTeaStar2024(testName, t);
+            
 
             if (t.getStudentId().isEmpty()) {
                 System.out.println("Blank Student Id found");
@@ -361,7 +357,7 @@ public class TeaFiles {
                         // So now we can crate the record.
 
 
-                        //i.importRepo.logTea(testName, log);
+                        
                     }
                 }
 
@@ -377,7 +373,6 @@ public class TeaFiles {
 
         i.importRepo.logFile (fileName, "Staar EOC", schoolYear, false, "Total: " + total + "  - Imported : " + count);
 
-        i.importRepo.logTea(filePath, "School Year: " + schoolYear + "  - Total: " + total + "  - Imported : " + count);
 
         System.out.println(("-----------------------"));
 
@@ -425,7 +420,7 @@ public class TeaFiles {
             total++;
             //System.out.println(t);
 
-            //i.importRepo.logTeaStar2024(testName, t);
+            
 
             if (t.getStudentId().isEmpty()) {
                 System.out.println("Blank Student Id found");
@@ -490,7 +485,7 @@ public class TeaFiles {
                     // That should be everthing we need!
                     //String log = "TELPAS - StudentID: " + studentId + " - SchoolYear: " + schoolYear + " - Proficiency: " + proficiency + " -   listeningScore: " + listeningScore + " -   speakingScore: " + speakingScore + " -   readingScore: " + readingScore + " -   writingScore: " + writingScore +  "  - Grade: " + grade + "  - CsaCode: BLANK";
 
-                    //i.importRepo.logTea(testName, log);
+                    
 
                 }
                 else {
@@ -509,7 +504,7 @@ public class TeaFiles {
             
 
         i.importRepo.logFile (fileName, "Telpas", schoolYear, false, "Total: " + total + "  - Imported : " + count);
-        i.importRepo.logTea(filePath, "School Year: " + schoolYear + "  - Total: " + total + "  - Imported : " + count);
+        
       
 
         System.out.println(" -- Read " + count + "  Students");
@@ -557,7 +552,6 @@ public class TeaFiles {
             total++;
             //System.out.println(t);
 
-            //i.importRepo.logTeaStar2024(testName, t);
 
             if (t.getStudentId().isEmpty()) {
                 System.out.println("Blank Student Id found");
@@ -617,7 +611,7 @@ public class TeaFiles {
                     // That should be everthing we need!
                     //String log = "TELPAS - StudentID: " + studentId + " - SchoolYear: " + schoolYear + " - Proficiency: " + proficiency + " -   listeningScore: " + listeningScore + " -   speakingScore: " + speakingScore + " -   readingScore: " + readingScore + " -   writingScore: " + writingScore +  "  - Grade: " + grade + "  - CsaCode: BLANK";
 
-                    //i.importRepo.logTea(testName, log);
+
 
                 }
                 else {
@@ -636,7 +630,7 @@ public class TeaFiles {
             
 
         i.importRepo.logFile (fileName, "Telpas ALT", schoolYear, false, "Total: " + total + "  - Imported : " + count);
-        i.importRepo.logTea(filePath, "School Year: " + schoolYear + "  - Total: " + total + "  - Imported : " + count);
+        
 
         System.out.println(" -- Read " + count + "  Students");
 

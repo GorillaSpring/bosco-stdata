@@ -526,6 +526,27 @@ public class ImportRepo {
         return template.queryForList(sql, String.class, args);
     }
 
+    public List<String> studentIdsForDistrictGreaterThan (int districtId, int studentNumber) {
+
+
+        Object[] args = {
+            
+            districtId,
+            studentNumber
+        };
+
+
+        String sql = """
+               select id from student where districtId = ? and studentNumber > ? order by studentNumber;
+                """; 
+
+
+
+        System.out.println(sql);
+
+        return template.queryForList(sql, String.class, args);
+        // select id from student where districtId = 4830120 and studentNumber > 0 order by studentNumber;
+    }
     
 
     
@@ -1052,69 +1073,69 @@ public class ImportRepo {
 
     // TEA testing
 
-    public void logTea (String fileName, String log) {
-          Object[] args = {
-            fileName,
-            log
-        };
-        String sql = "insert into temp_log_tea (fileName, log) values (?, ?)";
-        int rows = template.update(sql, args);
-    }
+    // public void logTea (String fileName, String log) {
+    //       Object[] args = {
+    //         fileName,
+    //         log
+    //     };
+    //     String sql = "insert into temp_log_tea (fileName, log) values (?, ?)";
+    //     int rows = template.update(sql, args);
+    // }
 
-    public void logTeaStar2024 (String testName, Star2024 s) {
+    // public void logTeaStar2024 (String testName, Star2024 s) {
 
-        Object[] args = {
-            testName,
-            s.getStudentId(),
-            s.getAdminDate(),
-            s.getPliReadingLanguageArts(),
-            s.getScoreReadingLanguageArts(),
-            s.getPliMath(),
-            s.getScoreMath(),
-            s.getPliSocialStudies(),
-            s.getScoreSocialStudies(),
-            s.getPliScience(),
-            s.getScoreScience(),
-            s.getScoreAlgebra()
+    //     Object[] args = {
+    //         testName,
+    //         s.getStudentId(),
+    //         s.getAdminDate(),
+    //         s.getPliReadingLanguageArts(),
+    //         s.getScoreReadingLanguageArts(),
+    //         s.getPliMath(),
+    //         s.getScoreMath(),
+    //         s.getPliSocialStudies(),
+    //         s.getScoreSocialStudies(),
+    //         s.getPliScience(),
+    //         s.getScoreScience(),
+    //         s.getScoreAlgebra()
             
-        };
+    //     };
 
-        String sql = """
+    //     String sql = """
                                 
-                INSERT INTO temp_star_2024
-                (`testName`,
-                `studentId`,
-                `adminDate`,
-                `pliReadingLanguageArts`,
-                `scoreReadingLanguageArts`,
-                `pliMath`,
-                `scoreMath`,
-                `pliSocialStudies`,
-                `scoreSocialStudies`,
-                `pliScience`,
-                `scoreScience`,
-                `scoreAlgebra`)
-                VALUES 
-                (
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?);
+    //             INSERT INTO temp_star_2024
+    //             (`testName`,
+    //             `studentId`,
+    //             `adminDate`,
+    //             `pliReadingLanguageArts`,
+    //             `scoreReadingLanguageArts`,
+    //             `pliMath`,
+    //             `scoreMath`,
+    //             `pliSocialStudies`,
+    //             `scoreSocialStudies`,
+    //             `pliScience`,
+    //             `scoreScience`,
+    //             `scoreAlgebra`)
+    //             VALUES 
+    //             (
+    //             ?,
+    //             ?,
+    //             ?,
+    //             ?,
+    //             ?,
+    //             ?,
+    //             ?,
+    //             ?,
+    //             ?,
+    //             ?,
+    //             ?,
+    //             ?);
 
 
-                """;
+    //             """;
 
-                 int rows = template.update(sql, args);
+    //              int rows = template.update(sql, args);
 
-    }
+    // }
 
     public List<ImportDefinition> getActiveImportDefinitions() {
         
@@ -1633,6 +1654,9 @@ public Student studentBoscoForExport (String id) {
 
     public void saveStudent(String sourceId, String studentNumber, String firstName, String lastName, String grade, String schoolSourceId) {
     // String sourceId, String studentId, String firstName, String lastName, String grade, String schoolCode    
+
+    if (grade.equals("KG"))
+        grade = "K";
 
         String id = districtId + "." + studentNumber;
 

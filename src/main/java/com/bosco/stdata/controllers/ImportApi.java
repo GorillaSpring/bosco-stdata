@@ -329,7 +329,7 @@ public class ImportApi {
     @Operation(
         summary = "Run Imports NOW",
         description = "Email will be sent if sendEmail is true. This will kick off the imports.  Please check Definitions to see what is active",
-        tags = {"Import Testing"}
+        tags = {"Good Stuff"}
         )
     @GetMapping("/import/runImport/{sendEmail}")
     public String runImportNow(@PathVariable Boolean sendEmail) {
@@ -373,7 +373,7 @@ public class ImportApi {
     }
 
 
-    private void doSendAllSisDataForDistrict (int districId) {
+    private void doSendAllSisDataForDistrictOld (int districId) {
 
         LocalDateTime startDateTime = LocalDateTime.now();
          List<String> studentIds = importRepo.studentIdsForDistrict (districId);
@@ -403,16 +403,16 @@ public class ImportApi {
     @Operation(
         summary = "This will send the Sis Data to bosco-web",
         description = "Send the full student sis data to bosco-web",
-        tags = {"Import Testing"}
+        tags = {"Good Stuff"}
         )
-    @GetMapping("/import/sendAllSisDataForDistrict/{id}")
-    public String sendAllSisDataForDistrict(@PathVariable int id) {
+    @GetMapping("/import/sendAllSisDataForDistrictOLD/{id}")
+    public String sendAllSisDataForDistrictOLD(@PathVariable int id) {
 
 
         
          Thread taskThread = new Thread(() -> {
                
-                doSendAllSisDataForDistrict(id);
+                doSendAllSisDataForDistrictOld(id);
             });
 
 
@@ -428,6 +428,75 @@ public class ImportApi {
 
         
     }
+
+    // With student nuber starting
+     private void doSendAllSisDataForDistrict (int districId, int studentNumber) {
+
+        LocalDateTime startDateTime = LocalDateTime.now();
+         List<String> studentIds = importRepo.studentIdsForDistrictGreaterThan(districId, studentNumber);
+
+        int count = 0;
+        // nwo we can call
+        int countDown = 0;
+        countDown = studentIds.size();
+        for (String studentId : studentIds) {
+
+            System.out.println(studentId  + " : " + countDown);
+            countDown--;
+
+            boscoApi.postSisDataToBosco(studentId);
+            count++;
+        }
+
+
+
+            LocalDateTime endDateTime = LocalDateTime.now();
+    
+            Duration duration = Duration.between(startDateTime, endDateTime);
+
+
+        System.out.println("DONE : Sent " + count + "  Took " + duration.toMinutes() + " Minutes");
+
+    }
+
+
+    @Operation(
+        summary = "This will send the Sis Data to bosco-web",
+        description = "Send the full student sis data to bosco-web",
+        tags = {"Good Stuff"}
+        )
+    @GetMapping("/import/sendAllSisDataForDistrict")
+    public String sendAllSisDataForDistrict(@RequestParam int id, @RequestParam(required = false) String startStudentNumber) 
+    
+    {
+
+        if (startStudentNumber == null || startStudentNumber.isEmpty()) {
+            startStudentNumber = "0";
+        }
+        final String copy = startStudentNumber;
+
+        
+         Thread taskThread = new Thread(() -> {
+
+            int studentNumber = Integer.parseInt(copy);
+               
+            doSendAllSisDataForDistrict(id, studentNumber);
+        });
+
+
+            
+            //importRepo.setSystemStatus("Import", 1);
+            taskThread.start();
+
+            return "Sending Sis data to bosco";
+
+        
+
+       
+
+        
+    }
+
 
     
     @Operation(
@@ -623,7 +692,7 @@ public class ImportApi {
     @Operation(
             summary = "Get Import System Info",
             description = "Get the status etc. of import system",
-            tags = {"Import Defs"}
+            tags = {"Good Stuff"}
             )
 
     @GetMapping("/import/importSystemInfo")

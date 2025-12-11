@@ -1,16 +1,24 @@
 package com.bosco.stdata.sisDataFiles;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.bosco.stdata.config.AppConfig;
+import com.bosco.stdata.controllers.AuthedApi;
+import com.bosco.stdata.distictImports.BurlesonFiles;
+import com.bosco.stdata.distictImports.BurlesonSisFiles;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.service.BoscoClient;
@@ -18,6 +26,8 @@ import com.bosco.stdata.service.UserFileService;
 import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.DibelsMClass;
 import com.bosco.stdata.teaModel.DisciplineFileCelina;
+import com.bosco.stdata.teaModel.DisciplineHelper;
+import com.bosco.stdata.teaModel.DisciplineLedger;
 import com.bosco.stdata.teaModel.FindUsers;
 import com.bosco.stdata.teaModel.GradeCurrentYearBurleson;
 import com.bosco.stdata.teaModel.GradeFileCelina;
@@ -31,6 +41,12 @@ import jakarta.annotation.PostConstruct;
 
 @Component
 public class CsvFiles {
+
+    private final BurlesonSisFiles burlesonSisFiles;
+
+    private final BurlesonFiles burlesonFiles;
+
+    private final AuthedApi authedApi;
 
     private final BoscoClient boscoClient;
 
@@ -46,10 +62,13 @@ public class CsvFiles {
     private static CsvFiles i;
 
 
-    CsvFiles(AppConfig appConfig, BoscoApi boscoApi, BoscoClient boscoClient) {
+    CsvFiles(AppConfig appConfig, BoscoApi boscoApi, BoscoClient boscoClient, AuthedApi authedApi, BurlesonFiles burlesonFiles, BurlesonSisFiles burlesonSisFiles) {
         this.appConfig = appConfig;
         this.boscoApi = boscoApi;
         this.boscoClient = boscoClient;
+        this.authedApi = authedApi;
+        this.burlesonFiles = burlesonFiles;
+        this.burlesonSisFiles = burlesonSisFiles;
     }
 
 
@@ -60,51 +79,51 @@ public class CsvFiles {
         i = this;
     }
 
-    public static void LoadFindUsers (String filePath) throws Exception {
-        TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
+    // public static void LoadFindUsers (String filePath) throws Exception {
+    //     TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
 
         
 
-        FlatFileItemReader<FindUsers> cr = tsfr.findUsers(filePath);
+    //     FlatFileItemReader<FindUsers> cr = tsfr.findUsers(filePath);
 
-        cr.open(new ExecutionContext());
+    //     cr.open(new ExecutionContext());
 
-        System.out.println(("-----------------------"));
-        System.out.println(("------ LoadFindUsers ------"));
-        System.out.println (filePath);
+    //     System.out.println(("-----------------------"));
+    //     System.out.println(("------ LoadFindUsers ------"));
+    //     System.out.println (filePath);
 
-        int count = 0;
-        int total = 0;
+    //     int count = 0;
+    //     int total = 0;
 
 
-        List<String> emails = new ArrayList<>();
+    //     List<String> emails = new ArrayList<>();
         
-        FindUsers cc = cr.read();
-            //String schoolYear = "2024-2025";  // should be able to get this from TermName
+    //     FindUsers cc = cr.read();
+    //         //String schoolYear = "2024-2025";  // should be able to get this from TermName
 
-            //String termName = cc.getTermName();
+    //         //String termName = cc.getTermName();
 
 
-        while (cc != null) {
+    //     while (cc != null) {
 
-            if (emails.contains(cc.email)) {
-                System.out.println("FOUND DUP: " + cc.id + " - " + cc.email);
-            }
-            else {
-                emails.add(cc.email);
-            }
+    //         if (emails.contains(cc.email)) {
+    //             System.out.println("FOUND DUP: " + cc.id + " - " + cc.email);
+    //         }
+    //         else {
+    //             emails.add(cc.email);
+    //         }
 
             
-            cc = cr.read();
-        }
+    //         cc = cr.read();
+    //     }
 
 
-        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
         
-        System.out.println("  Total: " + total + "  - Imported : " + count);
+        
+    //     System.out.println("  Total: " + total + "  - Imported : " + count);
 
-        System.out.println(("-----------------------"));
-    }
+    //     System.out.println(("-----------------------"));
+    // }
 
 
     public static void LoadMapCourseNameCsaCode (String filePath) throws Exception {
@@ -140,7 +159,7 @@ public class CsvFiles {
         }
 
 
-        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
+        
         
         System.out.println("  Total: " + total + "  - Imported : " + count);
 
@@ -305,7 +324,7 @@ public class CsvFiles {
 
         i.importRepo.logFile(fileName, "Grades", schoolYear, true, "Total: " + total + "  - Imported : " + count);
 
-        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
+        
         
         System.out.println("  Total: " + total + "  - Imported : " + count);
 
@@ -498,7 +517,7 @@ public class CsvFiles {
 
 
         i.importRepo.logFile(fileName, "Grades", schoolYear, true, "Total: " + total + "  - Imported : " + count);
-        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
+        
         
         System.out.println("  Total: " + total + "  - Imported : " + count);
 
@@ -619,12 +638,85 @@ public class CsvFiles {
 
         i.importRepo.logFile(fileName, "Grades", schoolYear, true, "Total: " + total + "  - Imported : " + count);
 
-        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
+        
         
         System.out.println("  Total: " + total + "  - Imported : " + count);
 
         System.out.println(("-----------------------"));
     }
+
+
+      public static void LoadSpringtownDiscipline (int districtId, String filePath) throws Exception {
+    
+
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("Discipline - Filename: " + fileName); // Output: Filename: myFile.txt
+        String schoolYear = "N/A";
+
+
+        TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
+
+        
+
+        FlatFileItemReader<DisciplineFileCelina> cr = tsfr.disiplineCelinaReader(filePath);
+
+        cr.open(new ExecutionContext());
+
+        System.out.println(("-----------------------"));
+        System.out.println(("------ Loading Springtown Discipline ------"));
+        System.out.println (filePath);
+
+        int count = 0;
+        int total = 0;
+
+        
+        DisciplineFileCelina cc = cr.read();
+            //String schoolYear = "2024-2025";  // should be able to get this from TermName
+
+            //String termName = cc.getTermName();
+
+
+        while (cc != null) {
+
+            total++;
+
+
+            
+            
+            //String grade = i.importRepo.gradeForStudentId(districtId + "." + cc.studentNumber);
+
+            schoolYear = cc.numericYear;
+
+            if (!cc.iSS.equals("0.0") || !cc.oSS.equals("0.0") || !cc.dAEP.equals("0.0")) {
+                count++;
+            
+                System.out.println(cc.studentNumber + " " + cc.iSS + " " + cc.oSS + " " + cc.dAEP + " : " + schoolYear);
+
+                i.importRepo.sisDiscipline(cc.studentNumber, cc.iSS, cc.oSS, cc.dAEP, "", schoolYear);
+            }   
+            // if (!grade.isEmpty()) {
+            //     
+            //     count++;
+            // }
+            // else {
+            //     System.out.println("Did not find student : " + cc.studentNumber);
+            // }
+
+
+            cc = cr.read();
+        }
+
+
+        i.importRepo.logFile(fileName, "Discipline", schoolYear, true, "Total: " + total + "  - Imported : " + count);
+        
+        
+        System.out.println("  Total: " + total + "  - Imported : " + count);
+
+        System.out.println(("-----------------------"));
+    
+    }
+
 
     public static void LoadCelinaDiscipline (int districtId, String filePath) throws Exception {
     
@@ -664,18 +756,14 @@ public class CsvFiles {
 
             
             
-            String grade = i.importRepo.gradeForStudentId(districtId + "." + cc.studentNumber);
+            //String grade = i.importRepo.gradeForStudentId(districtId + "." + cc.studentNumber);
 
             schoolYear = MappingHelper.SchoolYearFromYear(cc.numericYear);
+
+            i.importRepo.sisDiscipline(cc.studentNumber, cc.iSS, cc.oSS, cc.dAEP, "", schoolYear);
+            count++;
             
             
-            if (!grade.isEmpty()) {
-                i.importRepo.sisDiscipline(cc.studentNumber, cc.iSS, cc.oSS, cc.dAEP, grade, schoolYear);
-                count++;
-            }
-            else {
-                System.out.println("Did not find student : " + cc.studentNumber);
-            }
 
 
             cc = cr.read();
@@ -683,7 +771,7 @@ public class CsvFiles {
 
 
         i.importRepo.logFile(fileName, "Discipline", schoolYear, true, "Total: " + total + "  - Imported : " + count);
-        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
+        
         
         System.out.println("  Total: " + total + "  - Imported : " + count);
 
@@ -839,7 +927,7 @@ public class CsvFiles {
 
         i.importRepo.logFile(fileName, "Grades", schoolYear, true, "Total: " + total + "  - Imported : " + count);
 
-        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
+        
         
         System.out.println("  Total: " + total + "  - Imported : " + count);
 
@@ -977,7 +1065,7 @@ public class CsvFiles {
 
         i.importRepo.logFile(fileName, "Grades", schoolYear, true, "Total: " + total + "  - Imported : " + count);
 
-        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
+        
         
         System.out.println("  Total: " + total + "  - Imported : " + count);
 
@@ -1123,11 +1211,251 @@ public class CsvFiles {
         i.importRepo.logFile (fileName, "Map", schoolYear, false, "Total: " + total + "  - Imported : " + count);
 
 
-        i.importRepo.logTea(filePath, "  Total: " + total + "  - Imported : " + count);
+        
         
         System.out.println("  Total: " + total + "  - Imported : " + count);
 
         System.out.println(("-----------------------"));
+
+    }
+
+
+
+    public static Boolean GenericMClass_Lexie_Validate(int districtId, String filePath, String schoolYear, String benchmarkPeriod, int studentNumberCol, int proficiencyCol, int scoreCol ) {
+         int rowsRead = 0;
+        int rowsLoaded = 0;
+
+        System.out.println("----------------- START -------------");
+        System.out.println(filePath);
+
+        try {
+            UserFileService msp = new UserFileService();
+
+            List<String[]> data;
+
+            String[] fr;
+
+            data = msp.readCsvFile(filePath);
+
+            fr = data.removeFirst();
+
+            System.out.println("Starting Data");
+
+            Boolean rowValid = true;
+
+            for (String [] row : data) {
+
+                rowsRead++;
+                rowValid = true;
+
+                String proficiency = row[proficiencyCol];
+
+                if (proficiency.isEmpty())
+                    rowValid = false;
+
+                String studentNumber = row[studentNumberCol];
+
+                String stringScore = row[scoreCol];
+
+                if (stringScore.isEmpty()) {
+                    System.out.println ("Empty Score " + studentNumber);
+
+                    rowValid = false;
+                }
+
+
+                // now we can validate.
+
+                
+                if (rowValid) {
+
+                    // first make sure the student exists
+                    Boolean studentExists = i.importRepo.studentExists(districtId + "." + studentNumber);
+
+                    if (studentExists) {
+
+
+
+                        int intScore = 0;
+
+                        try {
+                            intScore = Integer.parseInt(stringScore);
+                        }
+                        catch (Exception ex) {
+                            // Bad Score
+                            System.out.println("BAD SCORE : " + stringScore + " - " + studentNumber);
+                            intScore =0;
+                        }
+
+                        //System.out.println("ROW: " + benchmarkPeriod + " : " + schoolYear + " : " + proficiency + " : " + studentNumber);
+
+
+                        
+                        if (intScore > 0) {
+
+                            String period = MappingHelper.Dibels8_period(benchmarkPeriod);
+
+
+                            String subject = "Reading";  // constant
+                            String csaCode = "R";   // constant
+
+                                
+                            String proficiencyCode = MappingHelper.MClass_proficiencyCode (proficiency);
+
+                            rowsLoaded++;
+
+                            // make sure the student exists
+
+                            //i.importRepo.sisMclassAdd(studentNumber, schoolYear, period, subject, proficiency, proficiencyCode, intScore, csaCode);
+
+                        }
+                    }
+                    // else - Student does not exist
+                }
+                else {
+                    System.out.println ("Invalid Row " + studentNumber);
+                
+                }
+
+
+
+            }
+
+            System.out.println( "   ROWS: " + rowsRead + "  Loaded: " + rowsLoaded);
+
+            System.out.println("----------------- END -------------");
+
+            return true;
+
+        }
+        catch (Exception ex) {
+            System.out.println("----------------- FAILED -------------");
+
+            System.out.println(filePath);
+            System.out.println("FAILD VALIDATE : ");
+            System.out.println(ex.getMessage());
+            return false;
+        }
+
+    }
+
+
+
+    public static Boolean GenericMClass_Lexie_Load(int districtId, String filePath, String schoolYear, String benchmarkPeriod, int studentNumberCol, int proficiencyCol, int scoreCol ) {
+         int rowsRead = 0;
+        int rowsLoaded = 0;
+
+        System.out.println("----------------- START -------------");
+        System.out.println(filePath);
+
+        try {
+            UserFileService msp = new UserFileService();
+
+            List<String[]> data;
+
+            String[] fr;
+
+            data = msp.readCsvFile(filePath);
+
+            fr = data.removeFirst();
+
+            System.out.println("Starting Data");
+
+            Boolean rowValid = true;
+
+            for (String [] row : data) {
+
+                rowsRead++;
+                rowValid = true;
+
+                String proficiency = row[proficiencyCol];
+
+                if (proficiency.isEmpty())
+                    rowValid = false;
+
+                String studentNumber = row[studentNumberCol];
+
+                String stringScore = row[scoreCol];
+
+                if (stringScore.isEmpty()) {
+                    System.out.println ("Empty Score " + studentNumber);
+
+                    rowValid = false;
+                }
+
+
+                // now we can validate.
+
+                
+                if (rowValid) {
+
+                    // first make sure the student exists
+                    Boolean studentExists = i.importRepo.studentExists(districtId + "." + studentNumber);
+
+                    if (studentExists) {
+
+
+
+                        int intScore = 0;
+
+                        try {
+                            intScore = Integer.parseInt(stringScore);
+                        }
+                        catch (Exception ex) {
+                            // Bad Score
+                            System.out.println("BAD SCORE : " + stringScore + " - " + studentNumber);
+                            intScore =0;
+                        }
+
+                        //System.out.println("ROW: " + benchmarkPeriod + " : " + schoolYear + " : " + proficiency + " : " + studentNumber);
+
+
+                        
+                        if (intScore > 0) {
+
+                            String period = MappingHelper.Dibels8_period(benchmarkPeriod);
+
+
+                            String subject = "Reading";  // constant
+                            String csaCode = "R";   // constant
+
+                                
+                            String proficiencyCode = MappingHelper.MClass_proficiencyCode (proficiency);
+
+                            rowsLoaded++;
+
+                            // make sure the student exists
+
+                            i.importRepo.sisMclassAdd(studentNumber, schoolYear, period, subject, proficiency, proficiencyCode, intScore, csaCode);
+
+                        }
+                    }
+                    // else - Student does not exist
+                }
+                else {
+                    System.out.println ("Invalid Row " + studentNumber);
+                
+                }
+
+
+
+            }
+
+            System.out.println( "   ROWS: " + rowsRead + "  Loaded: " + rowsLoaded);
+
+            System.out.println("----------------- END -------------");
+
+            return true;
+
+        }
+        catch (Exception ex) {
+            System.out.println("----------------- FAILED -------------");
+
+            System.out.println(filePath);
+            System.out.println("FAILD VALIDATE : ");
+            System.out.println(ex.getMessage());
+            return false;
+        }
 
     }
 
@@ -1411,6 +1739,233 @@ public class CsvFiles {
     }
 
 
+
+
+    private static String ActionMapToDiscipline (String action) {
+        String disciplineType = 
+        switch(action) {
+
+            case "Continue Other District DAEP", 
+                "DAEP Placement (Student Not Expelled)",
+                "Continue Prior Year DAEP            Sp.Ed.",
+                "Continue Prior Year DAEP" -> "daep";
+
+            case "Out-of-School Suspension (3 Day Limit)" -> "oss";
+            case "In-School Suspension" -> "iss";
+            default -> "";    
+
+        
+        };
+
+        return disciplineType;
+    }
+
+    
+
+    public static float daysToFloat (String daysString) {
+        float days = 0f;
+
+        try {
+            days = Float.parseFloat(daysString);
+        }
+        catch (Exception ex) {
+            // do nothing.
+        }
+
+        return days;
+    }
+
+    public static void LoadDisciplineLedger (int districtId, String filePath) throws Exception {
+
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("MClass - Filename: " + fileName); // Output: Filename: myFile.txt
+
+
+        String schoolYear = "N/A";
+
+        TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
+
+        
+
+        FlatFileItemReader<DisciplineLedger> cr = tsfr.disciplineLedgerReader(filePath);
+
+        cr.open(new ExecutionContext());
+
+        System.out.println(("-----------------------"));
+        System.out.println(("------ disciplineLedgerReader ------"));
+        System.out.println (filePath);
+
+        int count = 0;
+        int total = 0;
+        int totalCompleted = 0;
+
+
+
+        //HashMap<String, Integer> actions = new HashMap<>();
+
+
+        HashMap<String, DisciplineHelper> studentDisipline = new HashMap<>();
+        // for (String value : theParams) {
+        //     String decodedValue = URLDecoder.decode(value, StandardCharsets.UTF_8);
+        //     String[] split = decodedValue.split("=");
+        //     if (split.length == 2) {
+        //         result.put(split[0], split[1]);
+        //     } else {
+        //         result.put("filter", decodedValue.substring(7));
+        //     }
+        // }
+
+
+        DisciplineLedger cc = cr.read();
+            //String schoolYear = "2024-2025";  // should be able to get this from TermName
+
+            //String termName = cc.getTermName();
+
+        schoolYear = cc.schoolYear;
+
+        float days = 0f;
+        DisciplineHelper disciplineHelper;
+        while (cc != null) {
+
+            total++;
+
+            // lets see what we got
+
+            String disciplineType = ActionMapToDiscipline(cc.action);
+
+            
+
+            switch (disciplineType) {
+                // case "":
+                //     // for validation.
+                //     if (actions.containsKey(cc.action)) {
+                //         int v = actions.get(cc.action);
+                //         actions.put(cc.action, v + 1);
+                //     }
+                //     else {
+                //         actions.put(cc.action, 1);
+                //     }
+
+                //     break;
+            
+                case "daep":
+
+                    days = daysToFloat(cc.days);
+
+
+                    if (studentDisipline.containsKey(cc.studentSourceID)) {
+                        disciplineHelper = studentDisipline.get(cc.studentSourceID);
+                        disciplineHelper.daep += days;
+                        studentDisipline.put(cc.studentSourceID, disciplineHelper);
+                    }
+                    else {
+                        disciplineHelper = new DisciplineHelper();
+                        disciplineHelper.daep = days;
+                        disciplineHelper.iss = 0;
+                        disciplineHelper.oss = 0;
+
+                        studentDisipline.put(cc.studentSourceID, disciplineHelper);
+
+                    }
+                    System.out.println("DAEP: " + cc.studentSourceID + " " + cc.days);
+                    break;
+                case "iss":
+                      days = daysToFloat(cc.days);
+
+
+                    if (studentDisipline.containsKey(cc.studentSourceID)) {
+                        disciplineHelper = studentDisipline.get(cc.studentSourceID);
+                        disciplineHelper.iss += days;
+                        studentDisipline.put(cc.studentSourceID, disciplineHelper);
+                    }
+                    else {
+                        disciplineHelper = new DisciplineHelper();
+                        disciplineHelper.daep = 0;
+                        disciplineHelper.iss = days;
+                        disciplineHelper.oss = 0;
+
+                        studentDisipline.put(cc.studentSourceID, disciplineHelper);
+
+                    }
+                    System.out.println("ISS: " + cc.studentSourceID + " " + cc.days);
+                    break;
+                case "oss":
+                      days = daysToFloat(cc.days);
+
+
+                    if (studentDisipline.containsKey(cc.studentSourceID)) {
+                        disciplineHelper = studentDisipline.get(cc.studentSourceID);
+                        disciplineHelper.oss += days;
+                        studentDisipline.put(cc.studentSourceID, disciplineHelper);
+                    }
+                    else {
+                        disciplineHelper = new DisciplineHelper();
+                        disciplineHelper.daep = 0;
+                        disciplineHelper.iss = 0;
+                        disciplineHelper.oss = days;
+
+                        studentDisipline.put(cc.studentSourceID, disciplineHelper);
+
+                    }
+                    System.out.println("OSS: " + cc.studentSourceID + " " + cc.days);
+                    break;
+                default:
+                     //System.out.println("DEFAULT--" + cc.action);
+                    
+                    break;
+            }
+
+           // System.out.println("Student: " + cc.studentSourceID + "  Type: " + cc.action + " [" + cc.days + "]") ;
+
+         
+
+            cc = cr.read();
+
+        }
+
+        // now lets see what we have
+
+    //     System.out.println("NOT USED ONES");
+
+    //    for (String key : actions.keySet()) {
+    //         System.out.println("Action: " + key + " : " + actions.get(key));
+    //     }
+
+        //System.out.println("----   What we got ----");
+        for (String stnum : studentDisipline.keySet()) {
+            DisciplineHelper dh = studentDisipline.get(stnum);
+
+            // let see if any are floats
+            
+            //System.out.println (stnum + "  : " + dh.daep + " : " + dh.iss + " : " + dh.oss);
+
+            if ((dh.iss + dh.oss + dh.daep) > 0.0f) {
+                count++;
+
+                //i.importRepo.sisDiscipline(stnum, Integer.toString((int)dh.iss) , Integer.toString((int)dh.oss), Integer.toString((int)dh.daep), "",  schoolYear);
+                i.importRepo.sisDiscipline(stnum, floatToStringTrimZeros(dh.iss)  , floatToStringTrimZeros(dh.oss) , floatToStringTrimZeros(dh.daep), "",  schoolYear);
+            }
+        }
+
+        
+        i.importRepo.logFile (fileName, "Map", schoolYear, false, "Total: " + total + " - completed: " + totalCompleted +  "  - Imported : " + count);
+
+        
+        
+        System.out.println("  Total: " + total + " - completed: " + totalCompleted +  "  - Imported : " + count);
+
+        System.out.println(("-----------------------"));
+    }
+
+
+    private static String floatToStringTrimZeros(float f)
+    {
+        BigDecimal bd = new BigDecimal(f);
+        bd.stripTrailingZeros();
+        return bd.toPlainString();
+    }
+
     // studentNumber, schoolYear, period, subject, proficiency, proficiencyCode, score, csaCode
 
      public static void LoadMClassDibels8 (int districtId, String filePath, Boolean useFileStudentId) throws Exception  {
@@ -1546,7 +2101,7 @@ public class CsvFiles {
 
         i.importRepo.logFile (fileName, "Map", schoolYear, false, "Total: " + total + " - completed: " + totalCompleted +  "  - Imported : " + count);
 
-        i.importRepo.logTea(filePath, "  Total: " + total + " - completed: " + totalCompleted +  "  - Imported : " + count);
+        
         
         System.out.println("  Total: " + total + " - completed: " + totalCompleted +  "  - Imported : " + count);
 

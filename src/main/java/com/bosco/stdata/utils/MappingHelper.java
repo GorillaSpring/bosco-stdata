@@ -35,6 +35,7 @@ public class MappingHelper {
             case "0325", "0525", "1525", "1625", "0425" -> "2024-2025";
             case "0324", "0424", "1524", "0524", "1324", "1624" -> "2023-2024";
             case "0323", "0423", "1523", "0523", "1323", "1623" -> "2022-2023";
+            case "1322" -> "2021-2022";
             default -> throw new Exception("Unknown Admin Date in TEA File: " + adminDate);
 
         };
