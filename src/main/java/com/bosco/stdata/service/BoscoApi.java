@@ -235,13 +235,38 @@ public class BoscoApi {
         
 
         try {
+
+            
+
+
             List<String> refs = boscoClient.getActiveReferralsForDistrict(getUrl, token);
+
+            // so here we would like to check for deletes in the results.
+
+            // to do this, we need to get the ones in our DB and delete them if not in the refs above.
+
+            List<String> currentRefs = importRepo.allReferralsForDistrict(districtId);
+
+            for (String refIdString : currentRefs) {
+                if (!refs.contains(refIdString)) {
+                    System.out.println("Deleting IMPORT SYSTEM  : " + refIdString + " -- NOT IN BOSCO");
+                    importRepo.sisReferralDelete(refIdString);
+
+                }
+                // else {
+                //     System.out.println("We already have : " + refIdString );
+                // }
+            }
+
+
 
             res.success = true;
             res.message =  "Got " + refs.size();
 
+
+
             for (String ref : refs) {
-                System.out.println ("Active Ref: " + ref);
+                System.out.println ("Active Ref in Bsoco: " + ref  + "   Adding if it does not exist and marking dirty!");
                 importRepo.sisReferralAdd(ref);
                 
             }

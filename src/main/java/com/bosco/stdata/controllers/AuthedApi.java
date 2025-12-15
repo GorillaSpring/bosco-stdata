@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RestController
 // @RequestMapping("/bosco/api/students")
 @CrossOrigin(origins = "*")
-@Tag(name = "Student Management", description = "APIs for managing student data")
+@Tag(name = "Auth Testing (AuthedApi)", description = "APIs for managing student data")
 @SecurityRequirement(name = "oauth2")
 public class AuthedApi {
 
@@ -86,8 +86,8 @@ public class AuthedApi {
     
     @Operation(
         summary = "Testing Auth ",
-        description = "This will be removed soon.",
-        tags = {"Testing"}
+        description = "This will be removed soon."
+        
         )
 
     @GetMapping("/authed/test1/{id}")

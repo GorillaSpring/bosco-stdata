@@ -1082,10 +1082,10 @@ public class CsvFiles {
         String fileName = file.getName();
         System.out.println("Map - Filename: " + fileName); // Output: Filename: myFile.txt
 
-        if (i.importRepo.logFileExists(fileName)) {
-            System.out.println("   --- Already Imported ");
-            return;
-        }
+        // if (i.importRepo.logFileExists(fileName)) {
+        //     System.out.println("   --- Already Imported ");
+        //     return;
+        // }
 
         String schoolYear = "N/A";
 
@@ -1169,7 +1169,18 @@ public class CsvFiles {
 
                     if (subject != null) {
                         
-                        int score = Integer.parseInt(cc.getPercentCorrect());
+                        int perc = Integer.parseInt(cc.getPercentCorrect());
+
+                        int score = 0;
+                        try {
+                            score = Integer.parseInt(cc.testRITScore);
+                        }
+                        catch (Exception ex) {
+                            System.out.println("Bad testRITScore: " + cc.testRITScore);
+                        }
+                        
+
+
 
                         //String testStartDate = cc.getTestStartDate();
 
@@ -1949,7 +1960,7 @@ public class CsvFiles {
         }
 
         
-        i.importRepo.logFile (fileName, "Map", schoolYear, false, "Total: " + total + " - completed: " + totalCompleted +  "  - Imported : " + count);
+        i.importRepo.logFile (fileName, "Discipline", schoolYear, false, "Total: " + total + " - completed: " + totalCompleted +  "  - Imported : " + count);
 
         
         

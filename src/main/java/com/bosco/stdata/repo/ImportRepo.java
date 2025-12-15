@@ -926,6 +926,18 @@ public class ImportRepo {
         return template.queryForList(sql, String.class);
     }
 
+     public List<String> allReferralsForDistrict (int districtId) {
+        
+
+
+        String sql = "select id from sis_student where id like ('" + districtId + ".%');";
+
+        return template.queryForList(sql, String.class);
+    }
+
+
+    
+
     public void sisReferralAdd (String id) {
         Boolean dirty = true;
         Object[] args = {
@@ -944,6 +956,21 @@ public class ImportRepo {
         int rows = template.update(sql, args);
     }
 
+
+     public void sisReferralDelete (String id) {
+        Boolean dirty = true;
+        Object[] args = {
+            id
+        };
+
+
+        
+        String sql = """
+            delete from sis_student where id = ?;
+                """;
+
+        int rows = template.update(sql, args);
+    }
     
     public void boscoStudentAdd (int forDistrictId, String id, String studentNumber) {
            Object[] args = {

@@ -70,7 +70,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
                 .requestMatchers("/oauth2/**").permitAll()
 
-    			.requestMatchers("/authed/**").authenticated() //"/logout", "/login/*", "/bosco/*", "/bosco/saml2/**", "/bosco/login/saml2/**", "/public/**", "/error", "/saml2/**","/login/saml2/**").permitAll()
+    			.requestMatchers("/import/**").authenticated() //"/logout", "/login/*", "/bosco/*", "/bosco/saml2/**", "/bosco/login/saml2/**", "/public/**", "/error", "/saml2/**","/login/saml2/**").permitAll()
     			.anyRequest().permitAll())
 
     	//.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(jwt -> {}))

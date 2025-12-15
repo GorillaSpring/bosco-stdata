@@ -78,9 +78,9 @@ public class CelinaSisFiles {
              //CsvFiles.LoadMapCourseNameCsaCode(baseFileFolder + "Celina_map_courseName_csaCode.csv");
 
              // This is broken because back to comma seporated.
-            CsvFiles.LoadGradesCelina(districtId, baseFileFolder + "academicgrades.csv");
+            // CsvFiles.LoadGradesCelina(districtId, baseFileFolder + "academicgrades.csv");
 
-            CsvFiles.LoadCelinaDiscipline(districtId, baseFileFolder + "discipline.csv");
+            // CsvFiles.LoadCelinaDiscipline(districtId, baseFileFolder + "discipline.csv");
 
              
 
@@ -98,13 +98,13 @@ public class CelinaSisFiles {
 
 
 
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2022-2023 Assessment Files/2022-23 STAAR/SF_0523_3_8_043903_CELINA_ISD_V01.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2022-2023 Assessment Files/2022-23 STAAR/SF_1523_EOCALT_043903_CELINA_ISD_V01.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2022-2023 Assessment Files/2022-23 STAAR/SF_1523_EOC_043903_CELINA_ISD_V01.txt");
+            // TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2022-2023 Assessment Files/2022-23 STAAR/SF_0523_3_8_043903_CELINA_ISD_V01.txt");
+            // TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2022-2023 Assessment Files/2022-23 STAAR/SF_1523_EOCALT_043903_CELINA_ISD_V01.txt");
+            // TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2022-2023 Assessment Files/2022-23 STAAR/SF_1523_EOC_043903_CELINA_ISD_V01.txt");
 
 
-            TeaFiles.LoadTelpas(districtId, baseFileFolder + "2022-2023 Assessment Files//2022-23 TELPAS/SF_0323_TELPAS_043903_CELINA ISD_V02.txt");
-            TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "2022-2023 Assessment Files//2022-23 TELPAS/SF_0323_TELPASALT_043903_CELINA ISD_V01.txt");
+            // TeaFiles.LoadTelpas(districtId, baseFileFolder + "2022-2023 Assessment Files//2022-23 TELPAS/SF_0323_TELPAS_043903_CELINA ISD_V02.txt");
+            // TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "2022-2023 Assessment Files//2022-23 TELPAS/SF_0323_TELPASALT_043903_CELINA ISD_V01.txt");
 
 
 
@@ -113,15 +113,15 @@ public class CelinaSisFiles {
             CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 MAP/MAP Data file Fall 2324.csv", true);
 
    
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 STAAR/SF_0425_3_8ALT_043903_CELINA_ISD_V01.txt");
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 STAAR/SF_0524_3_8_043903_CELINA_ISD_V01 (1).txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 STAAR/SF_1524_EOCALT_043903_CELINA_ISD_V01.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 STAAR/SF_1524_EOC_043903_CELINA_ISD_V01.txt");
+            // TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 STAAR/SF_0425_3_8ALT_043903_CELINA_ISD_V01.txt");
+            // TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 STAAR/SF_0524_3_8_043903_CELINA_ISD_V01 (1).txt");
+            // TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 STAAR/SF_1524_EOCALT_043903_CELINA_ISD_V01.txt");
+            // TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 STAAR/SF_1524_EOC_043903_CELINA_ISD_V01.txt");
 
 
             
-            TeaFiles.LoadTelpas(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 TELPAS/SF_0324_TELPAS_043903_CELINA ISD_V01.txt");
-            TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 TELPAS/SF_0324_TELPASALT_043903_CELINA ISD_V01.txt");
+            // TeaFiles.LoadTelpas(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 TELPAS/SF_0324_TELPAS_043903_CELINA ISD_V01.txt");
+            // TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "2023-2024 Assessment Files/2023-24 TELPAS/SF_0324_TELPASALT_043903_CELINA ISD_V01.txt");
 
 
 
@@ -132,15 +132,15 @@ public class CelinaSisFiles {
             
     
 
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2024-2025 Assessment Files/2024-25 STAAR/SF_0425_3_8ALT_043903_CELINA_ISD_V01.txt");
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2024-2025 Assessment Files/2024-25 STAAR/SF_0525_3_8_043903_CELINA_ISD_V03.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2024-2025 Assessment Files/2024-25 STAAR/SF_1525_EOCALT_043903_CELINA_ISD_V01.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2024-2025 Assessment Files/2024-25 STAAR/SF_1525_EOC_043903_CELINA_ISD_V02.txt");
+            // TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2024-2025 Assessment Files/2024-25 STAAR/SF_0425_3_8ALT_043903_CELINA_ISD_V01.txt");
+            // TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "2024-2025 Assessment Files/2024-25 STAAR/SF_0525_3_8_043903_CELINA_ISD_V03.txt");
+            // TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2024-2025 Assessment Files/2024-25 STAAR/SF_1525_EOCALT_043903_CELINA_ISD_V01.txt");
+            // TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "2024-2025 Assessment Files/2024-25 STAAR/SF_1525_EOC_043903_CELINA_ISD_V02.txt");
             
 
 
 
-            TeaFiles.LoadTelpas(districtId, baseFileFolder + "2024-2025 Assessment Files/2024-25 TELPAS/SF_0325_TELPAS_043903_CELINA_ISD_V01.txt");
+            // TeaFiles.LoadTelpas(districtId, baseFileFolder + "2024-2025 Assessment Files/2024-25 TELPAS/SF_0325_TELPAS_043903_CELINA_ISD_V01.txt");
 
 
             result.success = true;

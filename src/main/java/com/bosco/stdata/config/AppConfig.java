@@ -34,14 +34,14 @@ public class AppConfig {
         return new OpenAPI()
               
         
-                .addTagsItem(new Tag().name("Import Defs").description("Import Definitions"))
+                // .addTagsItem(new Tag().name("Import Defs").description("Import Definitions"))
 
-                .addTagsItem(new Tag().name("Import Testing").description("Testing Of Imports - RUN NOW."))
+                // .addTagsItem(new Tag().name("Import Testing").description("Testing Of Imports - RUN NOW."))
 
 
-                .addTagsItem(new Tag().name("Bosco Endpoints").description("Bosco Web will call these endpoints"))
-                .addTagsItem(new Tag().name("Bosco API Examples").description("This is what StData will call in Bosco and send the data"))
-                .addTagsItem(new Tag().name("Testing").description("Testing methods - Will be removed"))
+                // .addTagsItem(new Tag().name("Bosco Endpoints").description("Bosco Web will call these endpoints"))
+                // .addTagsItem(new Tag().name("Bosco API Examples").description("This is what StData will call in Bosco and send the data"))
+                // .addTagsItem(new Tag().name("Testing").description("Testing methods - Will be removed"))
 
 
                 .components(new Components()
