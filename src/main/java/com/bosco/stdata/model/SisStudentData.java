@@ -17,7 +17,11 @@ public class SisStudentData {
   
   public List<SisTelpas> telpas = new ArrayList<>();
   
+  public List<SisAttendance> attendance = new ArrayList<>();
+
   public List<SisDiscipline> discipline = new ArrayList<>();
+
+
 
 
 

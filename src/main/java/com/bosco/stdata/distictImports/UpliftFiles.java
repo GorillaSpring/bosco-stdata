@@ -19,6 +19,7 @@ import com.bosco.stdata.model.*;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.service.UserFileService;
+import com.bosco.stdata.sisDataFiles.CsvFiles;
 import com.bosco.stdata.utils.ImportHelper;
 import com.bosco.stdata.utils.MappingHelper;
 import com.bosco.stdata.utils.TeaStaarFlatFileReader;
@@ -117,6 +118,13 @@ public class UpliftFiles {
              int counter1 = 0;
              int counter2 = 0;
 
+
+
+            System.out.print ("Importing absenses");
+
+            CsvFiles.LoadAttendanceLedgerUplift(districtId, baseFileFolder + "full_attendance.csv");
+
+            System.out.print ("DONE Importing absenses");
 
 
             // System.out.println("Importing campuses File");

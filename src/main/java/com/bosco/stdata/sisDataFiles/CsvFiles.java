@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.tomcat.util.digester.SystemPropertySource;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import com.bosco.stdata.config.AppConfig;
 import com.bosco.stdata.controllers.AuthedApi;
 import com.bosco.stdata.distictImports.BurlesonFiles;
 import com.bosco.stdata.distictImports.BurlesonSisFiles;
+import com.bosco.stdata.model.SisAttendance;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.service.BoscoClient;
@@ -34,6 +36,7 @@ import com.bosco.stdata.teaModel.GradeFileCelina;
 import com.bosco.stdata.teaModel.GradeFileMelissa;
 import com.bosco.stdata.teaModel.GradePriorYearBurleson;
 import com.bosco.stdata.teaModel.MapCourseNameCsaCode;
+import com.bosco.stdata.utils.ImportHelper;
 import com.bosco.stdata.utils.MappingHelper;
 import com.bosco.stdata.utils.TeaStaarFlatFileReader;
 
@@ -1784,6 +1787,245 @@ public class CsvFiles {
         }
 
         return days;
+    }
+
+
+    public static void LoadAttendanceLedgerUplift (int districtId, String filePath) throws Exception {
+
+        // for a student + date, we build up the perid as a list of them.
+        // this may be one one line, or may be in multiple lines.
+        SisAttendance sa;
+
+        // we should be able to determin the school year by the date, but maybe better to read it in.
+        HashMap<String, SisAttendance> studentAttendance = new HashMap<>();
+
+
+        int rowsRead = 0;
+        int rowsLoaded = 0;
+
+
+        // "StudentSourceID","StudentNumber","DateOfAttendance","AttendanceCode","SchoolYear"
+        System.out.println("----------------- START -------------");
+        System.out.println(filePath);
+
+        try {
+            UserFileService msp = new UserFileService();
+
+            List<String[]> data;
+
+            String[] fr;
+
+            data = msp.readCsvFile(filePath);
+
+            fr = data.removeFirst();
+
+            System.out.println("Starting Data");
+
+            Boolean rowValid = true;
+
+            for (String [] row : data) {
+
+                rowsRead++;
+                rowValid = true;
+
+                String studentNumber = row[0];     // 020281
+                String event = row[1].equals("Tardy") ? "T" : "A";  // Tardy OR Absence
+                String date = row[2];           // 08/11/2025
+                String rowPeriod = row[3];      // 3  OR blank  (for abesent)
+                if (rowPeriod.isEmpty()) {
+                    rowPeriod = "Full Day";
+                }
+
+
+                // ok, lets try to buld them up.
+
+                String key = studentNumber + ":" + date + ":" + event;
+                //System.out.println("Key : " + key);
+
+                if (studentAttendance.containsKey(key)) {
+                    //System.out.println(" -- Found key");
+                    sa = studentAttendance.get(key);
+                    sa.period += ", " + rowPeriod;
+                }
+                else {
+
+                    String schoolYear = MappingHelper.SchoolYearFromDate(date);
+
+                    sa = new SisAttendance();
+                    sa.date = date;
+                    sa.event = event;
+                    sa.schoolYear = schoolYear;
+                    sa.period = rowPeriod;
+                    studentAttendance.put(key, sa);
+                }
+
+             
+
+
+
+            }
+
+            // now lest see what we got.
+
+            rowsLoaded = 0;
+            for (String key : studentAttendance.keySet()) {
+                sa = studentAttendance.get(key);
+                rowsLoaded++;
+                
+
+                String studentNumber = key.split(":")[0];
+
+                // System.out.println("Key: " + key + " - " + studentNumber);
+
+
+                String formattedDate = ImportHelper.DateToStdFormat(sa.date);
+
+                System.out.println(studentNumber + " : " + formattedDate + " " + sa.schoolYear + " : " + sa.period);
+
+                i.importRepo.sisAttendanceAdd(studentNumber, sa.event, sa.schoolYear, formattedDate, sa.period);
+
+
+            
+            }
+
+            // 
+
+            System.out.println( "   ROWS: " + rowsRead + "  Loaded: " + rowsLoaded);
+
+            System.out.println("----------------- END -------------");
+
+        }
+        catch (Exception ex) {
+            System.out.println("EXCEPTION");
+            System.out.println(ex.getMessage());
+            System.out.println("EXCEPTION");
+        }
+
+
+
+        // so once we have our map.
+
+        // foreach key in map
+        // we can get student + date from the key
+        // now we can get the perod from the data
+        // we still need the schoolYear
+    }
+
+    public static void LoadAttendanceLedgerMelissa (int districtId, String filePath) throws Exception {
+
+        // for a student + date, we build up the perid as a list of them.
+        // this may be one one line, or may be in multiple lines.
+        SisAttendance sa;
+
+        // we should be able to determin the school year by the date, but maybe better to read it in.
+        HashMap<String, SisAttendance> studentAttendance = new HashMap<>();
+
+
+         int rowsRead = 0;
+        int rowsLoaded = 0;
+
+
+        // "StudentSourceID","StudentNumber","DateOfAttendance","AttendanceCode","SchoolYear"
+        System.out.println("----------------- START -------------");
+        System.out.println(filePath);
+
+        try {
+            UserFileService msp = new UserFileService();
+
+            List<String[]> data;
+
+            String[] fr;
+
+            data = msp.readCsvFile(filePath);
+
+            fr = data.removeFirst();
+
+            System.out.println("Starting Data");
+
+            Boolean rowValid = true;
+
+            for (String [] row : data) {
+
+                rowsRead++;
+                rowValid = true;
+
+                String studentNumber = row[1];     // 020281
+                String date = row[2];           // 8/22/2025
+                String rowPeriod = row[3];      // 4-9 or HRM
+
+
+                // ok, lets try to buld them up.
+
+                String key = studentNumber + ":" + date;
+                //System.out.println("Key : " + key);
+
+                if (studentAttendance.containsKey(key)) {
+                    //System.out.println(" -- Found key");
+                    sa = studentAttendance.get(key);
+                    sa.period += ", " + rowPeriod;
+                }
+                else {
+
+                    String schoolYear = MappingHelper.SchoolYearFromYear(row[4]) ;    // 2026 => 2025-2026
+
+                    sa = new SisAttendance();
+                    sa.date = date;
+                    sa.event = "A";
+                    sa.schoolYear = schoolYear;
+                    sa.period = rowPeriod;
+                    studentAttendance.put(key, sa);
+                }
+
+             
+
+
+
+            }
+
+            // now lest see what we got.
+
+            rowsLoaded = 0;
+            for (String key : studentAttendance.keySet()) {
+                sa = studentAttendance.get(key);
+                rowsLoaded++;
+                
+
+                String studentNumber = key.split(":")[0];
+
+                // System.out.println("Key: " + key + " - " + studentNumber);
+
+
+                String formattedDate = ImportHelper.DateToStdFormat(sa.date);
+
+                System.out.println(studentNumber + " : " + formattedDate + " " + sa.schoolYear + " : " + sa.period);
+
+                i.importRepo.sisAttendanceAdd(studentNumber, sa.event, sa.schoolYear, formattedDate, sa.period);
+
+
+            
+            }
+
+            // 
+
+            System.out.println( "   ROWS: " + rowsRead + "  Loaded: " + rowsLoaded);
+
+            System.out.println("----------------- END -------------");
+
+        }
+        catch (Exception ex) {
+            System.out.println("EXCEPTION");
+            System.out.println(ex.getMessage());
+            System.out.println("EXCEPTION");
+        }
+
+
+
+        // so once we have our map.
+
+        // foreach key in map
+        // we can get student + date from the key
+        // now we can get the perod from the data
+        // we still need the schoolYear
     }
 
     public static void LoadDisciplineLedger (int districtId, String filePath) throws Exception {

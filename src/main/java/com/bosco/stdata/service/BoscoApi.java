@@ -104,6 +104,10 @@ public class BoscoApi {
         // star is missing code, proficiencyCode and csacode
 
         sd.telpas = importRepo.sisTelpasGet(id);
+
+        sd.attendance = importRepo.sisAttendanceGet(id);
+
+        
         
 
 

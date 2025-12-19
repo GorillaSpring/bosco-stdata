@@ -278,6 +278,27 @@ public class ImportRepo {
     }
 
 
+    
+    public List<SisAttendance> sisAttendanceGet (String id) {
+          Object[] args = {
+            //forDistrictId,
+            id
+        };
+
+        String sql = """
+           select 
+               *
+            from 
+                sis_attendance
+            where 
+                id = ?;
+                """; 
+
+
+        return template.query(sql, new BeanPropertyRowMapper<>(SisAttendance.class), args);
+    }
+
+
     public List<SisDisciplineHelper> sisDisciplinesGet (int forDistrictId, String id) {
           Object[] args = {
             //forDistrictId,
@@ -707,6 +728,28 @@ public class ImportRepo {
         
 
 
+        int rows = template.update(sql, args);
+
+    }
+
+    public void sisAttendanceAdd (String studentNumber, String event, String schoolYear, String date, String period) {
+        String id = districtId + "." + studentNumber;
+
+
+          Object[] args = {
+            districtId,
+            id,
+            event,
+            schoolYear,
+            date,
+            period
+        };
+
+        
+        String sql = "call sis_attendance_add (?, ?, ?, ?, ?, ?)";
+
+
+   
         int rows = template.update(sql, args);
 
     }

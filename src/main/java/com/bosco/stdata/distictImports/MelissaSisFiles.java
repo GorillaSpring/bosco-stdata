@@ -95,6 +95,21 @@ public class MelissaSisFiles {
             // CsvFiles.LoadGradesMelissa(districtId, baseFileFolder + "grades_historical.csv");
 
 
+            // workign on Melissa attendance
+
+            CsvFiles.LoadAttendanceLedgerMelissa(districtId, baseFileFolder + "TODO/absences_current_year.csv");
+
+            System.out.println("CHECK - 12378");
+
+
+            CsvFiles.LoadAttendanceLedgerMelissa(districtId, baseFileFolder + "TODO/absences_historical.csv");
+
+
+            System.out.println("DONE - LOAD THIS AND STOP!");
+
+
+
+
 
             CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "NEW/BOY fall 2025 data.csv", false);
 
