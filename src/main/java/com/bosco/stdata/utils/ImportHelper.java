@@ -123,11 +123,14 @@ public  class ImportHelper {
         // it will thoww an exception if the data is invalid.
 
         String[] possibleFormats = {
+            "MM-dd-yy",
+            "MM-dd-yyyy",
             "yyyy-MM-dd HH:mm:ss",
             "yyyy-MM-dd",
             "MM/dd/yyyy HH:mm:ss",
             "MM/dd/yyyy",
             "MM/dd/yy"
+            
         };
 
 

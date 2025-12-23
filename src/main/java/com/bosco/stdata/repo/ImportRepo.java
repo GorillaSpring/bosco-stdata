@@ -365,6 +365,35 @@ public class ImportRepo {
 
     }
 
+
+    public String schoolNameForCode (String schoolCode)  {
+           Object[] args = {
+            districtId,
+            schoolCode
+
+        };
+
+
+        String sql = """
+                select name from school where districtId = ? and schoolCode = ?;
+                """;
+
+
+
+        try {
+            String schoolSourceId = template.queryForObject(
+                    sql, 
+                    String.class, 
+                    args);
+
+            return schoolSourceId;
+
+        }
+        catch (Exception ex) {
+            return null;
+        }
+    }
+
     // NOT USED AT THE MOMENT
     public String schoolSourceIdForStudentNumber(String studentNumber) {
         String id = districtId + "." + studentNumber;
@@ -1677,6 +1706,8 @@ public Student studentBoscoForExport (String id) {
 
 
     //#endregion
+
+
 
 
     //#region School

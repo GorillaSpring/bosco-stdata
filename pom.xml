@@ -8,10 +8,11 @@
 		<version>3.5.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.bosco</groupId>
-	<artifactId>stdata</artifactId>
+	<groupId>bosco</groupId>
+	<artifactId>bosco-stdata</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>stdata</name>
+	 <packaging>war</packaging>
+	<name>bosco-stdata</name>
 	<description>Get Student data from the import system</description>
 	<url/>
 	<licenses>

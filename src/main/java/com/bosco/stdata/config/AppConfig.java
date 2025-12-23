@@ -22,7 +22,7 @@ public class AppConfig {
   }
 
 
-    // @Value("${springdoc.server.url:http://localhost:8080/bosco}")
+    // @Value("${springdoc.server.url:http://localhost:9091/bosco}")
     // private String serverUrl;
 
     // Add OAuth2 token URL configuration

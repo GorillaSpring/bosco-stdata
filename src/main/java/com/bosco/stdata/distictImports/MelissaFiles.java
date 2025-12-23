@@ -429,80 +429,81 @@ public class MelissaFiles {
             
 
 
+            // TODO: look at this and see about getting data in.
 
-            System.out.println("Importing educational_placement File");
+            // System.out.println("Importing educational_placement File");
 
-            data = msp.readCsvFile( baseFileFolder + "educational_placement.csv");
+            // data = msp.readCsvFile( baseFileFolder + "educational_placement.csv");
 
-            // studentId
-            // classId
+            // // studentId
+            // // classId
 
-            fr = data.removeFirst();
+            // fr = data.removeFirst();
 
-            colNames = new String[]{"StudentSourceID", "StudentNumber", "IsEsl", "IsBilingual", "IsSpecialEd", "EntryIEP_Date", "LastFIIE_Date", "ReEvaluationDueDate", "Is504", "AnnualARDDate", "Annual504_Date"};
+            // colNames = new String[]{"StudentSourceID", "StudentNumber", "IsEsl", "IsBilingual", "IsSpecialEd", "EntryIEP_Date", "LastFIIE_Date", "ReEvaluationDueDate", "Is504", "AnnualARDDate", "Annual504_Date"};
 
-            // NO DATA"
-            // LastFIIE_Date
-            // ReEvaluationDueDate
-            // AnnualARDDate
-            // Annual504_Date
+            // // NO DATA"
+            // // LastFIIE_Date
+            // // ReEvaluationDueDate
+            // // AnnualARDDate
+            // // Annual504_Date
 
-            // we have and need to deal with:
+            // // we have and need to deal with:
 
-            // EntryIEP_Date   5   (may be "")
-            // 
-            // 
-
-            
-            if (!ImportHelper.CheckColumnHeaders(fr, colNames))
-                throw new Exception("File : educational_placement.csv does not match column specs" );
-
-
-            counter1 = 0;
-
-            ImportHelper.DebugCountdownSet(data.size());
-
-
-            //data.forEach(row -> {
-            for (String [] row : data) {
-                
-                
-                if (!row[0].isBlank()) 
-                {
-
-                    ImportHelper.DebugCountdown();
-
-                    // TODO: Save these/
-
-                    // // 504
-                    // if (row[8] == "Yes")
-                    //     i.importRepo.saveStudentProperty(row[1], "is504", "1");
-
-                    // // isEsl
-                    // if (row[2] == "Yes")
-                    //     i.importRepo.saveStudentProperty(row[1], "isEsl", "1");
-
-                    // // IsBilingual
-                    // if (row[3] == "Yes")
-                    //     i.importRepo.saveStudentProperty(row[1], "isBilingual", "1");
-
-                    // // IsSpecialEd
-                    // if (row[4] == "Yes")
-                    //     i.importRepo.saveStudentProperty(row[1], "isSpecialEd", "1");
-
-                    // // EntryIEP_Date
-                    // if (!row[5].isEmpty())
-                    //     i.importRepo.saveStudentPropertyString(row[1], "entryIepDate", row[5]);
-
-                    counter1++;
-
-                }
+            // // EntryIEP_Date   5   (may be "")
+            // // 
+            // // 
 
             
-            };
+            // if (!ImportHelper.CheckColumnHeaders(fr, colNames))
+            //     throw new Exception("File : educational_placement.csv does not match column specs" );
 
 
-            i.importRepo.logInfo("Imported educational_placement s : " + counter1);
+            // counter1 = 0;
+
+            // ImportHelper.DebugCountdownSet(data.size());
+
+
+            // //data.forEach(row -> {
+            // for (String [] row : data) {
+                
+                
+            //     if (!row[0].isBlank()) 
+            //     {
+
+            //         ImportHelper.DebugCountdown();
+
+            //         // TODO: Save these/
+
+            //         // // 504
+            //         // if (row[8] == "Yes")
+            //         //     i.importRepo.saveStudentProperty(row[1], "is504", "1");
+
+            //         // // isEsl
+            //         // if (row[2] == "Yes")
+            //         //     i.importRepo.saveStudentProperty(row[1], "isEsl", "1");
+
+            //         // // IsBilingual
+            //         // if (row[3] == "Yes")
+            //         //     i.importRepo.saveStudentProperty(row[1], "isBilingual", "1");
+
+            //         // // IsSpecialEd
+            //         // if (row[4] == "Yes")
+            //         //     i.importRepo.saveStudentProperty(row[1], "isSpecialEd", "1");
+
+            //         // // EntryIEP_Date
+            //         // if (!row[5].isEmpty())
+            //         //     i.importRepo.saveStudentPropertyString(row[1], "entryIepDate", row[5]);
+
+            //         counter1++;
+
+            //     }
+
+            
+            // };
+
+
+            // i.importRepo.logInfo("Imported educational_placement s : " + counter1);
             
 
               

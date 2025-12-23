@@ -127,12 +127,12 @@ public class MappingHelper {
     public static String MapProficiency (String achievementQuintile) throws Exception {
         String pro = 
         switch(achievementQuintile) {
-            case "Low" -> "Quintile 1";
-            case "LoAvg" -> "Quintile 2";
-            case "Avg" -> "Quintile 3";
-            case "HiAvg" -> "Quintile 4";            
-            case "High" -> "Quintile 5";
-            default -> throw new Exception("Unknown MapProficiency");
+            case "Low", "1. Low" -> "Quintile 1";
+            case "LoAvg", "LowAvg", "2. LowAvg" -> "Quintile 2";
+            case "Avg", "3. Avg" -> "Quintile 3";
+            case "HiAvg", "4. HiAvg" -> "Quintile 4";            
+            case "High", "5. High" -> "Quintile 5";
+            default -> throw new Exception("Unknown MapProficiency : " + achievementQuintile);
 
         };
 
@@ -234,7 +234,29 @@ public class MappingHelper {
     // TeaStaarFlatFileReader.
 
     // (Uplift - state assessment, Uplift - telpas,  CsvFiles -- LoadComboStudentAssessment
-    
+
+    public static String SchoolYearFromDateMDY (String dateString) throws Exception {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M-dd-yyyy");
+            LocalDate date = LocalDate.parse(dateString, formatter);
+            Month month = date.getMonth();
+            if (month == Month.AUGUST || month == Month.SEPTEMBER || month == Month.OCTOBER || month == Month.NOVEMBER || month == Month.DECEMBER)
+                return date.getYear() + "-" + (date.getYear() + 1);
+            else
+                return date.getYear() - 1 + "-" + date.getYear();
+
+    }
+
+     public static String SchoolYearFromDateYMD (String dateString) throws Exception {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate date = LocalDate.parse(dateString, formatter);
+            Month month = date.getMonth();
+            if (month == Month.AUGUST || month == Month.SEPTEMBER || month == Month.OCTOBER || month == Month.NOVEMBER || month == Month.DECEMBER)
+                return date.getYear() + "-" + (date.getYear() + 1);
+            else
+                return date.getYear() - 1 + "-" + date.getYear();
+
+    }
+         
     public static String SchoolYearFromDate (String dateString) throws Exception {
         
         // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
@@ -315,10 +337,12 @@ public class MappingHelper {
         String lowerSubject = subject.toLowerCase();
         if (lowerSubject.startsWith("math"))
             return "M";
+        if (lowerSubject.startsWith("algebra"))
+            return "M";
         if (lowerSubject.startsWith("read"))
             return "R";
         if (lowerSubject.startsWith("written"))
-            return "W";
+            return "R";
         if (lowerSubject.startsWith("eng"))
             return "R";
         if (lowerSubject.startsWith("lang"))
@@ -336,7 +360,7 @@ public class MappingHelper {
         if (lowerSubject.startsWith("cognitive"))
             return "G";
         
-        throw new Exception("Unknown GeneralCsaCode");
+        throw new Exception("Unknown GeneralCsaCode : " + subject);
     }
 
     // public static String MapMclass_CsaCodeFromCourseName (String courseName) throws Exception {
@@ -457,7 +481,7 @@ public class MappingHelper {
             case "E2" -> "English II";
             case "USH" -> "US History";
             case "SS" -> "Social Studies";
-            default -> throw new Exception("Unknown Staar_SubjectFromCode");
+            default -> throw new Exception("Unknown Staar_SubjectFromCode : " + code);
         };
 
         return subject;
@@ -468,12 +492,12 @@ public class MappingHelper {
     public static String Staar_CsaCodeFromCode (String code) throws Exception {
 
         String csaCode = switch (code) {
-            case "M", "A1" -> "M";
+            case "M", "A1", "Mathematics" -> "M";
             case "R" -> "R";
-            case "S", "B" -> "C";
-            case "E1", "E2" -> "L";
-            case "USH", "SS" -> "S";
-            default -> throw new Exception("Unknown Staar_CsaCodeFromCode");
+            case "S", "B", "Science" -> "C";
+            case "E1", "E2", "Language Arts" -> "L";
+            case "USH", "SS", "Social Studies" -> "S";
+            default -> throw new Exception("Unknown Staar_CsaCodeFromCode : " + code);
         };
 
         return csaCode;
@@ -482,11 +506,11 @@ public class MappingHelper {
     public static String Staar_ProficiencyCodeFromProficiency (String proficiency) throws Exception {
 
         String pc = switch (proficiency) {
-            case "Did Not Meet" -> "DN";
-            case "Approaches" -> "AP";
-            case "Masters" -> "MA";
-            case "Meets" -> "MT";
-            default -> throw new Exception("Unknown Staar ProficiencyCode");
+            case "Did Not Meet" , "NM" -> "DN";
+            case "Approaches", "A" -> "AP";
+            case "Masters", "M" -> "MA";
+            case "Meets", "ME" -> "MT";
+            default -> throw new Exception("Unknown Staar ProficiencyCode : " + proficiency);
         };
 
         return pc;

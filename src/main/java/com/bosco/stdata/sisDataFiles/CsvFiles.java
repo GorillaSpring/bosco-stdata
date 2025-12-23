@@ -25,6 +25,7 @@ import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.service.BoscoClient;
 import com.bosco.stdata.service.UserFileService;
+import com.bosco.stdata.teaModel.AllenStudent;
 import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.DibelsMClass;
 import com.bosco.stdata.teaModel.DisciplineFileCelina;
@@ -81,6 +82,102 @@ public class CsvFiles {
         System.out.println("TeaFiles - init()");
         i = this;
     }
+
+    //#region Allen Files
+
+    
+
+    public static void LoadAllenStudents (int districtId, String filePath) throws Exception {
+
+
+        File file = new File(filePath);
+        String fileName = file.getName();
+        System.out.println("Students - Filename: " + fileName); // Output: Filename: myFile.txt
+
+
+        TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();
+
+        
+
+        FlatFileItemReader<AllenStudent> cr = tsfr.studentAllenReader(filePath);
+
+        cr.open(new ExecutionContext());
+
+        System.out.println(("-----------------------"));
+        System.out.println(("------ Loading Allen Students ------"));
+        System.out.println (filePath);
+
+        int count = 0;
+        int total = 0;
+
+        
+        AllenStudent cc = cr.read();
+            //String schoolYear = "2024-2025";  // should be able to get this from TermName
+
+            //String termName = cc.getTermName();
+
+
+        while (cc != null) {
+
+            total++;
+
+            // String sourceId, String studentNumber, String firstName, String lastName, String grade, String schoolSourceId
+
+               i.importRepo.saveStudent(cc.studentID, cc.studentID, cc.firstName, cc.lastName, cc.gradeCode, cc.schoolCode);
+
+                    //i.importRepo.saveStudent(s);
+                    // studentNumber for row [0]
+
+                        String dob = ImportHelper.DateToStdFormat(cc.dOB);
+
+        // String studentNumber,             String dob,             String gender,             Boolean americanIndianOrAlaskaNative,             Boolean asian,            Boolean blackOrAfricanAmerican, 
+        //              Boolean nativeHawaiianOrOtherPacificIslander,             Boolean white,            Boolean hispanicOrLatinoEthnicity
+
+                i.importRepo.saveStudentDemographics(cc.studentID, dob, cc.gender, 
+                cc.americanIndianOrAlaskaNative.equals("Yes"), 
+                cc.asian.equals("Yes"), 
+                cc.blackOrAfricanAmerican.equals("Yes"), 
+                cc.nativeHawaiianOtherPacificIslander.equals("Yes"), 
+                cc.white.equals("Yes"), 
+                cc.isHispanicLatino.equals("Yes")
+
+                );
+
+
+                
+                String gType = "O";
+
+                if (!cc.guardianType.isEmpty())
+                    gType = cc.guardianType.substring(0,1);
+
+
+                // String sourceId, String guardianId, String studentSourceId, String firstName, String lastName, String email, String type
+                    i.importRepo.saveGuardian("G1_" + cc.studentID,  "G1_" + cc.studentID, cc.studentID, cc.guardianFirstName, cc.guardianLastName, cc.guardianEmail, gType);
+
+
+             //i.importRepo.setMapCourseCsaCode(districtId, cc.getCourseName(), "");
+
+             System.out.println("Student : " + cc.studentID + " : " + cc.firstName + " " + cc.lastName  +  "  -- " + cc.guardianType);
+             System.out.println ("    -- " + cc.americanIndianOrAlaskaNative + "," + cc.asian + "," + cc.blackOrAfricanAmerican + "," + cc.nativeHawaiianOtherPacificIslander + "," + cc.white + "," + cc.isHispanicLatino);
+
+             
+            
+
+            cc = cr.read();
+        }
+
+        //i.importRepo.logFile(fileName, "Grades", schoolYear, true, "Total: " + total + "  - Imported : " + count);
+
+        
+        
+        System.out.println("  Total: " + total + "  - Imported : " + count);
+
+        System.out.println(("-----------------------"));
+    }
+    
+    
+
+    //#endregion
 
     // public static void LoadFindUsers (String filePath) throws Exception {
     //     TeaStaarFlatFileReader tsfr = new TeaStaarFlatFileReader();

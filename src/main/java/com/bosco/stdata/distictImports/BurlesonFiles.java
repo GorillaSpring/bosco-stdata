@@ -476,6 +476,9 @@ public class BurlesonFiles {
 
 
 
+            // we are not loading this because we do not have this info currently anyway.
+
+
         //     System.out.println("Importing educational_placement File");
 
         //     data = msp.readCsvFile( baseFileFolder + "educational_placement.csv");

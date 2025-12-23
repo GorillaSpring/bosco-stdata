@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.bosco.stdata.distictImports.AllenFiles;
+import com.bosco.stdata.distictImports.AllenSis;
 import com.bosco.stdata.distictImports.BurlesonFiles;
 import com.bosco.stdata.distictImports.BurlesonSisFiles;
 //import com.bosco.stdata.distictImports.CelinaFiles;
@@ -138,6 +140,14 @@ public class ImportTask {
                     default:
 
                             switch (importDefId) {
+                                case "AllenFiles":
+                                    importResult = AllenFiles.Import(importDefId);
+                                    importResults.add(importResult);
+                                    break;
+                                case "AllenSis":
+                                    importResult = AllenSis.Import(importDefId);
+                                    importResults.add(importResult);
+                                    break;
                                 case "SpringtownSisFiles":
                                     importResult = SpringtownSisFiles.Import(importDefId);
                                     importResults.add(importResult);
@@ -209,11 +219,11 @@ public class ImportTask {
 
             for (ImportResult ir : importResults) {
                 if (ir.success) {
-                    emailBody += "<li> Success: " + ir.districtId + " ImportId : " + ir.importId + "  : <a href='http://localhost:8080/import/getLogsHTML/" + ir.importId  + "'>Logs</a>";
+                    emailBody += "<li> Success: " + ir.districtId + " ImportId : " + ir.importId + "  : <a href='http://localhost:9091/import/getLogsHTML/" + ir.importId  + "'>Logs</a>";
                     System.out.println("Import: " + ir.districtId + " ID: " + ir.importId);
                 }
                 else {
-                    emailBody += "<li> Failed: " + ir.districtId + " ImportId : " + ir.importId  + "  : <a href='http://localhost:8080/import/getLogsHTML/" + ir.importId  + "'>Logs</a>";
+                    emailBody += "<li> Failed: " + ir.districtId + " ImportId : " + ir.importId  + "  : <a href='http://localhost:9091/import/getLogsHTML/" + ir.importId  + "'>Logs</a>";
                     System.out.println("FAILD Import:" + ir.districtId + " ID: " + ir.importId);
                     System.out.println(ir.errorMessage);
 

@@ -72,16 +72,16 @@ public class BurlesonSisFiles {
 
 
             // Run in TEST, PROD, and DEV.
-            //CsvFiles.LoadMapCourseNameCsaCode(baseFileFolder + "Burleson_map_courseName_csaCode.csv");
+            CsvFiles.LoadMapCourseNameCsaCode(baseFileFolder + "Burleson_map_courseName_csaCode.csv");
 
             // THIS IS Everything as of Nov 26.
 
 
 
-            // CsvFiles.LoadGradesPriorBurleson(districtId, baseFileFolder + "WORKING/grades_prior_year.csv");
+            CsvFiles.LoadGradesPriorBurleson(districtId, baseFileFolder + "WORKING/grades_prior_year.csv");
 
             // // grades_current_year
-            // CsvFiles.LoadGradesCurrentBurleson(districtId, baseFileFolder + "WORKING/grades_current_year.csv");
+            CsvFiles.LoadGradesCurrentBurleson(districtId, baseFileFolder + "WORKING/grades_current_year.csv");
             
 
 
@@ -95,26 +95,26 @@ public class BurlesonSisFiles {
    
 
 
-            // TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "PAST/SF_0523_3-8_126902_BURLESON ISD_V01.txt");
-            // TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "PAST/SF_0524_3-8_126902_BURLESON ISD_V01.txt");
-            // TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "PAST/SF_0525_3-8_126902_BURLESON ISD_V03.txt");
-            // TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "PAST/SP_0424_3-8ALT_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "PAST/SF_0523_3-8_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "PAST/SF_0524_3-8_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "PAST/SF_0525_3-8_126902_BURLESON ISD_V03.txt");
+            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "PAST/SP_0424_3-8ALT_126902_BURLESON ISD_V01.txt");
 
-            // TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SF_1524_EOC_126902_BURLESON ISD_V01.txt");
-            // TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SF_1525_EOC_126902_BURLESON ISD_V02.txt");
-            // TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SF_1525_EOCALT_126902_BURLESON ISD_V01.txt");
-            // TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SP_1523_EOC_126902_BURLESON ISD_V01.txt");
-            // TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SP_1523_EOCALT_126902_BURLESON ISD_V01.txt");
-            // TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SP_1524_EOCALT_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SF_1524_EOC_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SF_1525_EOC_126902_BURLESON ISD_V02.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SF_1525_EOCALT_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SP_1523_EOC_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SP_1523_EOCALT_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "PAST/SP_1524_EOCALT_126902_BURLESON ISD_V01.txt");
 
 
-            // TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "PAST/0323_TELPASALT_126902_BURLESON ISD_V01.txt");
-            // TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "PAST/SF_0324_TELPASALT_126902_BURLESON ISD_V01.txt");
-            // TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "PAST/SF_0325_TELPASALT_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "PAST/0323_TELPASALT_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "PAST/SF_0324_TELPASALT_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "PAST/SF_0325_TELPASALT_126902_BURLESON ISD_V01.txt");
 
-            // TeaFiles.LoadTelpas(districtId, baseFileFolder + "PAST/SF_0324_TELPAS_126902_BURLESON ISD_V01.txt");
-            // TeaFiles.LoadTelpas(districtId, baseFileFolder + "PAST/SP_0323_TELPAS_126902_BURLESON ISD_V01.txt");
-            // TeaFiles.LoadTelpas(districtId, baseFileFolder + "PAST/SP_0325_TELPAS_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadTelpas(districtId, baseFileFolder + "PAST/SF_0324_TELPAS_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadTelpas(districtId, baseFileFolder + "PAST/SP_0323_TELPAS_126902_BURLESON ISD_V01.txt");
+            TeaFiles.LoadTelpas(districtId, baseFileFolder + "PAST/SP_0325_TELPAS_126902_BURLESON ISD_V01.txt");
 
             
   

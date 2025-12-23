@@ -15,6 +15,7 @@ import org.springframework.batch.item.file.transform.Range;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.bosco.stdata.teaModel.AllenStudent;
 import com.bosco.stdata.teaModel.CelinaCombo;
 import com.bosco.stdata.teaModel.DibelsMClass;
 import com.bosco.stdata.teaModel.DisciplineFileCelina;
@@ -51,6 +52,25 @@ public class TeaStaarFlatFileReader {
     
     
 // So lets try fror the csv.
+
+//#region Allen Files
+
+
+    @Bean
+    public FlatFileItemReader<AllenStudent> studentAllenReader(String filePath) {
+        return new FlatFileItemReaderBuilder<AllenStudent>()
+            .name("studentAllenReader")
+            .resource(new FileSystemResource(filePath)) // Path to your CSV file  Try FileSystemResource instead
+            .linesToSkip(1) // Skip header line if present
+            .delimited()
+            
+            .names(new String[]{"StudentID", "TeacherID", "LastName", "FirstName", "StudentEmail", "StudentPhoneNumber", "DOB", "Gender", "IsHispanicLatino", "AmericanIndianOrAlaskaNative", "Asian", "BlackOrAfricanAmerican", "NativeHawaiianOtherPacificIslander", "White", "IsEsl", "IsBilingual", "IsSpecialEd", "Is504", "IEPDate", "Homeless", "FosterCare", "EnglishLanguageLearner", "MealStatus", "SchoolCode", "GradeCode", "OrthopedicImpairment", "OtherHealthImpaired", "HearingImpairment", "VisualImpairment", "Deafness", "DeafBlind", "IntellectualDisability", "EmotionalDisturbance", "SpecificLearningDisabilities", "SpeechOrLanguageImpairment", "Autism", "MultipleDisabilities", "DevelopmentalDelay", "TraumaticBrainInjury", "NoncategoricalEarlyChildhood", "GuardianType", "GuardianLastName", "GuardianFirstName", "GuardianEmail", "GuardianAddress1", "GuardianAddress2", "GuardianCity", "GuardianState", "GuardianZip", "GuardianHomePhone", "GuardianMobilePhone", "GuardianWorkPhone", "Guardian2Type", "Guardian2LastName", "Guardian2FirstName", "Guardian2Email", "Guardian2Address1", "Guardian2Address2", "Guardian2City", "Guardian2State", "Guardian2Zip", "Guardian2HomePhone", "Guardian2MobilePhone", "Guardian2WorkPhone", "Guardian3Type", "Guardian3LastName", "Guardian3FirstName", "Guardian3Email", "Guardian3Address1", "Guardian3Address2", "Guardian3City", "Guardian3State", "Guardian3Zip", "Guardian3HomePhone", "Guardian3MobilePhone", "Guardian3WorkPhone"}) 
+            .targetType(AllenStudent.class) // Specify the target object type
+            .build();
+    }
+
+
+//#endregion
 
 
     @Bean
