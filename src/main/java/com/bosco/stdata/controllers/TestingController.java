@@ -46,6 +46,26 @@ public class TestingController {
     @Value("${bosco.api.instance}")
     private String boscoInstance;
 
+
+
+     @Operation(
+            summary = "Testing for DEPLOY? " ,
+            description = "This will just be for testing during inital install."
+            
+            )
+    @GetMapping("/test1")
+    public String boscoStudents() {
+
+
+        return "Test 1 successfull " + boscoInstance;
+
+        
+
+
+        
+    }
+
+
     
   
 
