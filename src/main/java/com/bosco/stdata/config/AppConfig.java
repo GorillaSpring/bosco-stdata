@@ -11,7 +11,7 @@ import io.swagger.v3.oas.models.security.OAuthFlow;
 import io.swagger.v3.oas.models.security.OAuthFlows;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.tags.Tag;
+import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class AppConfig {
@@ -32,8 +32,8 @@ public class AppConfig {
   @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-              
-        
+
+
                 // .addTagsItem(new Tag().name("Import Defs").description("Import Definitions"))
 
                 // .addTagsItem(new Tag().name("Import Testing").description("Testing Of Imports - RUN NOW."))
@@ -54,10 +54,11 @@ public class AppConfig {
                                         		.tokenUrl(oauthTokenUrl)
                                                 .refreshUrl(oauthTokenUrl)))))
 
-
+                  .addServersItem(new Server().url("http://localhost:8080").description("Development"))
+                  .addServersItem(new Server().url("https://test.boscok12.com").description("Test"))
                   .addSecurityItem(new SecurityRequirement()
                         .addList("oauth2"));
-                  
+
 
 
     }

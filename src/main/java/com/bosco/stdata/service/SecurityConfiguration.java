@@ -2,21 +2,20 @@ package com.bosco.stdata.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.ProviderManager;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtAudienceValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -27,28 +26,31 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-    
+
+	private static Logger logger = Logger.getLogger(SecurityConfiguration.class.getName());
+
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:https://integrator-2192431.okta.com/oauth2/default/v1/keys}")
     private String jwkSetUri;
 
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri:https://integrator-2192431.okta.com/oauth2/default}")
     private String issuerUri;
 
+
+	@Autowired
+	private Environment env;
+
     @Bean
     @Order(1)  // Ensure this filter chain has priority
     SecurityFilterChain configure(HttpSecurity http) throws Exception {
     	//String url = env.getProperty("success.login.url", "/bosco/dashboard");
     	//logger.info("Success login URL from properties: " + url);
-    	//String requestMatchersConfig = env.getProperty("request.matchers", "/bosco/login/saml2/**");
-    	//logger.info("Request matchers from properties: " + requestMatchersConfig);
-    	//String[] requestMatchers = requestMatchersConfig.split(",");
-    	List<String> patternList = new ArrayList<>();
+    	String requestMatchersConfig = env.getProperty("request.matchers", "/import/swagger-ui/**");
+    	logger.info("Request matchers from properties: " + requestMatchersConfig);
+    	String[] requestMatchers = requestMatchersConfig.split(",");
+    	//List<String> patternList = new ArrayList<>();
 
     	// Add the request matchers from the configuration
 		// for (String matcher : requestMatchers) {
@@ -69,9 +71,10 @@ public class SecurityConfiguration {
     			.requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
                 .requestMatchers("/oauth2/**").permitAll()
-
-    			.requestMatchers("/import/**").authenticated() //"/logout", "/login/*", "/bosco/*", "/bosco/saml2/**", "/bosco/login/saml2/**", "/public/**", "/error", "/saml2/**","/login/saml2/**").permitAll()
-    			.anyRequest().permitAll())
+                .requestMatchers(requestMatchers).permitAll()
+    			.anyRequest().authenticated())
+    			//.requestMatchers("/import/**").authenticated() //"/logout", "/login/*", "/bosco/*", "/bosco/saml2/**", "/bosco/login/saml2/**", "/public/**", "/error", "/saml2/**","/login/saml2/**").permitAll()
+    			//.anyRequest().permitAll())
 
     	//.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(jwt -> {}))
 
@@ -146,13 +149,13 @@ public class SecurityConfiguration {
                       request.getRequestURI()
                   ));
               })
-                  	
+
 
               ;
           })
           .csrf(csrf -> csrf.disable())
-    	
-    	
+
+
     	//
 
 
