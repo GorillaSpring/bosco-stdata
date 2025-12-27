@@ -25,6 +25,18 @@ public class MappingHelper {
         return "O";
     }
 
+    
+    public static String GuardianTypeFromStringAllen (String type) {
+        String gType = 
+        switch (type) {
+            case "Father"-> "F";
+            case "Mother" -> "M";
+            default -> "O";
+
+        };
+        return gType;
+        }
+
     // SchoolYearFromTeaAdminDate  or Tea_SchoolYearFromAdminDate
 
     // LoadStar, LoadStarEOC, LoadTelpas, LoadTelpasAlt

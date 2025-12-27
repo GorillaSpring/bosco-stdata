@@ -87,7 +87,7 @@ public class CsvFiles {
 
     
 
-    public static void LoadAllenStudents (int districtId, String filePath) throws Exception {
+    public static void LoadAllenStudents (int districtId, String filePath, Boolean setNoEmails) throws Exception {
 
 
         File file = new File(filePath);
@@ -123,36 +123,81 @@ public class CsvFiles {
 
             // String sourceId, String studentNumber, String firstName, String lastName, String grade, String schoolSourceId
 
-               i.importRepo.saveStudent(cc.studentID, cc.studentID, cc.firstName, cc.lastName, cc.gradeCode, cc.schoolCode);
+            // for now, schoolCode has an extra "0";
 
-                    //i.importRepo.saveStudent(s);
-                    // studentNumber for row [0]
-
-                        String dob = ImportHelper.DateToStdFormat(cc.dOB);
-
-        // String studentNumber,             String dob,             String gender,             Boolean americanIndianOrAlaskaNative,             Boolean asian,            Boolean blackOrAfricanAmerican, 
-        //              Boolean nativeHawaiianOrOtherPacificIslander,             Boolean white,            Boolean hispanicOrLatinoEthnicity
-
-                i.importRepo.saveStudentDemographics(cc.studentID, dob, cc.gender, 
-                cc.americanIndianOrAlaskaNative.equals("Yes"), 
-                cc.asian.equals("Yes"), 
-                cc.blackOrAfricanAmerican.equals("Yes"), 
-                cc.nativeHawaiianOtherPacificIslander.equals("Yes"), 
-                cc.white.equals("Yes"), 
-                cc.isHispanicLatino.equals("Yes")
-
-                );
+            String schoolCode = cc.schoolCode.substring(1);
 
 
+            i.importRepo.saveStudent(cc.studentID, cc.studentID, cc.firstName, cc.lastName, cc.gradeCode, schoolCode);
+
+                //i.importRepo.saveStudent(s);
+                // studentNumber for row [0]
+
+                    String dob = ImportHelper.DateToStdFormat(cc.dOB);
+
+    // String studentNumber,             String dob,             String gender,             Boolean americanIndianOrAlaskaNative,             Boolean asian,            Boolean blackOrAfricanAmerican, 
+    //              Boolean nativeHawaiianOrOtherPacificIslander,             Boolean white,            Boolean hispanicOrLatinoEthnicity
+
+            i.importRepo.saveStudentDemographics(cc.studentID, dob, cc.gender, 
+            cc.americanIndianOrAlaskaNative.equals("Yes"), 
+            cc.asian.equals("Yes"), 
+            cc.blackOrAfricanAmerican.equals("Yes"), 
+            cc.nativeHawaiianOtherPacificIslander.equals("Yes"), 
+            cc.white.equals("Yes"), 
+            cc.isHispanicLatino.equals("Yes")
+
+            );
+
+            String gType;
+            String email;
+            
+
+            if (!cc.guardianEmail.isEmpty()) {
+
+                email = cc.guardianEmail;
+                // To do if we need to scramble email , do it here.
+                if (setNoEmails && email.length() >= 4) {
+                    String trimedEmail = email.substring(0, email.length() - 4);
+                    email = trimedEmail + "_no.no";
+                }
+
+                gType = MappingHelper.GuardianTypeFromStringAllen(cc.guardianType);
+                i.importRepo.saveGuardian("G1_" + cc.studentID,  "G1_" + cc.studentID, cc.studentID, cc.guardianFirstName, cc.guardianLastName, email, gType);
+
+            }
+
+
+            if (!cc.guardian2Email.isEmpty()) {
+
+                email = cc.guardian2Email;
+                // To do if we need to scramble email , do it here.
+                if (setNoEmails && email.length() >= 4) {
+                    String trimedEmail = email.substring(0, email.length() - 4);
+                    email = trimedEmail + "_no.no";
+                }
+
+                gType = MappingHelper.GuardianTypeFromStringAllen(cc.guardian2Type);
+                i.importRepo.saveGuardian("G2_" + cc.studentID,  "G2_" + cc.studentID, cc.studentID, cc.guardian2FirstName, cc.guardian2LastName, email, gType);
+
+            }
+
+
+            if (!cc.guardian3Email.isEmpty()) {
+
+                email = cc.guardian3Email;
+                // To do if we need to scramble email , do it here.
+                if (setNoEmails && email.length() >= 4) {
+                    String trimedEmail = email.substring(0, email.length() - 4);
+                    email = trimedEmail + "_no.no";
+                }
+
+
+                gType = MappingHelper.GuardianTypeFromStringAllen(cc.guardian3Type);
+                i.importRepo.saveGuardian("G2_" + cc.studentID,  "G2_" + cc.studentID, cc.studentID, cc.guardian3FirstName, cc.guardian3LastName, email, gType);
+
+            }                
                 
-                String gType = "O";
 
-                if (!cc.guardianType.isEmpty())
-                    gType = cc.guardianType.substring(0,1);
-
-
-                // String sourceId, String guardianId, String studentSourceId, String firstName, String lastName, String email, String type
-                    i.importRepo.saveGuardian("G1_" + cc.studentID,  "G1_" + cc.studentID, cc.studentID, cc.guardianFirstName, cc.guardianLastName, cc.guardianEmail, gType);
 
 
              //i.importRepo.setMapCourseCsaCode(districtId, cc.getCourseName(), "");
