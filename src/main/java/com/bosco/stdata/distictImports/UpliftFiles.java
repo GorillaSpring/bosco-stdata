@@ -85,6 +85,10 @@ public class UpliftFiles {
             result.importId = importId;
             result.districtId = districtId;
 
+            LocalDateTime startDateTime = LocalDateTime.now();
+
+
+
             
 
               // Before we start, lets make sure there are files in the baseFolder
@@ -100,7 +104,6 @@ public class UpliftFiles {
         
 
 
-            LocalDateTime startDateTime = LocalDateTime.now();
             
             List<String[]> data;
 
@@ -122,14 +125,14 @@ public class UpliftFiles {
 
             System.out.print ("Importing absenses");
 
-            CsvFiles.LoadAttendanceLedgerUplift(districtId, baseFileFolder + "full_attendance.csv");
+            CsvFiles.LoadAttendanceLedgerUplift(districtId, baseFileFolder + "/full_attendance.csv");
 
             System.out.print ("DONE Importing absenses");
 
 
             // System.out.println("Importing campuses File");
 
-            // data = msp.readCsvFile( baseFileFolder + "campuses.csv");
+            // data = msp.readCsvFile( baseFileFolder + "/campuses.csv");
 
 
             // fr = data.removeFirst();
@@ -156,7 +159,7 @@ public class UpliftFiles {
 
             System.out.println("Importing Students File");
 
-            data = msp.readCsvFile( baseFileFolder + "students.csv");
+            data = msp.readCsvFile( baseFileFolder + "/students.csv");
 
 
             // studentId                        0
@@ -258,7 +261,7 @@ public class UpliftFiles {
 
             System.out.println("Importing Users File");
 
-            data = msp.readCsvFile( baseFileFolder + "users.csv");
+            data = msp.readCsvFile( baseFileFolder + "/users.csv");
 
 
             fr = data.removeFirst();
@@ -313,7 +316,7 @@ public class UpliftFiles {
 
             System.out.println("Importing teacherstudentassignements File");
 
-            data = msp.readCsvFile( baseFileFolder + "teacherstudentassignements.csv");
+            data = msp.readCsvFile( baseFileFolder + "/teacherstudentassignements.csv");
 
             // studentid
             // userid
@@ -367,7 +370,7 @@ public class UpliftFiles {
             // mClass and map
              System.out.println("Importing mCLASS and MAP File");
 
-            data = msp.readCsvFile( baseFileFolder + "mCLASS and MAP.csv");
+            data = msp.readCsvFile( baseFileFolder + "/mCLASS and MAP.csv");
 
 
             fr = data.removeFirst();
@@ -447,7 +450,7 @@ public class UpliftFiles {
                 // mClass and map
             System.out.println("Importing academics_grades File");
 
-            data = msp.readCsvFile( baseFileFolder + "academics_grades.csv");
+            data = msp.readCsvFile( baseFileFolder + "/academics_grades.csv");
 
 
             fr = data.removeFirst();
@@ -521,7 +524,7 @@ public class UpliftFiles {
 
             System.out.println("Importing state_assessment File");
 
-            data = msp.readCsvFile( baseFileFolder + "state_assessment.csv");
+            data = msp.readCsvFile( baseFileFolder + "/state_assessment.csv");
 
 
             fr = data.removeFirst();
@@ -582,7 +585,7 @@ public class UpliftFiles {
 
               System.out.println("Importing TELPAS File");
 
-            data = msp.readCsvFile( baseFileFolder + "TELPAS.csv");
+            data = msp.readCsvFile( baseFileFolder + "/TELPAS.csv");
 
 
             fr = data.removeFirst();
@@ -663,7 +666,7 @@ public class UpliftFiles {
 
             System.out.println("Importing discipline File");
 
-            data = msp.readCsvFile( baseFileFolder + "discipline.csv");
+            data = msp.readCsvFile( baseFileFolder + "/discipline.csv");
 
 
             fr = data.removeFirst();
@@ -706,18 +709,7 @@ public class UpliftFiles {
 
 
 
-            // We have done both imports and sisData
-
-            // Now we move the files to the archive Folder
-
-            //ImportHelper.MoveFiles(baseFileFolder, archiveFolder);
-
-            i.importRepo.logInfo("Moved Files to archive");
-
-               // do the diff
-
-
-
+      
 
                
             System.out.println("Sys Post Data");
@@ -743,6 +735,29 @@ public class UpliftFiles {
              i.boscoApi.sendImportToBosco(districtId);
 
              i.importRepo.postSendBosco(districtId, importDefId, isRoster, isSisData);
+
+
+
+               
+
+            // We have done both imports and sisData
+
+            // Now we move the files to the archive Folder
+            if (!archiveFolder.isEmpty()) {
+
+                ImportHelper.MoveFiles(baseFileFolder, archiveFolder);
+            }
+            else {
+                System.out.println("NO Archive for " + importDefId);
+            }
+
+            i.importRepo.logInfo("Moved Files to archive");
+
+               // do the diff
+
+
+
+
 
              LocalDateTime endDateTime = LocalDateTime.now();
     

@@ -211,40 +211,199 @@ public  class ImportHelper {
 
     
 
+    public static Boolean isUnix () {
+
+        Boolean isUnix = true;
+
+        String osName = System.getProperty("os.name").toLowerCase();
+        if (osName.contains("win")) {
+            isUnix = false;
+        }
+        // } else if (osName.contains("linux") || osName.contains("nix") || osName.contains("nux")) {
+        //     System.out.println("Running on Linux/Unix");
+        // } else if (osName.contains("mac")) {
+        //     System.out.println("Running on macOS");
+        // } else {
+        //     System.out.println("Unknown OS: " + osName);
+        // }
+        return isUnix;
+    }
+
+
+     public static String getLastStringInPath(String path) {
+        Path p = Paths.get(path);
+        Path fileName = p.getFileName();
+        // getFileName() can return null or an empty path for edge cases, 
+        // convert to string for consistent result.
+        return (fileName != null) ? fileName.toString() : ""; 
+    }
 
     public static void MoveFiles (String sourcePath, String targetPath) throws Exception {
 
+        if (targetPath.isEmpty())
+            return;
+
+
+        try {
         
-        String dateFolder = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss"));
+            Boolean isUnix = isUnix();
 
-        Path sourceDirectory = Paths.get (sourcePath); 
-        Path targetDirectory = Paths.get(targetPath + dateFolder); 
-
-        if (!Files.exists(targetDirectory)) {
-            Files.createDirectories(targetDirectory);
-        }
-
-        
-
-         try (Stream<Path> files = Files.list(sourceDirectory)) {
             
-            files.forEach(file ->  {
 
-                
-                if (Files.isRegularFile(file)) {
-                    Path targetFile = targetDirectory.resolve(file.getFileName());
-                    try {
-                        Files.move(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
-                    }
-                    catch (IOException e) {
-                        System.out.println(e.getMessage());
-                        //throw e;
-                        
-                    }
+            
+
+            if (isUnix) {
+                System.out.println("Running on Unix");
+            }
+            else {
+                System.out.println("Running on Windows");
+            }
+
+
+
+            String dateFolder = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss"));
+
+            Path sourceDirectory = Paths.get (sourcePath); 
+            Path targetDirectory = Paths.get(targetPath + "/" + dateFolder); 
+
+            // so, first, we will check if the targetPath exists.
+            // /var/sftp/data/archive/DISTRICT
+
+
+
+
+            if (!Files.exists(Paths.get(targetPath))) {
+                // mkdir + targetPath
+                if (isUnix) {
+
+                    System.out.println("UNIX: Creating Dirctory for " + targetPath) ;
+                    String[] cmd2 = {"sudo", "mkdir", targetPath};
+                    Process process2 = Runtime.getRuntime().exec(cmd2);
+                    int exitCode2 = process2.waitFor();
                 }
-            });
+                else {
+                    System.out.println("Windows: Creating Dirctory for " + targetPath) ;
+                    String[] cmd2 = {"cmd.exe", "/c", "mkdir", targetPath};
+                    Process process2 = Runtime.getRuntime().exec(cmd2);
+                    int exitCode2 = process2.waitFor();
+                }
+
+                System.out.println ("Dirctory Created: " + targetPath);
+
+            }
+
+
+
+
+            if (!Files.exists(targetDirectory)) {
+
+                // so here we need to create the district in the folder if it does not exist.
+                // the input should be /var/sftp/data/archive/DISTRICT/
+
+                // if we split on the /
+
+                System.out.println("Creating Archive Folder: " + targetDirectory.toString());
+                // Files.createDirectories(targetDirectory);
+                // System.out.println(" -- Created");
+
+                if (isUnix) {
+
+                    System.out.println("UNIX: Creating Time Stamp Dir " + dateFolder) ;
+                    String[] cmd2 = {"sudo", "mkdir", targetDirectory.toString()};
+                    Process process2 = Runtime.getRuntime().exec(cmd2);
+                    int exitCode2 = process2.waitFor();
+                }
+                else {
+                    System.out.println("Windows: Creating Time Stamp Dir " + dateFolder) ;
+                    String[] cmd2 = {"cmd.exe", "/c", "mkdir", targetDirectory.toString()};
+                    Process process2 = Runtime.getRuntime().exec(cmd2);
+                    int exitCode2 = process2.waitFor();
+                }
+
+
+            }
+
+            // // if isUnix, just add sudo.
+            // // everthing else is GOOD on both.
+
+            // if (isUnix) {
+            //     //   think we want sudo mv source_directory/* destination_directory/
+
+            //     //blevy@tstbk12:/var/sftp/data$ sudo mkdir /var/sftp/data/archive/testmv1
+            //     //blevy@tstbk12:/var/sftp/data$ sudo mv /var/sftp/data/sftp_user/files/* /var/sftp/data/archive/testmv1
+
+
+
+            //     String[] cmd2 = {"ls", "-l", "/path/to/directory"};
+            //     Process process2 = Runtime.getRuntime().exec(cmd2);
+            //     int exitCode2 = process2.waitFor();
+            // }
+
+
+        
+
+            
+            System.out.println("MOVING ALL FILES NOW ");
+
+            if (isUnix) {
+
+                    
+                    String[] cmd2 = {"sudo", "mv", sourcePath + "/*", targetDirectory.toString()};
+                    Process process2 = Runtime.getRuntime().exec(cmd2);
+                    int exitCode2 = process2.waitFor();
+                }
+                else {
+                    String[] cmd2 = {"cmd.exe", "/c", "move", sourcePath + "/*", targetDirectory.toString()};
+
+                       try {
+                            Process process = Runtime.getRuntime().exec(cmd2);
+                            
+                            // Remember to handle input/error streams and wait for process completion
+                            // (see notes in the ProcessBuilder example)
+                            process.waitFor();
+                            
+                        } catch (IOException | InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+
+                    System.out.println("DONE");
+
+                    // Process process2 = Runtime.getRuntime().exec(cmd2);
+                    // int exitCode2 = process2.waitFor();
+
+                    // System.out.println("Got code of : " + exitCode2);
+                }
+
+            //  try (Stream<Path> files = Files.list(sourceDirectory)) {
+                
+            //     files.forEach(file ->  {
+
+            //         System.out.println(" - " + file.getFileName().toString());
+                    
+            //         if (Files.isRegularFile(file)) {
+            //             Path targetFile = targetDirectory.resolve(file.getFileName());
+
+            //             System.out.println("   -- Try Move : " + targetPath.toString());
+
+            //             try {
+            //                 Files.move(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
+            //                 System.out.println("     -----  Moved!");
+            //             }
+            //             catch (IOException e) {
+            //                 System.out.println("   ---   Ecxeption moving file: ");
+            //                 System.out.println(e.getMessage());
+            //                 //throw e;
+                            
+            //             }
+            //         }
+            //         else {
+            //             System.out.println ("    --  NOT a isRegularFile");
+            //         }
+            //     });
         }
         catch (IOException e) {
+            System.out.println ("MoveFile - Exception : " + e.getMessage());
             throw e;
         }
 
@@ -261,7 +420,7 @@ public  class ImportHelper {
 
             
 
-            Path filePath = Paths.get(baseFolder + fileName);
+            Path filePath = Paths.get(baseFolder + "/" + fileName);
             System.out.println("  -- Checking: " + filePath.toString());
             if (!Files.exists(filePath)) {
                 System.out.println("   ------ DID NOT FIND");

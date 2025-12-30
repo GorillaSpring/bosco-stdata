@@ -75,7 +75,7 @@ public class AllenFiles {
             setNoEmails = importDef.getSetNoEmails();
 
 
-		    //String baseFileFolder = "C:/test/uplift/" + subFolder + "/";
+		    //String baseFileFolder = "C:/test/uplift/" + subFolder ;
             String baseFileFolder = ImportHelper.ValueForSetting(importSettings, "baseFolder");
 
             String archiveFolder =  ImportHelper.ValueForSetting(importSettings, "archiveFolder");
@@ -118,18 +118,18 @@ public class AllenFiles {
 
 
     
-        importSchools(baseFileFolder + "campuses.csv");
+        importSchools(baseFileFolder + "/campuses.csv");
 
 
 
             // USERS
 
 
-        importUsers( baseFileFolder + "users.csv");
+        importUsers( baseFileFolder + "/users.csv");
 
-        CsvFiles.LoadAllenStudents(districtId, baseFileFolder + "students.csv", setNoEmails);
+        CsvFiles.LoadAllenStudents(districtId, baseFileFolder + "/students.csv", setNoEmails);
 
-        importStudentTeachers(baseFileFolder + "teacherstudentassignments.csv");
+        importStudentTeachers(baseFileFolder + "/teacherstudentassignments.csv");
 
         // importSchools();
         // importAttendance();
@@ -141,7 +141,7 @@ public class AllenFiles {
         // campuses  ** DO ABOVE and COMMENT
 
 
-        importAttendance(baseFileFolder + "attendance_current_year.csv");
+        importAttendance(baseFileFolder + "/attendance_current_year.csv");
 
         System.out.println ("  **** TODO: attendance_history *****");
 
@@ -151,24 +151,24 @@ public class AllenFiles {
         // attendance_current_year.csv
         //  attendance_history.csv      ** BAD **
 
-        importDiscipline(baseFileFolder + "discipline_current_year.csv");
-        importDiscipline(baseFileFolder + "discipline_history.csv");
+        importDiscipline(baseFileFolder + "/discipline_current_year.csv");
+        importDiscipline(baseFileFolder + "/discipline_history.csv");
 
 
         // discipline_current_year
         // discipline_history.csv
 
-        importMap(baseFileFolder + "MAP.csv");
+        importMap(baseFileFolder + "/MAP.csv");
 
         // MAP.csv
-        importStaar(baseFileFolder + "staar_current_year.csv");
-        importStaar(baseFileFolder + "staar_history.csv");
+        importStaar(baseFileFolder + "/staar_current_year.csv");
+        importStaar(baseFileFolder + "/staar_history.csv");
 
         // staar_current_year.csv
         // staar_history.csv
 
-        importGrades(districtId, baseFileFolder + "academics_grades_current_year.csv");
-        importGrades(districtId, baseFileFolder + "academics_grades_previous_years.csv");
+        importGrades(districtId, baseFileFolder + "/academics_grades_current_year.csv");
+        importGrades(districtId, baseFileFolder + "/academics_grades_previous_years.csv");
 
         // academics_grades_current_year.csv
         // academics_grades_previous_years.csv
@@ -461,7 +461,7 @@ public class AllenFiles {
 
         System.out.println ("Importing attendance_current_year");
 
-        //CsvFiles.LoadAttendanceLedgerUplift(districtId, baseFileFolder + "full_attendance.csv");
+        
 
         data = msp.readCsvFile(filePath);
 

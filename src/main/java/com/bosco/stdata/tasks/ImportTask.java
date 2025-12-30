@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.bosco.stdata.distictImports.AllenFiles;
-import com.bosco.stdata.distictImports.AllenSis;
+
 import com.bosco.stdata.distictImports.BurlesonFiles;
 import com.bosco.stdata.distictImports.BurlesonSisFiles;
 //import com.bosco.stdata.distictImports.CelinaFiles;
@@ -144,10 +144,10 @@ public class ImportTask {
                                     importResult = AllenFiles.Import(importDefId);
                                     importResults.add(importResult);
                                     break;
-                                case "AllenSis":
-                                    importResult = AllenSis.Import(importDefId);
-                                    importResults.add(importResult);
-                                    break;
+                                // case "AllenSis":
+                                //     importResult = AllenSis.Import(importDefId);
+                                //     importResults.add(importResult);
+                                //     break;
                                 case "SpringtownSisFiles":
                                     importResult = SpringtownSisFiles.Import(importDefId);
                                     importResults.add(importResult);

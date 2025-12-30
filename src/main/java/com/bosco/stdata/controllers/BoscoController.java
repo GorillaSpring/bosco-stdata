@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.tasks.ImportTask;
+import com.bosco.stdata.utils.ImportHelper;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -49,22 +50,28 @@ public class BoscoController {
     @GetMapping("/studentDataRegister/{id}")
     public String studentDataRegister(@PathVariable String id) {
 
+        Thread taskThread = new Thread(() -> {
+            
+            String [] params = id.split("\\.");
 
-        System.out.println("Param: " + id);
-        // id will be 66.838101615
-        String [] params = id.split("\\.");
+            System.out.println("ADD REFERRAL District: " + params[0] + "  - Student : " + params[1]);
 
-        //var x = params[0];
+            //int districId = Integer.parseInt(params[0]);
 
-        System.out.println("District: " + params[0] + "  - Student : " + params[1]);
+            importRepo.sisReferralAdd(id);
 
-        int districId = Integer.parseInt(params[0]);
+            // NOW we want to send the sis data if we have any.
+            boscoApi.postSisDataToBosco(id);
 
-        importRepo.sisReferralAdd(id);
+            importRepo.markSisStudentClean(id);
 
-        // NOW we want to send the sis data if we have any.
-        boscoApi.postSisDataToBosco(id);
+                
+        });
 
+
+        taskThread.start();
+
+       
 
         return "Registered";
     }
@@ -78,18 +85,23 @@ public class BoscoController {
     public String studentDataUnRegister(@PathVariable String id) {
 
 
-        System.out.println("Param: " + id);
-        // id will be 66.838101615
-        String [] params = id.split("\\.");
+        Thread taskThread = new Thread(() -> {
+            
+           String [] params = id.split("\\.");
 
-        //var x = params[0];
 
-        System.out.println("District: " + params[0] + "  - Student : " + params[1]);
+            System.out.println("REMOVE REFERRAL District: " + params[0] + "  - Student : " + params[1]);
 
-        int districId = Integer.parseInt(params[0]);
+            //int districId = Integer.parseInt(params[0]);
 
-        importRepo.sisReferralDelete(id);
+            importRepo.sisReferralDelete(id);
+                
+        });
 
+
+        taskThread.start();
+
+    
 
         return "Unregistered";
     }

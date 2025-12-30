@@ -105,7 +105,7 @@ public class MelissaFiles {
             
             // System.out.println("Importing schools File");
 
-            // List<String[]> dataSchool = msp.readCsvFile( baseFileFolder + "schools.csv");
+            // List<String[]> dataSchool = msp.readCsvFile( baseFileFolder + "/schools.csv");
 
             // int counterSchools1 = 0;
 
@@ -136,7 +136,7 @@ public class MelissaFiles {
 
             System.out.println("Importing Students File");
 
-            List<String[]> data = msp.readCsvFile( baseFileFolder + "students.csv");
+            List<String[]> data = msp.readCsvFile( baseFileFolder + "/students.csv");
 
 
 
@@ -225,7 +225,7 @@ public class MelissaFiles {
 
             System.out.println("Importing users File");
 
-            data = msp.readCsvFile( baseFileFolder + "users.csv");
+            data = msp.readCsvFile( baseFileFolder + "/users.csv");
 
 
             fr = data.removeFirst();
@@ -280,7 +280,7 @@ public class MelissaFiles {
 
             System.out.println("Importing guardian File");
 
-            data = msp.readCsvFile( baseFileFolder + "guardians.csv");
+            data = msp.readCsvFile( baseFileFolder + "/guardians.csv");
 
 
             fr = data.removeFirst();
@@ -341,7 +341,7 @@ public class MelissaFiles {
 
             System.out.println("Importing user_enrollments File");
 
-            data = msp.readCsvFile( baseFileFolder + "user_enrollments.csv");
+            data = msp.readCsvFile( baseFileFolder + "/user_enrollments.csv");
 
             // teacherId
             // classId
@@ -389,7 +389,7 @@ public class MelissaFiles {
 
             System.out.println("Importing student_enrollments File");
 
-            data = msp.readCsvFile( baseFileFolder + "student_enrollments.csv");
+            data = msp.readCsvFile( baseFileFolder + "/student_enrollments.csv");
 
             // studentId
             // classId
@@ -433,7 +433,7 @@ public class MelissaFiles {
 
             // System.out.println("Importing educational_placement File");
 
-            // data = msp.readCsvFile( baseFileFolder + "educational_placement.csv");
+            // data = msp.readCsvFile( baseFileFolder + "/educational_placement.csv");
 
             // // studentId
             // // classId

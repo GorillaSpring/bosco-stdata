@@ -279,6 +279,42 @@ public class SystemController {
     
 
     
+    
+    @Operation(
+            summary = "Test Move Files 1 " ,
+            description = "Testing of moving files AFTER Archive."
+            )
+    @GetMapping("/testMoveFiles1")
+    public String testMoveFiles1() {
+
+
+
+        String baseFileFolder = "/var/sftp/data/sftp_user/files/";
+        String archiveFolder = "/var/sftp/data/archive/";
+        
+
+        System.out.println("Testing Moving Files: " );
+        System.out.println ("  -- From: " + baseFileFolder);
+        System.out.println ("  --   To: " + archiveFolder);
+
+
+        try {
+            ImportHelper.MoveFiles(baseFileFolder, archiveFolder);
+
+
+
+         
+            return "Moving File: " + baseFileFolder + "  TO " + archiveFolder;
+        }
+        catch (Exception ex) {
+            System.out.println("  EXCEPTION: " + ex.getMessage());
+            return "Exception: " + ex.getMessage();
+        }
+
+        
+    }
+
+    
     @Operation(
             summary = "Get all Active Referrals from the District AND Send Dirty Sis Data. *** CHECK boscoInstance *** " ,
             description = "This will allow us to send SIS data for all active Referrals."
