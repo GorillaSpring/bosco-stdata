@@ -129,25 +129,7 @@ public class ImportRepo {
 
     //#endregion
 
-    public void setMapCourseCsaCode (int forDistrictId, String courseName, String csaCode) {
-        Object[] args = {
-            forDistrictId,
-            courseName, 
-            csaCode,
-            csaCode
-        };
-
-        String sql = """
-            insert into
-                map_course_csacode (districtId, courseName, csaCode)
-            values (?, ?, ?)
-            on duplicate key update
-                csaCode = ?
-                """;
-
-        int rows = template.update(sql, args);
-
-    }
+  
 
 
    
@@ -608,27 +590,66 @@ public class ImportRepo {
 
 
 
-    public String csaCodeForCourseName (int forDistrictId, String courseName) throws Exception {
+
+    public String csaCodeForCourseName (int forDistrictId, String courseName) { // throws Exception {
+
+        String csaCode = "";
+
+        try {
+            Object[] args = {
+                forDistrictId,
+                courseName
+
+            };
 
 
+            String sql = """
+                    select csaCode from map_course_csacode where districtId = ? and courseName = ?;
+                    """;
 
-        Object[] args = {
-            forDistrictId,
-            courseName
+            csaCode = template.queryForObject(
+                    sql, 
+                    String.class, 
+                    args);
 
-        };
+        }
+        catch (Exception ex) {
+            // this should be a not found.
+            setMapCourseCsaCode(forDistrictId, courseName, "X");
+        }
 
 
-        String sql = """
-                select csaCode from map_course_csacode where districtId = ? and courseName = ?;
-                """;
+        // So here if it is an X then return ""
+        // if it is not found, then add it.
 
-        String csaCode = template.queryForObject(
-                sql, 
-                String.class, 
-                args);
+        if (csaCode.equals("X")) {
+            csaCode = "";
+        }
+
+
 
         return csaCode;
+
+    }
+
+
+      public void setMapCourseCsaCode (int forDistrictId, String courseName, String csaCode) {
+        Object[] args = {
+            forDistrictId,
+            courseName, 
+            csaCode,
+            csaCode
+        };
+
+        String sql = """
+            insert into
+                map_course_csacode (districtId, courseName, csaCode)
+            values (?, ?, ?)
+            on duplicate key update
+                csaCode = ?
+                """;
+
+        int rows = template.update(sql, args);
 
     }
 
@@ -653,6 +674,20 @@ public class ImportRepo {
 
 
     }
+
+    // And this will get us all the X course mappings.
+     public List<MapCourseCsaCode> undefinedMapCourseCsaCode () {
+
+
+        // check how used and what to add.
+        String sql = """    
+            select districtId, courseName, csaCode FROM map_course_csacode where csaCode = 'X';
+                """; 
+
+
+        return template.query(sql, new BeanPropertyRowMapper<>(MapCourseCsaCode.class));
+    }
+
 
     public void sisMapAdd(String studentNumber, String schoolYear, String period, String subject, String proficiency, String proficiencyCode, int score, String csaCode ) {
 

@@ -480,36 +480,18 @@ public class UpliftFiles {
                         int score = Integer.parseInt (row[3]);
                         //String csaCode = MappingHelper.MapMclass_CsaCodeFromCourseName(row[2]);
 
-                        String csaCode = "NOT_FOUND";
 
-                        try {
 
-                         csaCode = i.importRepo.csaCodeForCourseName(districtId, row[2]);
-
-                        }
-                        catch (Exception ex) {
-                            csaCode = "NOT_FOUND";
-
-                        }
+                        String csaCode = i.importRepo.csaCodeForCourseName(districtId, row[2]);
 
                         ///System.out.println("Got Code : " + csaCode);
 
-                        if (!csaCode.isEmpty())
+                        if (!csaCode.isBlank())
                         {
-                            if (csaCode.equals("NOT_FOUND")) {
-                                // this is an EXCEPTION.  Do not load, but log
-                                i.importRepo.logError("Academic Grade - Found Unknown Course : " + row[2]);
+                            // String studentNumber, String schoolYear, String period, String code, String subject, int score, String csaCode
+                            i.importRepo.sisGradeAdd(row[0], row[4], row[5], row[1], row[2], score, csaCode);
 
-                                
-                            }
-                            else {
-                                // String studentNumber, String schoolYear, String period, String code, String subject, int score, String csaCode
-                                i.importRepo.sisGradeAdd(row[0], row[4], row[5], row[1], row[2], score, csaCode);
-
-                                counter1++;
-
-                            }
-
+                            counter1++;
                         }
                     
 

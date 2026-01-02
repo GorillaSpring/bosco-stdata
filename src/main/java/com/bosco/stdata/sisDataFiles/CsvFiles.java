@@ -993,27 +993,9 @@ public class CsvFiles {
 
                 // System.out.print("CHECKING Course: " + cc.courseName);
 
-                String csaCode = "";
-                
-                try {
 
-                    //csaCode = i.importRepo.csaCodeForCourseName(districtId, cc.courseName.replace(",", ""));
-                    csaCode = i.importRepo.csaCodeForCourseName(districtId, cc.courseName);
-                }
-                catch (Exception ex) {
-
-                    i.importRepo.setMapCourseCsaCode(districtId, cc.courseName, "X");
-
-                    System.out.println ("Missing Course : " + cc.courseName);
-                }
+                String csaCode = i.importRepo.csaCodeForCourseName(districtId, cc.courseName);
                     
-                // }
-                // catch (Exception ex) {
-                //     System.out.println(cc.courseName);
-                // }
-
-
-                //System.out.println("  GOT: " + csaCode);
 
 
                 if (!csaCode.isBlank()) 
@@ -1143,10 +1125,7 @@ public class CsvFiles {
 
                 // System.out.print("CHECKING Course: " + cc.courseName);
 
-                String csaCode = "";
-                
-
-                    csaCode = i.importRepo.csaCodeForCourseName(districtId, cc.courseName.replace(",", ""));
+                String csaCode = i.importRepo.csaCodeForCourseName(districtId, cc.courseName.replace(",", ""));
                 // }
                 // catch (Exception ex) {
                 //     System.out.println(cc.courseName);

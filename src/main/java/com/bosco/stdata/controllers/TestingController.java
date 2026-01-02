@@ -62,6 +62,34 @@ public class TestingController {
         
 
 
+        // undefinedMapCourseCsaCode
+        
+    }
+
+
+    @Operation(
+            summary = "Testing Get Undefined CourseMapping? " ,
+            description = "Testing Get Undefined CourseMapping? "
+            
+            )
+    @GetMapping("/test2")
+    public String test2() {
+
+        List<MapCourseCsaCode> codes = importRepo.undefinedMapCourseCsaCode();
+
+        String res = "STARTING\n\n";
+
+        for (MapCourseCsaCode mapCourseCsaCode : codes) {
+            res += "-" + mapCourseCsaCode.districtId + " : " + mapCourseCsaCode.courseName + "\n\n";
+        }
+
+
+        return res;
+
+        
+
+
+        // undefinedMapCourseCsaCode
         
     }
 

@@ -812,22 +812,22 @@ public class AllenFiles {
 
                     String csaCode = "";
 
-                    try {
+                    //try {
 
-                        csaCode = i.importRepo.csaCodeForCourseName(districtId, row[2]);
+                    csaCode = i.importRepo.csaCodeForCourseName(districtId, row[2]);
                         
 
-                    }
-                    catch (Exception ex) {
-                        csaCode = "";
-                        System.out.println( " Maping Code needed : " + row[2]);
+                    // }
+                    // catch (Exception ex) {
+                    //     csaCode = "";
+                    //     System.out.println( " Maping Code needed : " + row[2]);
                         
 
-                    }
+                    // }
 
                     ///System.out.println("Got Code : " + csaCode);
 
-                    if ( isValidScore && !csaCode.isEmpty())
+                    if ( isValidScore && !csaCode.isBlank())
                     {
                         
                             // String studentNumber, String schoolYear, String period, String code, String subject, int score, String csaCode

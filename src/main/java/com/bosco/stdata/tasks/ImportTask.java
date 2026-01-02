@@ -23,7 +23,9 @@ import com.bosco.stdata.distictImports.TestFiles;
 import com.bosco.stdata.distictImports.Testing;
 import com.bosco.stdata.distictImports.UpliftFiles;
 import com.bosco.stdata.model.ImportDefinition;
+import com.bosco.stdata.model.ImportLog;
 import com.bosco.stdata.model.ImportResult;
+import com.bosco.stdata.model.MapCourseCsaCode;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.service.EmailService;
@@ -107,130 +109,32 @@ public class ImportTask {
             List<ImportDefinition> importDefs = importRepo.getActiveImportDefinitions();
             for (ImportDefinition importDef : importDefs)
             {
-                ImportResult importResult;
-                
-                String importDefId = importDef.getId();
-
-                String importType = importDef.getImportType();
-                
-                //importRepo.logInfo("Importing: " + importDefId);
-
-                System.out.println("Importing: " + importDefId);
-
-
-                switch (importType) {
-                    case "ClassLinkOneRosterApi":
-                        importResult = ClassLinkOneRosterApi.Import(importDefId);
-                        importResults.add(importResult);
-                        
-                        break;
-                    case "SkywardOneRosterApi":
-
-                        //Testing.Test(importDefId);
-
-                        importResult = SkywardOneRosterApi.Import(importDefId);
-                        importResults.add(importResult);
-
-                        break;
-                    case "PowerSchoolOneRosterApi":
-                        importResult = PowerSchoolOneRosterApi.Import(importDefId);
-                        importResults.add(importResult);
-                        break;
-                
-                    default:
-
-                            switch (importDefId) {
-                                case "AllenFiles":
-                                    importResult = AllenFiles.Import(importDefId);
-                                    importResults.add(importResult);
-                                    break;
-                                // case "AllenSis":
-                                //     importResult = AllenSis.Import(importDefId);
-                                //     importResults.add(importResult);
-                                //     break;
-                                case "SpringtownSisFiles":
-                                    importResult = SpringtownSisFiles.Import(importDefId);
-                                    importResults.add(importResult);
-                                    break;
-                                case "NewBraunfelsSisFiles":
-
-                                    importResult = NewBraunfelsSisFiles.Import(importDefId);
-                                    importResults.add(importResult);
-                                    break;
-
-
-                                case "CelinaSisFiles":
-                                    importResult = CelinaSisFiles.Import(importDefId);
-                                    importResults.add(importResult);
-                                    break;
-                                case "MelissaSisFiles":
-                                    importResult = MelissaSisFiles.Import(importDefId);
-                                    importResults.add(importResult);
-                                    break;
-
-                                case "MelissaFiles":
-                                    importResult = MelissaFiles.Import(importDefId);
-                                    importResults.add(importResult);
-
-                                    break;
-
-                                case "BurlesonFiles":
-                                    importResult = BurlesonFiles.Import(importDefId);
-                                    importResults.add(importResult);
-                                    break;
-                                case "BurlesonSisFiles":
-                                    importResult = BurlesonSisFiles.Import(importDefId);
-                                    importResults.add(importResult);
-                                    break;
-                                case "Testing":
-                                    // This is used for code testing, not import testing
-                                    //TestImportTests.Test(importRepo, "Testing");
-                                    Testing.Test(importDefId);
-                                    break;
-                                case "TestFiles":
-                                    //TestFiles.Import(importRepo, boscoApi, importDefId);
-
-                                    importResult = TestFiles.Import(importDefId);
-                                    importResults.add(importResult);
-                                    break;
-                                case "UpliftFiles":
-                                    importResult = UpliftFiles.Import( importDefId);
-                                    importResults.add(importResult);
-                                    
-                                    break;
-                                // case "CelinaFiles":
-                                //     // THis is API now.
-                                //     importResult = CelinaFiles.Import(importDefId);
-                                //     importResults.add(importResult);
-                                //     break;
-                                default:
-                                    importRepo.logError("Unknown Import Definition : " + importDefId);
-                                    break;
-                            }
-
-                        break;
-                }
+                ImportResult res = runImport(importDef);
+                importResults.add(res);
             }
 
             
-            String emailBody = "<html><h6>Imports</h6>";
-            emailBody += "<ul>";
+            String emailBody = "<html><h5>Imports</h5>";
+            emailBody += "<hr>";
 
 
             for (ImportResult ir : importResults) {
                 if (ir.success) {
-                    emailBody += "<li> Success: " + ir.districtId + " ImportId : " + ir.importId + "  : <a href='http://localhost:9091/import/getLogsHTML/" + ir.importId  + "'>Logs</a>";
+                    emailBody += "<h6> Success: " + ir.districtId + " ImportId : " + ir.importId + "  </h6>";
+                    emailBody += importLogs(ir.importId);
                     System.out.println("Import: " + ir.districtId + " ID: " + ir.importId);
                 }
                 else {
-                    emailBody += "<li> Failed: " + ir.districtId + " ImportId : " + ir.importId  + "  : <a href='http://localhost:9091/import/getLogsHTML/" + ir.importId  + "'>Logs</a>";
+                    emailBody += "<h6> Failed: " + ir.districtId + " ImportId : " + ir.importId  + "  </h6>";
+                    emailBody += "<h6> Error: " + ir.errorMessage + "</h6>";
+                    emailBody += importLogs(ir.importId);
+
                     System.out.println("FAILD Import:" + ir.districtId + " ID: " + ir.importId);
                     System.out.println(ir.errorMessage);
 
                 }
             }
 
-            emailBody += "</ul></html>";
 
             // importResults.forEach(ir -> {
             //     if (ir.success) {
@@ -243,6 +147,26 @@ public class ImportTask {
             //     }
 
             // }); 
+
+            // lets add th codes to the import.
+
+            List<MapCourseCsaCode> codes = importRepo.undefinedMapCourseCsaCode();
+            if (codes.size() > 0) {
+                emailBody += "<hr>UNDEFINED CODES<ul>";
+
+                
+                for (MapCourseCsaCode mapCourseCsaCode : codes) {
+                    emailBody += "<li>" + mapCourseCsaCode.districtId + " : " + mapCourseCsaCode.courseName;
+
+                }
+                emailBody += "</ul>";
+
+            }
+
+        
+
+            emailBody += "<hr></html>";
+
 
             if (sendEmail) {
 
@@ -270,6 +194,168 @@ public class ImportTask {
 
     }
 
+
+    private ImportResult runImport(ImportDefinition importDef) throws Exception {
+        ImportResult importResult;
+        
+        String importDefId = importDef.getId();
+
+        String importType = importDef.getImportType();
+        
+        //importRepo.logInfo("Importing: " + importDefId);
+
+        System.out.println("Importing: " + importDefId);
+
+
+        switch (importType) {
+            case "ClassLinkOneRosterApi":
+                importResult = ClassLinkOneRosterApi.Import(importDefId);
+                //importResults.add(importResult);
+                
+                break;
+            case "SkywardOneRosterApi":
+
+                //Testing.Test(importDefId);
+
+                importResult = SkywardOneRosterApi.Import(importDefId);
+                //importResults.add(importResult);
+
+                break;
+            case "PowerSchoolOneRosterApi":
+                importResult = PowerSchoolOneRosterApi.Import(importDefId);
+                //importResults.add(importResult);
+                break;
+        
+            default:
+
+                    switch (importDefId) {
+                        case "AllenFiles":
+                            importResult = AllenFiles.Import(importDefId);
+                            //importResults.add(importResult);
+                            break;
+                        // case "AllenSis":
+                        //     importResult = AllenSis.Import(importDefId);
+                        //     importResults.add(importResult);
+                        //     break;
+                        case "SpringtownSisFiles":
+                            importResult = SpringtownSisFiles.Import(importDefId);
+                            //importResults.add(importResult);
+                            break;
+                        case "NewBraunfelsSisFiles":
+
+                            importResult = NewBraunfelsSisFiles.Import(importDefId);
+                            //importResults.add(importResult);
+                            break;
+
+
+                        case "CelinaSisFiles":
+                            importResult = CelinaSisFiles.Import(importDefId);
+                            //importResults.add(importResult);
+                            break;
+                        case "MelissaSisFiles":
+                            importResult = MelissaSisFiles.Import(importDefId);
+                            //importResults.add(importResult);
+                            break;
+
+                        case "MelissaFiles":
+                            importResult = MelissaFiles.Import(importDefId);
+                            //importResults.add(importResult);
+
+                            break;
+
+                        case "BurlesonFiles":
+                            importResult = BurlesonFiles.Import(importDefId);
+                            //importResults.add(importResult);
+                            break;
+                        case "BurlesonSisFiles":
+                            importResult = BurlesonSisFiles.Import(importDefId);
+                            //importResults.add(importResult);
+                            break;
+                        case "Testing":
+                            // This is used for code testing, not import testing
+                            //TestImportTests.Test(importRepo, "Testing");
+                            Testing.Test(importDefId);
+                            importResult = new ImportResult();
+                            importResult.success = false;
+                            break;
+                        case "TestFiles":
+                            //TestFiles.Import(importRepo, boscoApi, importDefId);
+
+                            importResult = TestFiles.Import(importDefId);
+                            //importResults.add(importResult);
+                            break;
+                        case "UpliftFiles":
+                            importResult = UpliftFiles.Import( importDefId);
+                            //importResults.add(importResult);
+                            
+                            break;
+                        // case "CelinaFiles":
+                        //     // THis is API now.
+                        //     importResult = CelinaFiles.Import(importDefId);
+                        //     importResults.add(importResult);
+                        //     break;
+                        default:
+                            importRepo.logError("Unknown Import Definition : " + importDefId);
+                            importResult = new ImportResult();
+                            importResult.success = false;
+                            break;
+                    }
+
+                break;
+        }
+        return importResult;
+    }
+
    
+
+    private String importLogs (int importId) {
+        List<ImportLog> logs = importRepo.getInfoLogs(importId);
+
+        String html = "<hr>";
+        // we will return html
+
+        html += "<h6>Info Logs</h6>";
+        html += "<table><tr><th>ImportId</th><th>Info</th><th>Date</th></tr>";
+        for(ImportLog log: logs) {
+            html += """
+                <tr>
+                    <td>%d</td>
+
+                    <td>%s</td>
+                    <td>%s</td>
+                </tr>
+            """.formatted(log.getImportId(), log.getInfo(), log.getCreatedDateTime());
+
+            
+
+        }
+        html += "</table>";
+
+
+        logs = importRepo.getErrorLogs(importId);
+
+        html += "<h6>Errors</h6>";
+
+        html += "<table><tr><th>ImportId</th><th>Error</th><th>Date</th></tr>";
+        for(ImportLog log: logs) {
+            html += """
+                <tr>
+                    <td>%d</td>
+                    
+                    <td>%s</td>
+                    <td>%s</td>
+                </tr>
+            """.formatted(log.getImportId(), log.getError(), log.getCreatedDateTime());
+
+            
+
+        }
+        html += "</table>";
+
+
+        return html;
+        //html += "</html>";
+
+    }
 
 }
