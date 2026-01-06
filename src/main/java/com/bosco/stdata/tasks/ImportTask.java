@@ -97,6 +97,66 @@ public class ImportTask {
 
     }
 
+    
+    public String runImportDefn (Boolean sendEmail, String importDefId) {
+
+         if (ImportHelper.importRunning) {
+            System.out.println("Imports are running, so we will bail");
+            return "Imports are running, so we will bail";
+        }
+        else {
+            try {
+                ImportDefinition importDef = importRepo.getImportDefinition(importDefId);
+                Thread taskThread = new Thread(() -> {
+                
+                    processImportDefn(sendEmail, importDef);
+                });
+
+
+                ImportHelper.importRunning = true;
+                //importRepo.setSystemStatus("Import", 1);
+                taskThread.start();
+
+                return "Imports Running";
+
+            }
+            catch (Exception ex) {
+                ImportHelper.importRunning = false;
+                return "Error: " + ex.getMessage();
+                // faild 
+            }
+            
+
+            //return "Task started";
+
+        }
+
+
+    }
+
+    public void processImportDefn (Boolean sendEmail, ImportDefinition importDef) {
+        try {
+            List<ImportResult> importResults = new ArrayList<>();
+            ImportResult res = runImport(importDef);
+            importResults.add(res);
+
+         
+            if (sendEmail) {
+
+                emailImportResults(importResults);
+            }
+            System.out.println("DONE");
+            ImportHelper.importRunning = false;
+
+        }
+        catch (Exception e) {
+            System.out.println("Exception : " + e.getMessage());
+            ImportHelper.importRunning = false;
+            //importRepo.setSystemStatus("Import", 0);
+
+        }
+    }
+
     private void processImports(Boolean sendEmail) {
 
         // so this will send email when done!
@@ -113,65 +173,11 @@ public class ImportTask {
                 importResults.add(res);
             }
 
-            
-            String emailBody = "<html><h5>Imports</h5>";
-            emailBody += "<hr>";
-
-
-            for (ImportResult ir : importResults) {
-                if (ir.success) {
-                    emailBody += "<h6> Success: " + ir.districtId + " ImportId : " + ir.importId + "  </h6>";
-                    emailBody += importLogs(ir.importId);
-                    System.out.println("Import: " + ir.districtId + " ID: " + ir.importId);
-                }
-                else {
-                    emailBody += "<h6> Failed: " + ir.districtId + " ImportId : " + ir.importId  + "  </h6>";
-                    emailBody += "<h6> Error: " + ir.errorMessage + "</h6>";
-                    emailBody += importLogs(ir.importId);
-
-                    System.out.println("FAILD Import:" + ir.districtId + " ID: " + ir.importId);
-                    System.out.println(ir.errorMessage);
-
-                }
-            }
-
-
-            // importResults.forEach(ir -> {
-            //     if (ir.success) {
-                    
-            //         System.out.println("Import: " + ir.districtId + " ID: " + ir.importId);
-            //     }
-            //     else {
-            //         System.out.println("FAILD Import:" + ir.districtId + " ID: " + ir.importId);
-            //         System.out.println(ir.errorMessage);
-            //     }
-
-            // }); 
-
-            // lets add th codes to the import.
-
-            List<MapCourseCsaCode> codes = importRepo.undefinedMapCourseCsaCode();
-            if (codes.size() > 0) {
-                emailBody += "<hr>UNDEFINED CODES<ul>";
-
-                
-                for (MapCourseCsaCode mapCourseCsaCode : codes) {
-                    emailBody += "<li>" + mapCourseCsaCode.districtId + " : " + mapCourseCsaCode.courseName;
-
-                }
-                emailBody += "</ul>";
-
-            }
-
-        
-
-            emailBody += "<hr></html>";
-
-
             if (sendEmail) {
 
-                emailService.sendSimpleMessage("BenLevy3@gmail.com",  "Import Results", emailBody);
+                emailImportResults(importResults);
             }
+            
 
             System.out.println("DONE");
             ImportHelper.importRunning = false;
@@ -192,6 +198,68 @@ public class ImportTask {
         //             }
 
 
+    }
+
+
+    private void emailImportResults(List<ImportResult> importResults) {
+        String emailBody = "<html><h5>Imports</h5>";
+        emailBody += "<hr>";
+
+
+        for (ImportResult ir : importResults) {
+            if (ir.success) {
+                emailBody += "<h6> Success: " + ir.districtId + " ImportId : " + ir.importId + "  </h6>";
+                emailBody += importLogs(ir.importId);
+                System.out.println("Import: " + ir.districtId + " ID: " + ir.importId);
+            }
+            else {
+                emailBody += "<h6> Failed: " + ir.districtId + " ImportId : " + ir.importId  + "  </h6>";
+                emailBody += "<h6> Error: " + ir.errorMessage + "</h6>";
+                emailBody += importLogs(ir.importId);
+
+                System.out.println("FAILD Import:" + ir.districtId + " ID: " + ir.importId);
+                System.out.println(ir.errorMessage);
+
+            }
+        }
+
+
+        // importResults.forEach(ir -> {
+        //     if (ir.success) {
+                
+        //         System.out.println("Import: " + ir.districtId + " ID: " + ir.importId);
+        //     }
+        //     else {
+        //         System.out.println("FAILD Import:" + ir.districtId + " ID: " + ir.importId);
+        //         System.out.println(ir.errorMessage);
+        //     }
+
+        // }); 
+
+        // lets add th codes to the import.
+
+        List<MapCourseCsaCode> codes = importRepo.undefinedMapCourseCsaCode();
+        if (codes.size() > 0) {
+            emailBody += "<hr>UNDEFINED CODES<ul>";
+
+            
+            for (MapCourseCsaCode mapCourseCsaCode : codes) {
+                emailBody += "<li>" + mapCourseCsaCode.districtId + " : " + mapCourseCsaCode.courseName;
+
+            }
+            emailBody += "</ul>";
+
+        }
+
+      
+
+        emailBody += "<hr></html>";
+
+
+        
+
+        emailService.sendSimpleMessage("BenLevy3@gmail.com",  "Import Results", emailBody);
+        
     }
 
 

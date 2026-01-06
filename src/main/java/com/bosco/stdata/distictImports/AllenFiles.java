@@ -141,7 +141,9 @@ public class AllenFiles {
         // campuses  ** DO ABOVE and COMMENT
 
 
-        importAttendance(baseFileFolder + "/attendance_current_year.csv");
+        importAttendance(baseFileFolder + "/attendance_current_year.csv", false);
+        importAttendance(baseFileFolder + "/attendance_history.csv", true);
+
 
         System.out.println ("  **** TODO: attendance_history *****");
 
@@ -444,7 +446,7 @@ public class AllenFiles {
     }
 
 
-    private static void importAttendance(String filePath) throws Exception {
+    private static void importAttendance(String filePath, Boolean isHistory) throws Exception {
         List<String[]> data;
         String[] fr;
         String[] colNames;
@@ -461,7 +463,12 @@ public class AllenFiles {
 
         System.out.println ("Importing attendance_current_year");
 
-        
+        // for histroy.adminController
+        // event = A
+        // studentNumber = row[1]
+        // date = row[2]   (may be different format, but should work.
+        // rowPeriod = row[5]
+
 
         data = msp.readCsvFile(filePath);
 
@@ -474,15 +481,30 @@ public class AllenFiles {
         counter1 = 0;
         counter2 = 0;
 
+        String studentNumber = "";
+        String event = "A";
+        String date = "";
+        String rowPeriod = "";
+
         for (String [] row : data) {
 
             counter1++;
             rowValid = true;
 
-            String studentNumber = row[0];     // 020281
-            String event = row[1].equals("Tardy") ? "T" : "A";  // Tardy OR Absence
-            String date = ImportHelper.DateToStdFormat(row[2]);           // 08/11/2025
-            String rowPeriod = row[3];      // 3  OR blank  (for abesent)
+            if (isHistory) {
+                studentNumber = row[1];     // 020281
+                event = "A";  // don't need to do this
+                date = ImportHelper.DateToStdFormat(row[2]);           // 08/11/2025 
+                rowPeriod = row[5];
+            }
+            else {
+                studentNumber = row[0];     // 020281
+                event = row[1].equals("Tardy") ? "T" : "A";  // Tardy OR Absence
+                date = ImportHelper.DateToStdFormat(row[2]);           // 08/11/2025
+                rowPeriod = row[3];      // 3  OR blank  (for abesent)
+
+            }
+
             if (rowPeriod.isEmpty()) {
                 rowPeriod = "Full Day";
             }
@@ -524,7 +546,7 @@ public class AllenFiles {
             counter2++;
             
 
-            String studentNumber = key.split(":")[0];
+            studentNumber = key.split(":")[0];
 
             // System.out.println("Key: " + key + " - " + studentNumber);
 

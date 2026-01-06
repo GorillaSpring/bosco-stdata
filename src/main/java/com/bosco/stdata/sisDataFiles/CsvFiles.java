@@ -125,7 +125,7 @@ public class CsvFiles {
 
             // for now, schoolCode has an extra "0";
 
-            String schoolCode = cc.schoolCode.substring(1);
+            String schoolCode = cc.schoolCode; // cc.schoolCode.substring(1);
 
 
             i.importRepo.saveStudent(cc.studentID, cc.studentID, cc.firstName, cc.lastName, cc.gradeCode, schoolCode);

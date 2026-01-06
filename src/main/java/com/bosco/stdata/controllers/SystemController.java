@@ -63,7 +63,24 @@ public class SystemController {
     }
 
 
+
     
+    @Operation(
+        summary = "Run Import Def NOW",
+        description = "Email will be sent if sendEmail is true. This will only run the importDefId"
+        
+        )
+    @GetMapping("/runImportDefNow/{sendEmail}/{importDefId}")
+    public String runImportDefNow(@PathVariable Boolean sendEmail, @PathVariable String importDefId) {
+        //ImportTask importTask = new ImportTask();
+
+        String result = importTask.runImportDefn(sendEmail, importDefId);
+
+        return result;
+
+    }
+
+
 
     private void doSendAllSisDataForDistrictOld (int districId) {
 
