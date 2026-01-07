@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +44,11 @@ public class TestingController {
     @Autowired 
     BoscoApi boscoApi;
 
+
     
+    private static Logger logger = Logger.getLogger(TestingController.class.getName());
+
+
     @Value("${bosco.api.instance}")
     private String boscoInstance;
 
@@ -54,8 +60,9 @@ public class TestingController {
             
             )
     @GetMapping("/test1")
-    public String boscoStudents() {
+    public String test1() {
 
+         logger.log(Level.INFO, "This is a test log " + boscoInstance);
 
         return "Test 1 successfull " + boscoInstance;
 

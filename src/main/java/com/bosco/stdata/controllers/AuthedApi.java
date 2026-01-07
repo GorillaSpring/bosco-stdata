@@ -5,6 +5,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +58,8 @@ public class AuthedApi {
     @Autowired 
     BoscoApi boscoApi;
 
+    private static Logger logger = Logger.getLogger(AuthedApi.class.getName());
+
     
     @Value("${bosco.api.instance}")
     private String boscoInstance;
@@ -92,6 +96,9 @@ public class AuthedApi {
 
     @GetMapping("/authed/test1/{id}")
     public String authedTest1(@PathVariable String id) {
+
+
+        logger.log(Level.INFO, "This is a test log");
 
         //String res = boscoApi.putStudentToBosco(id);
 

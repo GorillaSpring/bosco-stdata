@@ -2032,7 +2032,9 @@ public class CsvFiles {
         // we still need the schoolYear
     }
 
-    public static void LoadAttendanceLedgerMelissa (int districtId, String filePath) throws Exception {
+  
+
+    public static void LoadAttendanceOrTardyLedgerMelissa (int districtId, String filePath, String eventCode) throws Exception {
 
         // for a student + date, we build up the perid as a list of them.
         // this may be one one line, or may be in multiple lines.
@@ -2091,7 +2093,7 @@ public class CsvFiles {
 
                     sa = new SisAttendance();
                     sa.date = date;
-                    sa.event = "A";
+                    sa.event = eventCode;
                     sa.schoolYear = schoolYear;
                     sa.period = rowPeriod;
                     studentAttendance.put(key, sa);

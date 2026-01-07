@@ -86,6 +86,8 @@ public class MelissaSisFiles {
              //CsvFiles.LoadMapCourseNameCsaCode(baseFileFolder + "/Melissa_map_courseName_csaCode.csv");
 
             
+          
+            // Added the tardies and ran against prod.
 
 
         
@@ -97,16 +99,15 @@ public class MelissaSisFiles {
 
             // workign on Melissa attendance
 
-            CsvFiles.LoadAttendanceLedgerMelissa(districtId, baseFileFolder + "/TODO/absences_current_year.csv");
+            CsvFiles.LoadAttendanceOrTardyLedgerMelissa(districtId, baseFileFolder + "/TODO/absences_current_year.csv", "A");
 
-            System.out.println("CHECK - 12378");
-
-
-            CsvFiles.LoadAttendanceLedgerMelissa(districtId, baseFileFolder + "/TODO/absences_historical.csv");
+            
+            CsvFiles.LoadAttendanceOrTardyLedgerMelissa(districtId, baseFileFolder + "/TODO/absences_historical.csv", "A");
 
 
-            System.out.println("DONE - LOAD THIS AND STOP!");
 
+            CsvFiles.LoadAttendanceOrTardyLedgerMelissa(districtId, baseFileFolder + "/TODO/tardies_current_year.csv", "T");
+            CsvFiles.LoadAttendanceOrTardyLedgerMelissa(districtId, baseFileFolder + "/TODO/tardies_historical.csv", "T");
 
 
 
