@@ -56,6 +56,7 @@ public class AppConfig {
 
                   .addServersItem(new Server().url("http://localhost:8080").description("Development"))
                   .addServersItem(new Server().url("https://test.boscok12.com").description("Test"))
+                  .addServersItem(new Server().url("https://allen.boscok12.com").description("Allen"))
                   .addSecurityItem(new SecurityRequirement()
                         .addList("oauth2"));
 

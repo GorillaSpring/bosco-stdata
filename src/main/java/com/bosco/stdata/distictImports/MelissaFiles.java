@@ -7,10 +7,13 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.bosco.stdata.controllers.TestingController;
 import com.bosco.stdata.model.*;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
@@ -26,6 +29,9 @@ public class MelissaFiles {
 
     @Autowired 
     BoscoApi boscoApi;
+
+
+    private static Logger logger = Logger.getLogger(MelissaFiles.class.getName());
 
     private static MelissaFiles i;  // instance
 
@@ -79,12 +85,17 @@ public class MelissaFiles {
             // 
             // 
 
+            int fileCount = ImportHelper.CheckForUnknownFiles(baseFileFolder, i.importRepo);
+
+            logger.log(Level.INFO, "Melissa Files : Files Found" + fileCount);
+
             
             
 
 
             // Before we start, lets make sure there are files in the baseFolder
-            String[] files = {"guardians.csv", "schools.csv", "student_enrollments.csv", "students.csv", "user_enrollments.csv", "users.csv", "educational_placement.csv"};
+            // "schools.csv", 
+            String[] files = {"guardians.csv", "student_enrollments.csv", "students.csv", "user_enrollments.csv", "users.csv", "educational_placement.csv"};
             if (!ImportHelper.CheckFilesExist(baseFileFolder, files)) {
                 throw new FileNotFoundException("One or more import files missing!");
             }

@@ -1,0 +1,59 @@
+As of Jan 8, 2025
+
+So we are currently in Prod (on test server)
+We are deployed to the allen server, but we do not have access to the files.
+
+[Thing in progress]
+
+Make it so we can check what files are there and notice any new ones.
+- Better imports of SIS data for files that should be re-loaded
+
+[Things to do:]
+
+So we may need to add sftp functionality to get allen files...
+
+
+Need to clean up the import_prod mySql.  
+- Remove unused districts (ie allen, test, etc)
+- Figure out what is sorted in prod.
+
+Clean up import_prod on the allen server
+- This should only be allen data.  
+- Sort out first.
+
+Add a API to clear the import running flag.
+
+**
+So we need to review the way sis data is updated.
+		○ It now updates student.hasNewSisData.
+		○ Verified in sis_grade.
+		○ We should clear them out.
+
+When new sis data is detected for active referrals, send the updated sis data.
+	- On startup sync active referrals
+    - This is now in the student.
+
+** 
+Get Melissa Imports set up in Prod.
+
+
+
+Only load extra data on API's for new students. (Where applicable)
+
+
+Add logging
+
+Remove debugging
+
+	
+Improve the email that goes out
+
+Better import error handling
+
+Figure out the archiving files.
+
+Confirm new SIS data on loads
+
+
+
+Need a way to push stuff to bosco and call the post_sent SPO after a failed import.

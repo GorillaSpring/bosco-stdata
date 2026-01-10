@@ -674,14 +674,10 @@ public class UpliftFiles {
                 if (!row[0].isBlank()) {
 
 
-                    // TODO: THIS IS AN ISSUE TO DEAL WITH LATER
-                    //String grade = "8"; 
-                    String grade = i.importRepo.gradeForStudentId(districtId + "." + row[0]);
-
-                    // TODO: We need to lookup the grade for the student!
+                    // We do not send grades anymore.
 
                     // String studentNumber, String issDays, String ossDays, String aepDays, String grade, String schoolYear
-                    i.importRepo.sisDiscipline(row[0], row[1], row[2], row[3], grade, row[4]);
+                    i.importRepo.sisDiscipline(row[0], row[1], row[2], row[3], "", row[4]);
                     counter1++;
                 }
             };

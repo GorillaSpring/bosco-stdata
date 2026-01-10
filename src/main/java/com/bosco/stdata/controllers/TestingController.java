@@ -64,10 +64,28 @@ public class TestingController {
 
          logger.log(Level.INFO, "This is a test log " + boscoInstance);
 
-        return "Test 1 successfull " + boscoInstance;
-
         
 
+
+        String path = "C:/test/importBase/melissa_sis";
+
+        int fileCount = ImportHelper.CheckForUnknownFiles(path, importRepo);
+
+
+
+        List<String> files = importRepo.serverFilesForStatus("NEW");
+
+        String res = "-- Files ---\n\n -- FOUND " + fileCount + "\n\n";
+
+        for (String file : files) {
+            res += "   - " + file + "\n";
+            
+        }
+
+        res += "---------------\n";
+        
+
+        return res;
 
         // undefinedMapCourseCsaCode
         

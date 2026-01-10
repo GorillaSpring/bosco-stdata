@@ -140,12 +140,16 @@ public class AllenFiles {
 
         // campuses  ** DO ABOVE and COMMENT
 
+        importGrades(districtId, baseFileFolder + "/academics_grades_current_year.csv");
+        importGrades(districtId, baseFileFolder + "/academics_grades_previous_years.csv");
+
+
 
         importAttendance(baseFileFolder + "/attendance_current_year.csv", false);
         importAttendance(baseFileFolder + "/attendance_history.csv", true);
 
 
-        System.out.println ("  **** TODO: attendance_history *****");
+        //System.out.println ("  **** TODO: attendance_history *****");
 
         //importAttendance(baseFileFolder + "attendance_history.csv");
 
@@ -169,8 +173,6 @@ public class AllenFiles {
         // staar_current_year.csv
         // staar_history.csv
 
-        importGrades(districtId, baseFileFolder + "/academics_grades_current_year.csv");
-        importGrades(districtId, baseFileFolder + "/academics_grades_previous_years.csv");
 
         // academics_grades_current_year.csv
         // academics_grades_previous_years.csv
@@ -553,7 +555,7 @@ public class AllenFiles {
 
             String formattedDate = sa.date; // ImportHelper.DateToStdFormat(sa.date);
 
-            System.out.println(studentNumber + " : " + formattedDate + " " + sa.schoolYear + " : " + sa.period);
+            //System.out.println(studentNumber + " : " + formattedDate + " " + sa.schoolYear + " : " + sa.period);
 
             i.importRepo.sisAttendanceAdd(studentNumber, sa.event, sa.schoolYear, formattedDate, sa.period);
 
@@ -577,7 +579,7 @@ public class AllenFiles {
         int counter1;
         int counter2;
 
-        System.out.println("Importing discipline_current_year File");
+        System.out.println("Importing " + filePath);
 
         data = msp.readCsvFile( filePath);
 
@@ -616,7 +618,7 @@ public class AllenFiles {
             }
         };
 
-        i.importRepo.logInfo("Imported discipline_current_year : " + counter1);
+        i.importRepo.logInfo("Imported " + filePath + " : " + counter1);
     }
     
     private static void importMap(String filePath) throws Exception {

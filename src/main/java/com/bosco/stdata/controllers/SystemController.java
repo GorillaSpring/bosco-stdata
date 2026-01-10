@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
 import com.bosco.stdata.service.EmailService;
+import com.bosco.stdata.sisDataFiles.CsvFiles;
 import com.bosco.stdata.tasks.ImportTask;
 import com.bosco.stdata.utils.ImportHelper;
 
@@ -28,6 +29,8 @@ import com.bosco.stdata.model.*;
 @RequestMapping("/import/api/system")
 @Tag(name = "Import API System (SystemController)", description = "Api for the Import System")
 public class SystemController {
+
+    
     @Autowired
     ImportRepo importRepo;
 
@@ -65,6 +68,29 @@ public class SystemController {
 
 
     
+    // @Operation(
+    //     summary = "Load course mapping",
+    //     description = "Load a course mapping file"
+        
+    //     )
+    // @GetMapping("/loadCourseMapping/{filePath}")
+    // public String loadCourseMapping(@PathVariable String filePath) {
+    //     //ImportTask importTask = new ImportTask();
+
+    //     filePath = "C:/test/importBase/celina_sis/celina_csaCodeForCourse_Jan_26-UPDATED-ML.csv";
+
+    //     try {
+    //         CsvFiles.LoadMapCourseNameCsaCode(filePath);
+    //         return "OK";
+    //     }
+    //     catch (Exception ex) {
+    //         return "Exception: " + ex.getStackTrace();
+    //     }
+
+    // }
+
+
+    
     @Operation(
         summary = "Run Import Def NOW",
         description = "Email will be sent if sendEmail is true. This will only run the importDefId"
@@ -79,6 +105,60 @@ public class SystemController {
         return result;
 
     }
+
+
+
+    @Operation(
+        summary = "Get Files for ImportDef",
+        description = "Get files on the server for the ImportDef. Will return NEW ones found."
+        
+        )
+    @GetMapping("/getFilesOnServer/{importDefId}")
+    public String getFilesOnServer(@PathVariable String importDefId) {
+        //ImportTask importTask = new ImportTask();
+
+        //ImportDefinition importDef = importRepo.getImportDefinition(importDefId);
+
+        List<ImportSetting> importSettings = importRepo.getImportSettings(importDefId);
+
+            //int districtId = importDef.getDistrictId();
+
+        try {
+            
+            String baseFileFolder = ImportHelper.ValueForSetting(importSettings, "baseFolder");
+         
+         
+            int fileCount = ImportHelper.CheckForUnknownFiles(baseFileFolder, importRepo);
+
+            // WE can get the reload for a paticular file by calling
+            String filePath = "c:\\bla\\bla.txt";
+
+            Boolean reloadFile = importRepo.serverFileReload(filePath);
+
+
+
+            List<String> files = importRepo.serverFilesForStatus("NEW");
+
+            String res = "-- Files ---\n\n -- FOUND " + fileCount + "\n\n";
+
+            for (String file : files) {
+                res += "   - " + file + "\n";
+                
+            }
+
+            res += "---------------\n";
+            
+
+            return res;
+        }
+        catch (Exception ex) {
+            return ex.getStackTrace().toString();
+        }
+
+        
+
+    }
+
 
 
 

@@ -202,7 +202,7 @@ public class TeaStaarFlatFileReader {
             .linesToSkip(1) // Skip header line if present
             .delimited()
             .delimiter("\t")
-            .names(new String[]{"studentSourceId", "studentNumber", "courseName", "courseId", "schoolYear", "term", "courseGrade"}) 
+            .names(new String[]{"studentSourceId", "studentNumber", "courseName", "term", "courseGrade", "courseId", "schoolYear"}) 
             .targetType(GradeFileCelina.class) // Specify the target object type
             .build();
     }

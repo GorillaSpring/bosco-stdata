@@ -3,10 +3,13 @@ package com.bosco.stdata.distictImports;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.bosco.stdata.config.AppConfig;
+import com.bosco.stdata.controllers.TestingController;
 import com.bosco.stdata.model.ImportDefinition;
 import com.bosco.stdata.model.ImportResult;
 import com.bosco.stdata.model.ImportSetting;
@@ -21,6 +24,8 @@ import jakarta.annotation.PostConstruct;
 @Component
 public class MelissaSisFiles {
 
+    private final CsvFiles csvFiles;
+
     private final AppConfig appConfig;
     @Autowired
     ImportRepo importRepo;
@@ -28,10 +33,14 @@ public class MelissaSisFiles {
     @Autowired 
     BoscoApi boscoApi;
 
+
+    private static Logger logger = Logger.getLogger(MelissaSisFiles.class.getName());
+
     private static MelissaSisFiles i;
 
-    MelissaSisFiles(AppConfig appConfig) {
+    MelissaSisFiles(AppConfig appConfig, CsvFiles csvFiles) {
         this.appConfig = appConfig;
+        this.csvFiles = csvFiles;
     }  // instance
 
     @PostConstruct
@@ -66,10 +75,27 @@ public class MelissaSisFiles {
 
             int importId = i.importRepo.prepImport(districtId, importDefId, isRoster,isSisData,  "Melissa Sis files " + baseFileFolder);
 
-             LocalDateTime startDateTime = LocalDateTime.now();
+            LocalDateTime startDateTime = LocalDateTime.now();
 
             result.importId = importId;
             result.districtId = districtId;
+
+
+            // SO as of Jan 8'th, we are getting 
+            //  absences_current_year.csv
+            //  grades_current_year.csv
+
+            logger.log(Level.INFO, "Melissa SIS Files");
+
+
+            CsvFiles.LoadGradesMelissa(districtId, baseFileFolder + "/grades_current_year.csv");
+            
+            CsvFiles.LoadAttendanceOrTardyLedgerMelissa(districtId, baseFileFolder + "/absences_current_year.csv", "A");
+
+
+            // We should load and see if we can get.
+            //  tardies_current_year.csv
+
 
 
           
@@ -92,112 +118,112 @@ public class MelissaSisFiles {
 
         
 
-            // System.out.println("grades_current_year");
-            CsvFiles.LoadGradesMelissa(districtId, baseFileFolder + "/grades_current_year.csv");
-            CsvFiles.LoadGradesMelissa(districtId, baseFileFolder + "/grades_historical.csv");
+        //     // System.out.println("grades_current_year");
+        //     CsvFiles.LoadGradesMelissa(districtId, baseFileFolder + "/grades_current_year.csv");
+        //     CsvFiles.LoadGradesMelissa(districtId, baseFileFolder + "/grades_historical.csv");
 
 
-            // workign on Melissa attendance
+        //     // workign on Melissa attendance
 
-            CsvFiles.LoadAttendanceOrTardyLedgerMelissa(districtId, baseFileFolder + "/TODO/absences_current_year.csv", "A");
-
-            
-            CsvFiles.LoadAttendanceOrTardyLedgerMelissa(districtId, baseFileFolder + "/TODO/absences_historical.csv", "A");
-
-
-
-            CsvFiles.LoadAttendanceOrTardyLedgerMelissa(districtId, baseFileFolder + "/TODO/tardies_current_year.csv", "T");
-            CsvFiles.LoadAttendanceOrTardyLedgerMelissa(districtId, baseFileFolder + "/TODO/tardies_historical.csv", "T");
-
-
-
-
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/NEW/BOY fall 2025 data.csv", false);
-
-
-            CsvFiles.LoadMClassDibels8(districtId, baseFileFolder + "/NEW/dibels8_BM_2025-2026_BOY_grades-KG-01-02-03-04-05-06_2025-10-10_08-18-57.csv", false);
-
-
+        //     CsvFiles.LoadAttendanceOrTardyLedgerMelissa(districtId, baseFileFolder + "/TODO/absences_current_year.csv", "A");
 
             
+        //     CsvFiles.LoadAttendanceOrTardyLedgerMelissa(districtId, baseFileFolder + "/TODO/absences_historical.csv", "A");
 
 
-            // // 2022
 
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "/2022/SF_0523_3-8_043908_MELISSA ISD_V01.txt");
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "/2022/SF_0423_3-8ALT_043908_MELISSA ISD_V01.txt");
-            TeaFiles.LoadTelpas(districtId, baseFileFolder + "/2022/SP_0323_TELPAS_043908_MELISSA ISD_V01.txt");
-            TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "/2022/SF_0323_TELPASALT_043908_MELISSA ISD_V01.txt");
+        //     CsvFiles.LoadAttendanceOrTardyLedgerMelissa(districtId, baseFileFolder + "/TODO/tardies_current_year.csv", "T");
+        //     CsvFiles.LoadAttendanceOrTardyLedgerMelissa(districtId, baseFileFolder + "/TODO/tardies_historical.csv", "T");
 
-            
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2022/SF_1323_EOC_043908_MELISSA ISD_V01.txt");
 
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2022/SF_1523_EOC_043908_MELISSA ISD_V01_August5 file.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2022/SF_1523_EOCALT_043908_MELISSA ISD_V01.txt");
 
-            // //  ** Loaded 0 students!
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2022/SP_1623_EOC_043908_MELISSA ISD_V01.txt");
+
+        //     CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/NEW/BOY fall 2025 data.csv", false);
+
+
+        //     CsvFiles.LoadMClassDibels8(districtId, baseFileFolder + "/NEW/dibels8_BM_2025-2026_BOY_grades-KG-01-02-03-04-05-06_2025-10-10_08-18-57.csv", false);
 
 
 
             
 
 
+        //     // // 2022
+
+        //     TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "/2022/SF_0523_3-8_043908_MELISSA ISD_V01.txt");
+        //     TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "/2022/SF_0423_3-8ALT_043908_MELISSA ISD_V01.txt");
+        //     TeaFiles.LoadTelpas(districtId, baseFileFolder + "/2022/SP_0323_TELPAS_043908_MELISSA ISD_V01.txt");
+        //     TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "/2022/SF_0323_TELPASALT_043908_MELISSA ISD_V01.txt");
+
+            
+        //     TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2022/SF_1323_EOC_043908_MELISSA ISD_V01.txt");
+
+        //     TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2022/SF_1523_EOC_043908_MELISSA ISD_V01_August5 file.txt");
+        //     TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2022/SF_1523_EOCALT_043908_MELISSA ISD_V01.txt");
+
+        //     // //  ** Loaded 0 students!
+        //     TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2022/SP_1623_EOC_043908_MELISSA ISD_V01.txt");
 
 
-            // 2023
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "/2023/SF_0424_3-8ALT_043908_MELISSA ISD_V01.txt");
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "/2023/SF_0524_3-8_043908_MELISSA ISD_V01.txt");
-
-
-
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2023/SF_1324_EOC_043908_MELISSA ISD_V02.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2023/SF_1524_EOC_043908_MELISSA ISD_V01.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2023/SF_1524_EOCALT_043908_MELISSA ISD_V01.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2023/SF_1624_EOC_043908_MELISSA ISD_V01.txt");
-
-            TeaFiles.LoadTelpas(districtId, baseFileFolder + "/2023/SF_0324_TELPAS_043908_MELISSA ISD_V01.txt");
-
-            TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "/2023/SF_0324_TELPASALT_043908_MELISSA ISD_V01.txt");
-
-
-            // 2024
-            TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "/2024/SF_0525_3-8_043908_MELISSA ISD_V03.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2024/SF_1525_EOC_043908_MELISSA ISD_V02.txt");
-            TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2024/SP_1625_EOC_043908_MELISSA ISD_V01.txt");
-
-
-            // This mClass files.
-            // 2022_2023_2024_2025 mClass
-            CsvFiles.LoadMClassDibels8(districtId, baseFileFolder + "/2022_2023_2024_2025 mClass/dibels8_BM_2021-2022_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-56-59.csv", false);
-            CsvFiles.LoadMClassDibels8(districtId, baseFileFolder + "/2022_2023_2024_2025 mClass/dibels8_BM_2022-2023_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-57-46.csv", false);
-            CsvFiles.LoadMClassDibels8(districtId, baseFileFolder + "/2022_2023_2024_2025 mClass/dibels8_BM_2023-2024_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-58-45.csv", false);
-            CsvFiles.LoadMClassDibels8(districtId, baseFileFolder + "/2022_2023_2024_2025 mClass/dibels8_BM_2024-2025_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-59-22.csv", false);
 
             
 
-            // 21-22 MAP
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/21-22 MAP/Spring_2022_MAP_ComboStudentAssessment.csv", false);
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/21-22 MAP/Winter_21_22_ComboStudentAssessment (1).csv", false);
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/21-22 MAP/Winter_21_22_ComboStudentAssessment.csv", false);
 
 
 
-            // 22-23 MAP
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/22-23 MAP/MAP_Fall_22_23ComboStudentAssessment.csv", false);
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/22-23 MAP/MOY_MAP_22_23_ComboStudentAssessment.csv", false);
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/22-23 MAP/Spring_22_23_ComboStudentAssessment.csv", false);
+        //     // 2023
+        //     TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "/2023/SF_0424_3-8ALT_043908_MELISSA ISD_V01.txt");
+        //     TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "/2023/SF_0524_3-8_043908_MELISSA ISD_V01.txt");
 
 
-            // 23-24 MAP
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/23-24 MAP/2024_Winter_Map_ComboStudentAssessment (1).csv", false);
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/23-24 MAP/Fall23_24MAPComboStudentAssessment.csv", false);
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/23-24 MAP/Spring2024_MAP_ComboStudentAssessment.csv", false);
 
-        // 24-25 Map
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/24-25 MAP/Fall 2024 district scores.csv", false);
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/24-25 MAP/Spring 25 district scores.csv", false);
-            CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/24-25 MAP/Winter 25 district scores.csv", false);
+        //     TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2023/SF_1324_EOC_043908_MELISSA ISD_V02.txt");
+        //     TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2023/SF_1524_EOC_043908_MELISSA ISD_V01.txt");
+        //     TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2023/SF_1524_EOCALT_043908_MELISSA ISD_V01.txt");
+        //     TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2023/SF_1624_EOC_043908_MELISSA ISD_V01.txt");
+
+        //     TeaFiles.LoadTelpas(districtId, baseFileFolder + "/2023/SF_0324_TELPAS_043908_MELISSA ISD_V01.txt");
+
+        //     TeaFiles.LoadTelpasAlt(districtId, baseFileFolder + "/2023/SF_0324_TELPASALT_043908_MELISSA ISD_V01.txt");
+
+
+        //     // 2024
+        //     TeaFiles.LoadStaarAndStaarAlt(districtId, baseFileFolder + "/2024/SF_0525_3-8_043908_MELISSA ISD_V03.txt");
+        //     TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2024/SF_1525_EOC_043908_MELISSA ISD_V02.txt");
+        //     TeaFiles.LoadStarEOCAndEOCAlt(districtId, baseFileFolder + "/2024/SP_1625_EOC_043908_MELISSA ISD_V01.txt");
+
+
+        //     // This mClass files.
+        //     // 2022_2023_2024_2025 mClass
+        //     CsvFiles.LoadMClassDibels8(districtId, baseFileFolder + "/2022_2023_2024_2025 mClass/dibels8_BM_2021-2022_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-56-59.csv", false);
+        //     CsvFiles.LoadMClassDibels8(districtId, baseFileFolder + "/2022_2023_2024_2025 mClass/dibels8_BM_2022-2023_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-57-46.csv", false);
+        //     CsvFiles.LoadMClassDibels8(districtId, baseFileFolder + "/2022_2023_2024_2025 mClass/dibels8_BM_2023-2024_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-58-45.csv", false);
+        //     CsvFiles.LoadMClassDibels8(districtId, baseFileFolder + "/2022_2023_2024_2025 mClass/dibels8_BM_2024-2025_BOY_MOY_EOY_grades-KG-01-02-03-04-05-06_2025-09-08_19-59-22.csv", false);
+
+            
+
+        //     // 21-22 MAP
+        //     CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/21-22 MAP/Spring_2022_MAP_ComboStudentAssessment.csv", false);
+        //     CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/21-22 MAP/Winter_21_22_ComboStudentAssessment (1).csv", false);
+        //     CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/21-22 MAP/Winter_21_22_ComboStudentAssessment.csv", false);
+
+
+
+        //     // 22-23 MAP
+        //     CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/22-23 MAP/MAP_Fall_22_23ComboStudentAssessment.csv", false);
+        //     CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/22-23 MAP/MOY_MAP_22_23_ComboStudentAssessment.csv", false);
+        //     CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/22-23 MAP/Spring_22_23_ComboStudentAssessment.csv", false);
+
+
+        //     // 23-24 MAP
+        //     CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/23-24 MAP/2024_Winter_Map_ComboStudentAssessment (1).csv", false);
+        //     CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/23-24 MAP/Fall23_24MAPComboStudentAssessment.csv", false);
+        //     CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/23-24 MAP/Spring2024_MAP_ComboStudentAssessment.csv", false);
+
+        // // 24-25 Map
+        //     CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/24-25 MAP/Fall 2024 district scores.csv", false);
+        //     CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/24-25 MAP/Spring 25 district scores.csv", false);
+        //     CsvFiles.LoadMapComboStudentAssessment(districtId, baseFileFolder + "/24-25 MAP/Winter 25 district scores.csv", false);
 
 
 

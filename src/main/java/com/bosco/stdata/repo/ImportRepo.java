@@ -23,6 +23,8 @@ import com.bosco.stdata.teaModel.Star2024;
 @Repository
 public class ImportRepo {
 
+    
+
     private JdbcTemplate template;
 
     private int districtId;   // This is the district we are working on.  Will be used for repo saves
@@ -1141,6 +1143,64 @@ public class ImportRepo {
         return (foundCount > 0);
 
     }
+
+    public Boolean serverFileReload (String filePath) {
+
+        
+        String sql = "select reload from files where filePath = '" + filePath +"';";
+
+        //System.out.println(sql);
+
+        try {
+            int reload = template.queryForObject(sql, Integer.class);
+
+            return (reload > 0);
+        }
+        catch (Exception ex) {
+            System.out.println("Exception checking file reload : " + filePath);
+            return false;
+        }
+    }
+
+    public void serverFileAdd (String filePath) {
+        // simply add it to files.  
+        // update the last Seen if exits
+
+          Object[] args = {
+            filePath
+        };
+
+
+        
+        String sql = """
+            insert into
+                files (filePath)
+            values (?)
+            on duplicate key update
+                lastSeen = CURRENT_TIMESTAMP
+                """;
+
+        int rows = template.update(sql, args);
+
+    }
+
+    public List<String> serverFilesForStatus (String status) {
+          Object[] args = {
+            
+            status
+        };
+
+
+        String sql = """
+               select filePath from files where status =  ?;
+                """; 
+
+
+        return template.queryForList(sql, String.class, args);
+    }
+
+
+    
 
       public void logFile(String fileName, String type, String schoolYear, Boolean reload, String note ) {
         //System.out.println("Added");

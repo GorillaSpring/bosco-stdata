@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.tomcat.util.digester.SystemPropertySource;
 import org.springframework.batch.item.ExecutionContext;
@@ -20,6 +22,7 @@ import com.bosco.stdata.config.AppConfig;
 import com.bosco.stdata.controllers.AuthedApi;
 import com.bosco.stdata.distictImports.BurlesonFiles;
 import com.bosco.stdata.distictImports.BurlesonSisFiles;
+import com.bosco.stdata.distictImports.MelissaSisFiles;
 import com.bosco.stdata.model.SisAttendance;
 import com.bosco.stdata.repo.ImportRepo;
 import com.bosco.stdata.service.BoscoApi;
@@ -61,6 +64,8 @@ public class CsvFiles {
    
     @Autowired
     ImportRepo importRepo;
+
+    private static Logger logger = Logger.getLogger(CsvFiles.class.getName());
 
     
     private static CsvFiles i;
@@ -677,6 +682,8 @@ public class CsvFiles {
         String fileName = file.getName();
         System.out.println("Grades - Filename: " + fileName); // Output: Filename: myFile.txt
 
+        logger.log(Level.INFO, "Grades - Filename: " + fileName);
+
         String schoolYear = "N/A";
 
 
@@ -1095,6 +1102,9 @@ public class CsvFiles {
             //String termName = cc.getTermName();
 
 
+        String invalidScores = "";
+
+
         while (cc != null) {
 
             total++;
@@ -1113,9 +1123,20 @@ public class CsvFiles {
 
              //i.importRepo.setMapCourseCsaCode(districtId, cc.getCourseName(), "");
 
+            //  System.out.println("Student: " + cc.studentNumber);
+            //  System.out.println("course: " + cc.courseName);
+            //  System.out.println("courseid: " + cc.courseId);
+            //  System.out.println("term: " + cc.term);
+            //  System.out.println("grade: " + cc.courseGrade);
+            //  System.out.println("year: " + cc.schoolYear);
+
              
             
-            String scoreString = cc.getCourseGrade().replace("*", "");
+            // String scoreString = cc.getCourseGrade().replace("*", "");
+
+            // scoreString = scoreString.replace(".", "");
+
+            String scoreString = cc.courseGrade.replaceAll("[*&.#]", "");
             
 
 
@@ -1147,6 +1168,7 @@ public class CsvFiles {
                     }
                     catch (Exception ex) {
                         scoreValid = false;
+                        //System.out.println("Invalid Score: " + cc.courseGrade);
                     }
 
                     if (scoreValid) {
@@ -2048,6 +2070,8 @@ public class CsvFiles {
         int rowsLoaded = 0;
 
 
+        logger.log(Level.INFO, "Attendance Or Tardy - Filename: " + filePath);
+
         // "StudentSourceID","StudentNumber","DateOfAttendance","AttendanceCode","SchoolYear"
         System.out.println("----------------- START -------------");
         System.out.println(filePath);
@@ -2120,7 +2144,7 @@ public class CsvFiles {
 
                 String formattedDate = ImportHelper.DateToStdFormat(sa.date);
 
-                System.out.println(studentNumber + " : " + formattedDate + " " + sa.schoolYear + " : " + sa.period);
+                //System.out.println(studentNumber + " : " + formattedDate + " " + sa.schoolYear + " : " + sa.period);
 
                 i.importRepo.sisAttendanceAdd(studentNumber, sa.event, sa.schoolYear, formattedDate, sa.period);
 

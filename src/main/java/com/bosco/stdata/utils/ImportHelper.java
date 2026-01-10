@@ -15,11 +15,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import org.apache.commons.text.WordUtils;
 
 import com.bosco.stdata.model.ImportSetting;
+import com.bosco.stdata.repo.ImportRepo;
 
 import java.text.ParseException;
 
@@ -236,6 +238,73 @@ public  class ImportHelper {
         // getFileName() can return null or an empty path for edge cases, 
         // convert to string for consistent result.
         return (fileName != null) ? fileName.toString() : ""; 
+    }
+
+    public static int CheckForUnknownFiles (String sourcePath, ImportRepo importRepo) {
+        //String dateFolder = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss"));
+
+        Boolean foundUnknownFile = false;
+
+        Path sourceDirectory = Paths.get (sourcePath); 
+        //Path targetDirectory = Paths.get(targetPath + dateFolder); 
+
+        // if (!Files.exists(targetDirectory)) {
+        //     Files.createDirectories(targetDirectory);
+        // }
+
+        AtomicInteger fileCount = new AtomicInteger(0);
+        
+        try {
+            Files.walk(sourceDirectory)
+                 .filter(Files::isRegularFile)
+                 .forEach(path -> {
+                  //   try {
+
+                    importRepo.serverFileAdd(path.toString().replace("\\", "/"));
+
+                    fileCount.incrementAndGet();
+                  
+
+                    System.out.println("Reg File: " + path);
+                        // Files.delete(path);
+                         //System.out.println("Deleted: " + path);
+                    //  } catch (IOException e) {
+                    //      e.printStackTrace();
+                    //  }
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // now lets get all the ones that are new.
+
+      
+
+        return fileCount.get();
+
+
+        //  try (Stream<Path> files = Files.list(sourceDirectory)) {
+            
+        //     files.forEach(file ->  {
+
+                
+        //         if (Files.isRegularFile(file)) {
+        //             Path targetFile = targetDirectory.resolve(file.getFileName());
+        //             try {
+        //                 Files.move(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
+        //             }
+        //             catch (IOException e) {
+        //                 System.out.println(e.getMessage());
+        //                 //throw e;
+                        
+        //             }
+        //         }
+        //     });
+        // }
+        // catch (IOException e) {
+        //     throw e;
+        // }
+
     }
 
     public static void MoveFiles (String sourcePath, String targetPath) throws Exception {
